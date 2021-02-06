@@ -1,0 +1,27 @@
+{
+  "name": "grotto-contracts",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start-node": "npx hardhat node",
+    "deploy-localhost": "npx hardhat run --network localhost scripts/deploy.js",
+    "console-localhost": "npx hardhat console --network localhost",
+    "index": "npx hardhat run --network localhost scripts/index.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@nomiclabs/hardhat-ethers": "^2.0.1",
+    "@openzeppelin/contracts": "^3.4.0",
+    "ethers": "^5.0.29",
+    "hardhat": "^2.0.8",
+    "npx": "^10.2.2",
+    "truffle": "^5.1.65"
+  },
+  "dependencies": {
+    "@chainlink/contracts": "^0.1.6"
+  }
+}

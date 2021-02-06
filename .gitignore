@@ -79,3 +79,6 @@ coverage
 !.vscode/tasks.json
 !.vscode/launch.json
 !.vscode/extensions.json%
+artifacts
+grotto-contracts/.vscode/*
+cache
