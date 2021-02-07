@@ -35,6 +35,8 @@ contract Grotto is ERC20 ('Grotto', 'GROTTO') {
     
     // Array of pool IDs
     bytes32[] internal _pool_ids;
+    bytes32[] internal _completed_pool_ids;
+    mapping(bytes32 => bool) _is_main_pool;
 
     // Map of pool_id to their id in the _pool_ids array
     mapping (bytes32 => uint256) internal _pool_id_map;
@@ -52,7 +54,7 @@ contract Grotto is ERC20 ('Grotto', 'GROTTO') {
     // percentage of winning that goes to house
     uint256 _house_cut = 10;
 
-    mapping(bytes32 => address payable) internal _winners;
+    mapping(bytes32 => address payable) internal _winners;    
     
     
     constructor() {
@@ -61,6 +63,7 @@ contract Grotto is ERC20 ('Grotto', 'GROTTO') {
         _pool_prices[_main_pool_id] = _main_pool_price;
         _pool_sizes[_main_pool_id] = _main_pool_size;
         _pool_id_map[_main_pool_id] = _main_pool_index;
+        _is_main_pool[_main_pool_id] = true;
         house = msg.sender;
     }
     
@@ -87,7 +90,39 @@ contract Grotto is ERC20 ('Grotto', 'GROTTO') {
         }            
     }
 
-    function enterPool() public payable {
+    function startNewPool(string calldata pool_name_, uint256 pool_size_) public payable {        
+        uint256 _value = msg.value;  
+        address payable _pooler = msg.sender; 
+        bytes32 _pool_id = keccak256(abi.encodePacked(pool_name_, _pooler));        
+
+        require(_pool_id_map[_pool_id] == 0, 'Pool name already exists');
+        
+        uint256 _latest_usd_price = getLatestPrice();
+        uint256 _usdt_value = _latest_usd_price.mul(_value); 
+
+        uint256 _last_index = _pool_ids.length;
+        _pool_ids.push(_pool_id);
+        _pool_prices[_pool_id] = _usdt_value;
+        _pool_sizes[_pool_id] = pool_size_ == 0 ? _main_pool_size : pool_size_;
+        _pool_id_map[_main_pool_id] = _last_index;
+        _pool_creators[_pool_id] = _pooler;
+        _is_main_pool[_pool_id] = false;
+    }
+
+    function getPoolDetails(string calldata pool_name_, address _creator) public view returns (bytes32, address, uint256, uint256, address, bool) {
+        bytes32 _pool_id = keccak256(abi.encodePacked(pool_name_, _creator));        
+        return (_pool_id, _creator, _pool_prices[_pool_id], _pool_sizes[_pool_id], _pool_creators[_pool_id], _is_main_pool[_pool_id]);
+    }
+
+    function getPoolDetailsById(bytes32 _pool_id) public view returns (bytes32, address, uint256, uint256, address, bool) {
+        return (_pool_id, _pool_creators[_pool_id], _pool_prices[_pool_id], _pool_sizes[_pool_id], _pool_creators[_pool_id], _is_main_pool[_pool_id]);
+    }
+
+    function getAllPools() public view returns (bytes32[] memory) {
+        return _pool_ids;
+    }
+
+    function enterMainPool() public payable {
         uint256 _value = msg.value;        
         address payable _pooler = msg.sender;
         // calculate dollar value        
@@ -114,6 +149,7 @@ contract Grotto is ERC20 ('Grotto', 'GROTTO') {
             _pool_prices[_main_pool_id] = _main_pool_price;
             _pool_sizes[_main_pool_id] = _main_pool_size;
             _pool_id_map[_main_pool_id] = _main_pool_index;
+            _is_main_pool[_main_pool_id] = true;
 
             _pay_winner(_last_pool_id, _last_pool_size);
         }    
