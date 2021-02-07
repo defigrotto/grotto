@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "npx hardhat test",
     "start-node": "npx hardhat node",
     "deploy-localhost": "npx hardhat run --network localhost scripts/deploy.js",
     "console-localhost": "npx hardhat console --network localhost",
@@ -16,6 +16,8 @@
   "devDependencies": {
     "@nomiclabs/hardhat-ethers": "^2.0.1",
     "@openzeppelin/contracts": "^3.4.0",
+    "@openzeppelin/test-helpers": "^0.5.10",
+    "chai": "^4.3.0",
     "ethers": "^5.0.29",
     "hardhat": "^2.0.8",
     "npx": "^10.2.2",
