@@ -1,0 +1,14 @@
+<header>
+  <div class="navbar navbar-dark bg-dark box-shadow">
+    <div class="container d-flex justify-content-between">
+      <a href="#" class="navbar-brand d-flex align-items-center">
+        <button class="enableEthereumButton" (click)="connectMetamask()">Connect Metamask</button>
+      </a>
+      <button (click)="connectMetamask()" *ngIf="account !== ''" class="button" type="button" data-toggle="collapse" data-target="#navbarHeader"
+        aria-controls="navbarHeader" aria-expanded="false" aria-label="Toggle navigation">
+        {{account}}
+        &nbsp;<i class="fas fa-sync" aria-hidden="true"></i>
+      </button>
+    </div>
+  </div>
+</header>
