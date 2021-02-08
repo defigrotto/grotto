@@ -100,11 +100,11 @@ describe('Grotto', function () {
     console.log(allPools);
     assert.equal(allPools.length, 6);
     let pd = await this.grotto.getPoolDetails(allPools[0]);
-    assert.isTrue(pd[5]);
+    assert.isTrue(pd[2]);
     pd = await this.grotto.getPoolDetails(allPools[1]);
-    assert.isTrue(pd[5]);
+    assert.isTrue(pd[2]);
     pd = await this.grotto.getPoolDetails(allPools[2]);
-    assert.isTrue(pd[5]);    
+    assert.isTrue(pd[2]);    
   }).timeout(TIMEOUT);
 
   it('should enter user defined pool', async function () {

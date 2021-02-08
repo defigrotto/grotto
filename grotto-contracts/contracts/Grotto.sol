@@ -1,10 +1,22 @@
 /// SPDX-License-Identifier: MIT-0
 pragma solidity >=0.7.3 <0.8.0;
+pragma experimental ABIEncoderV2;
+
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@chainlink/contracts/src/v0.6/interfaces/AggregatorV3Interface.sol";
 import "@openzeppelin/contracts/math/SafeMath.sol";
 import "./GovernanceInterface.sol";
 import "./Governance.sol";
+
+struct Pool {
+    address winner;
+    uint256 currentPoolSize;
+    bool isInMainPool;
+    uint256 poolSize;
+    uint256 poolPrice;
+    address poolCreator;
+    bool isPoolConcluded;
+}
 
 contract Grotto is ERC20 ('Grotto', 'GROTTO') {
     using SafeMath for uint256;
@@ -54,6 +66,7 @@ contract Grotto is ERC20 ('Grotto', 'GROTTO') {
     address private governor = 0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0;
     
     constructor() {
+        //gov = GovernanceInterface(0x728DF34e0D66f26266d62498174e97a2B390a9De);
         gov = new Governance();
         priceFeed = AggregatorV3Interface(KOVAN_ETH_USD_PF);
         poolIds.push(mainPoolId);
@@ -146,17 +159,26 @@ contract Grotto is ERC20 ('Grotto', 'GROTTO') {
         winner (if any),
         isConcluded
      */
-    function getPoolDetails(bytes32 poolId) public view returns (bytes32, address, uint256, uint256, bool, uint256, address, bool) {        
-        return (
-            poolId, 
-            poolCreators[poolId], 
-            poolPrices[poolId], 
-            poolSizes[poolId], 
-            isMainPool[poolId], 
-            poolers[poolId].length,
-            winners[poolId],
-            isConcluded[poolId]
-        );
+    function getPoolDetails(bytes32 poolId) public view returns (Pool memory) {        
+        address winner = winners[poolId];
+        uint256 currentPoolSize = poolers[poolId].length;
+        bool isInMainPool = isMainPool[poolId];
+        uint256 poolSize = poolSizes[poolId];
+        uint256 poolPrice = poolPrices[poolId];
+        address poolCreator = poolCreators[poolId];
+        bool isPoolConcluded = isConcluded[poolId];
+
+        Pool memory pool = Pool({
+            winner: winner,
+            currentPoolSize: currentPoolSize,
+            isInMainPool: isInMainPool,
+            poolSize: poolSize,
+            poolPrice: poolPrice,
+            poolCreator: poolCreator,
+            isPoolConcluded: isPoolConcluded
+        });
+
+        return pool;
     }
 
     function getAllPools() public view returns (bytes32[] memory) {
