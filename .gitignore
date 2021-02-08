@@ -84,3 +84,4 @@ grotto-contracts/.vscode/*
 cache
 build
 env*
+.env
