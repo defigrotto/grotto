@@ -1,6 +1,12 @@
 // scripts/deploy.js
 async function main() {
-    // We get the contract to deploy
+    const [deployer] = await ethers.getSigners();
+    console.log(
+        "Deploying contracts with the account:",
+        deployer        
+    );    
+    console.log("Account balance:", (await deployer.getBalance()).toString());
+
     const Grotto = await ethers.getContractFactory("Grotto");
     console.log("Deploying Grotto...");
     const grotto = await Grotto.deploy();

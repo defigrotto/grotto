@@ -9,10 +9,10 @@ const address0 = "0x0000000000000000000000000000000000000000";
 describe('Grotto', function () {
   before(async function () {
     this.timeout(TIMEOUT);
-    this.accounts = await ethers.provider.listAccounts();
-    this.signers = await ethers.getSigners();
     this.Grotto = await ethers.getContractFactory('Grotto');
     this.grotto = await this.Grotto.deploy();
+    this.accounts = await ethers.provider.listAccounts();
+    this.signers = await ethers.getSigners();    
 
     await this.grotto.deployed();
     console.log(`Grotto: ${this.grotto.address}`);
@@ -35,7 +35,6 @@ describe('Grotto', function () {
       const overrides = {
         value: ethers.utils.parseEther(toSend + "")
       };
-      console.log(`Entering Pool ${i}: ${this.accounts[i]} with ${ethers.utils.parseEther(toSend + "")}`);
 
       sum += toSend;
       await gi.enterMainPool(overrides);
@@ -96,43 +95,39 @@ describe('Grotto', function () {
     await gi.startNewPool(poolName, 5, overrides);
   }).timeout(TIMEOUT);  
 
-  it('should get pool details', async function () {
-    const pool1Name = "Segun's Pool";
-    const pool2Name = "Segun's Pool - 2";
-    const pool3Name = "The Martians";
-
-    const pool1Creator = this.accounts[5];
-    const pool2Creator = this.accounts[6];
-    const pool3Creator = this.accounts[7];
-
-    const poolDetails1 = await this.grotto.getPoolDetails(pool1Name, pool1Creator);
-    validatePoolDetails(poolDetails1, pool1Creator, 0.2, 3);
-
-    const poolDetails2 = await this.grotto.getPoolDetails(pool2Name, pool2Creator);
-    validatePoolDetails(poolDetails2, pool2Creator, 0.25, 4);    
-
-    const poolDetails3 = await this.grotto.getPoolDetails(pool3Name, pool3Creator);
-    validatePoolDetails(poolDetails3, pool3Creator, 0.125, 5);    
-  }).timeout(TIMEOUT);
-
   it('should get all pools', async function () {
     const allPools = await this.grotto.getAllPools();    
+    console.log(allPools);
     assert.equal(allPools.length, 6);
-    let pd = await this.grotto.getPoolDetailsById(allPools[0]);
+    let pd = await this.grotto.getPoolDetails(allPools[0]);
     assert.isTrue(pd[5]);
-    pd = await this.grotto.getPoolDetailsById(allPools[1]);
+    pd = await this.grotto.getPoolDetails(allPools[1]);
     assert.isTrue(pd[5]);
-    pd = await this.grotto.getPoolDetailsById(allPools[2]);
+    pd = await this.grotto.getPoolDetails(allPools[2]);
     assert.isTrue(pd[5]);    
   }).timeout(TIMEOUT);
-});
 
-function validatePoolDetails(poolDetails, account, price, size) {
-  console.log(poolDetails);
-  assert.equal(poolDetails[3].toNumber(), size);
-  assert.equal(poolDetails[1], poolDetails[4]);
-  assert.equal(poolDetails[1], account);  
-  assert.isNotTrue(poolDetails[5])
-  // Note: This test will fail in production unless price of ether is $500
-  // assert.equal(ethers.util.formatEther(poolDetails[2]), (price * 500));  
-}
+  it('should enter user defined pool', async function () {
+    let sum = 0;
+    const allPools = await this.grotto.getAllPools();
+    for (let i = 0; i < 5; i++) {      
+      const gi = await this.grotto.connect(this.signers[i]);
+      const toSend = 0.125 + Math.random();
+      const overrides = {
+        value: ethers.utils.parseEther(toSend + "")
+      };
+  
+      sum += toSend;
+      await gi.enterPool(allPools[5], overrides);
+      console.log(`Total Stacked: ${sum}`);
+    }    
+  }).timeout(TIMEOUT);
+  
+  it('should select winner', async function () {
+    const allPools = await this.grotto.getAllPools();
+    const address1 = await this.grotto.getWinner(allPools[5]);
+    console.log(address1);
+    assert.notEqual(address1, address0);    
+    console.log(await ethers.provider.getBalance(address1));
+  }).timeout(TIMEOUT);  
+});

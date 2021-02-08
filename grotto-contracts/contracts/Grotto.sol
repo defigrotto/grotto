@@ -3,164 +3,205 @@ pragma solidity >=0.7.3 <0.8.0;
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@chainlink/contracts/src/v0.6/interfaces/AggregatorV3Interface.sol";
 import "@openzeppelin/contracts/math/SafeMath.sol";
+import "./GovernanceInterface.sol";
+import "./Governance.sol";
 
 contract Grotto is ERC20 ('Grotto', 'GROTTO') {
     using SafeMath for uint256;
-    //event DEBUG(string, bytes32);
-    //event DEBUG(string, address);
-    event DEBUG(string, uint256);
 
     AggregatorV3Interface internal priceFeed;
-    address constant internal MAINNET_ETH_USD_PF = 0x5f4eC3Df9cbd43714FE2740f5E3616155c5b8419;
-    address constant internal KOVAN_ETH_USD_PF = 0x9326BFA02ADD2366b30bacB125260Af641031331;
-    address constant internal BSC_ETH_USD_PF = 0x9ef1B8c0E4F7dc8bF5719Ea496883DC6401d5b2e;
-    uint256 constant internal TRANSFER_GAS = 2300;
-    
+    // addresses for chainlink price fetcher    
+    address constant public MAINNET_ETH_USD_PF = 0x5f4eC3Df9cbd43714FE2740f5E3616155c5b8419;
+    address constant public KOVAN_ETH_USD_PF = 0x9326BFA02ADD2366b30bacB125260Af641031331;
+    address constant public BSC_ETH_USD_PF = 0x9ef1B8c0E4F7dc8bF5719Ea496883DC6401d5b2e;
+
+    GovernanceInterface gov;
+
     // Amount that must be sent to the pool
-    mapping (bytes32 => uint256) internal _pool_prices;
+    mapping (bytes32 => uint256) internal poolPrices;
     
     // Max Size of Pool
-    mapping (bytes32 => uint256) internal _pool_sizes;
-
-    // Pool ETH Price in USD to determine a static number of ETH that must be sent
+    mapping (bytes32 => uint256) internal poolSizes;
     
-    uint256 internal _main_pool_index = 1;
+    uint256 internal mainPoolIndex = 1;
     
     // Pool ID, increments after every time the pool is filled
-    bytes32 internal _main_pool_id = keccak256(abi.encodePacked(_main_pool_index));
-    uint256 _one_ether = 1000000000000000000;
-    // $100
-    uint256 _main_pool_price = 100;
-    uint256 _main_pool_size = 10;
+    bytes32 internal mainPoolId = keccak256(abi.encodePacked(mainPoolIndex));
+    // uint256 oneEther = 1000000000000000000;
     
     // Array of pool IDs
-    bytes32[] internal _pool_ids;
-    bytes32[] internal _completed_pool_ids;
-    mapping(bytes32 => bool) _is_main_pool;
+    bytes32[] internal poolIds;
+    
+    mapping(bytes32 => bool) isMainPool;
+    mapping(bytes32 => bool) isConcluded;
 
-    // Map of pool_id to their id in the _pool_ids array
-    mapping (bytes32 => uint256) internal _pool_id_map;
+    // Map of pool_id to their id in the poolIds array
+    mapping (bytes32 => uint256) internal poolIdMap;
 
     // Map of pool ids to their creators
-    mapping (bytes32 => address) internal _pool_creators;
+    mapping (bytes32 => address payable) internal poolCreators;
     
     // poolers in a particular pool identified by bytes32
-    mapping (bytes32 => address payable[]) internal _poolers;
+    mapping (bytes32 => address payable[]) internal poolers;
     
     // poolers stakes in a particular pool identified by bytes32
-    mapping (bytes32 => mapping (address => uint256)) internal _poolers_stakes;
+    mapping (bytes32 => mapping (address => uint256)) internal poolersStakes;
     
     address payable house;
-    // percentage of winning that goes to house
-    uint256 _house_cut = 10;
 
-    mapping(bytes32 => address payable) internal _winners;    
+    mapping(bytes32 => address payable) internal winners;    
     
+    address private governor = 0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0;
     
     constructor() {
+        gov = new Governance();
         priceFeed = AggregatorV3Interface(KOVAN_ETH_USD_PF);
-        _pool_ids.push(_main_pool_id);
-        _pool_prices[_main_pool_id] = _main_pool_price;
-        _pool_sizes[_main_pool_id] = _main_pool_size;
-        _pool_id_map[_main_pool_id] = _main_pool_index;
-        _is_main_pool[_main_pool_id] = true;
+        poolIds.push(mainPoolId);
+        poolPrices[mainPoolId] = gov.getMainPoolPrice();
+        poolSizes[mainPoolId] = gov.getMainPoolSize();
+        poolIdMap[mainPoolId] = mainPoolIndex;
+        isMainPool[mainPoolId] = true;
         house = msg.sender;
     }
     
-    function enterPool(string calldata pool_name_, address _creator) public payable {
-        uint256 _value = msg.value;        
-        address payable _pooler = msg.sender;
-        bytes32 _pool_id = keccak256(abi.encodePacked(pool_name_, _creator));        
-        // calculate dollar value        
-        uint256 _latest_usd_price = getLatestPrice();
-        uint256 _usdt_value = _latest_usd_price.mul(_value);    
+    function updateGovernor(address newGovernor) public {
+        require(msg.sender == house, 'Only a house can do that');
+        governor = newGovernor;
+        gov = GovernanceInterface(governor);
+    }
 
-        uint256 _pool_price_in_ether = _pool_prices[_pool_id].mul(_one_ether).div(_latest_usd_price);
-        uint256 _pool_price_dollar_value = _pool_price_in_ether.mul(_latest_usd_price);
-        if(_usdt_value < _pool_price_dollar_value) {
+    function enterPool(bytes32 poolId) public payable {
+        uint256 value = msg.value;        
+        address payable pooler = msg.sender;
+        _enter_pool(poolId, value, pooler);   
+    }
+
+    // function enterPool(string calldata poolName, address creator) public payable {
+    //     uint256 value = msg.value;        
+    //     address payable pooler = msg.sender;
+    //     bytes32 poolId = keccak256(abi.encodePacked(poolName, creator));     
+
+    //     _enter_pool(poolId, value, pooler);   
+    // }
+
+    function _enter_pool(bytes32 poolId, uint256 value, address payable pooler) internal {
+        require(poolers[poolId].length < poolSizes[poolId], 'This Pool is full');
+        // calculate dollar value  
+        uint256 latestUsdPrice = getLatestPrice();
+        uint256 usdtValue = latestUsdPrice.mul(value);    
+
+        uint256 poolPriceInEther = poolPrices[poolId].div(latestUsdPrice);
+        uint256 poolPriceInDollarValue = poolPriceInEther.mul(latestUsdPrice);
+        if(usdtValue < poolPriceInDollarValue) {
             revert('ETH Sent is less than pool price.');
         } else {
-            _poolers_stakes[_pool_id][_pooler] = _poolers_stakes[_pool_id][_pooler].add(_value);
-            _poolers[_pool_id].push(_pooler);
+            poolersStakes[poolId][pooler] = poolersStakes[poolId][pooler].add(value);
+            poolers[poolId].push(pooler);
         }
         
-        if(_poolers[_pool_id].length == _pool_sizes[_pool_id]) {                                
+        if(poolers[poolId].length == poolSizes[poolId]) {                                
             // pay winner
-            _pay_winner(_pool_id, _pool_sizes[_pool_id]);
-        }            
+            _pay_winner(poolId, poolSizes[poolId]);            
+            // pay pool creator
+            address creator = poolCreators[poolId];
+            uint256 houseCutNewTokens = gov.getNewTokensMinted().mul(gov.getHouseCutNewTokens()).div(100);
+            uint256 newTokens = gov.getNewTokensMinted().sub(houseCutNewTokens);
+            _mint(creator, newTokens);
+            _mint(house, houseCutNewTokens);
+        }                    
     }
 
     function startNewPool(string calldata pool_name_, uint256 pool_size_) public payable {        
         uint256 _value = msg.value;  
-        address payable _pooler = msg.sender; 
-        bytes32 _pool_id = keccak256(abi.encodePacked(pool_name_, _pooler));        
+        address payable pooler = msg.sender; 
+        bytes32 poolId = keccak256(abi.encodePacked(pool_name_, pooler));        
 
-        require(_pool_id_map[_pool_id] == 0, 'Pool name already exists');
+        require(poolIdMap[poolId] == 0, 'Pool name already exists');
         
-        uint256 _latest_usd_price = getLatestPrice();
-        uint256 _usdt_value = _latest_usd_price.mul(_value); 
+        uint256 latestUsdPrice = getLatestPrice();
+        uint256 usdtValue = latestUsdPrice.mul(_value); 
 
-        uint256 _last_index = _pool_ids.length;
-        _pool_ids.push(_pool_id);
-        _pool_prices[_pool_id] = _usdt_value;
-        _pool_sizes[_pool_id] = pool_size_ == 0 ? _main_pool_size : pool_size_;
-        _pool_id_map[_main_pool_id] = _last_index;
-        _pool_creators[_pool_id] = _pooler;
-        _is_main_pool[_pool_id] = false;
+        uint256 _last_index = poolIds.length;
+        poolIds.push(poolId);
+        poolPrices[poolId] = usdtValue;
+        poolSizes[poolId] = pool_size_ == 0 ? gov.getMainPoolSize() : pool_size_;
+        poolIdMap[mainPoolId] = _last_index;
+        poolCreators[poolId] = pooler;
+        isMainPool[poolId] = false;
     }
 
-    function getPoolDetails(string calldata pool_name_, address _creator) public view returns (bytes32, address, uint256, uint256, address, bool) {
-        bytes32 _pool_id = keccak256(abi.encodePacked(pool_name_, _creator));        
-        return (_pool_id, _creator, _pool_prices[_pool_id], _pool_sizes[_pool_id], _pool_creators[_pool_id], _is_main_pool[_pool_id]);
-    }
+    // function getPoolDetails(string calldata pool_name_, address creator) public view returns (bytes32, address, uint256, uint256, address, bool) {
+    //     bytes32 poolId = keccak256(abi.encodePacked(pool_name_, creator));        
+    //     return (poolId, creator, poolPrices[poolId], poolSizes[poolId], poolCreators[poolId], isMainPool[poolId]);
+    // }
 
-    function getPoolDetailsById(bytes32 _pool_id) public view returns (bytes32, address, uint256, uint256, address, bool) {
-        return (_pool_id, _pool_creators[_pool_id], _pool_prices[_pool_id], _pool_sizes[_pool_id], _pool_creators[_pool_id], _is_main_pool[_pool_id]);
+    /**
+    returns
+        poolId
+        poolCreator
+        poolPrice
+        poolSize
+        isMainPool
+        currentNumberOfPoolers
+        winner (if any),
+        isConcluded
+     */
+    function getPoolDetails(bytes32 poolId) public view returns (bytes32, address, uint256, uint256, bool, uint256, address, bool) {        
+        return (
+            poolId, 
+            poolCreators[poolId], 
+            poolPrices[poolId], 
+            poolSizes[poolId], 
+            isMainPool[poolId], 
+            poolers[poolId].length,
+            winners[poolId],
+            isConcluded[poolId]
+        );
     }
 
     function getAllPools() public view returns (bytes32[] memory) {
-        return _pool_ids;
+        return poolIds;
     }
 
     function enterMainPool() public payable {
         uint256 _value = msg.value;        
-        address payable _pooler = msg.sender;
+        address payable pooler = msg.sender;
         // calculate dollar value        
-        uint256 _latest_usd_price = getLatestPrice();
-        uint256 _usdt_value = _latest_usd_price.mul(_value);    
+        uint256 latestUsdPrice = getLatestPrice();
+        uint256 usdtValue = latestUsdPrice.mul(_value);    
 
-        uint256 _pool_price_in_ether = _pool_prices[_main_pool_id].mul(_one_ether).div(_latest_usd_price);
-        uint256 _pool_price_dollar_value = _pool_price_in_ether.mul(_latest_usd_price);
-        if(_usdt_value < _pool_price_dollar_value) {
+        uint256 poolPriceInEther = poolPrices[mainPoolId].div(latestUsdPrice);
+        uint256 poolPriceInDollarValue = poolPriceInEther.mul(latestUsdPrice);
+        if(usdtValue < poolPriceInDollarValue) {
             revert('ETH Sent is less than pool price.');
         } else {
-            _poolers_stakes[_main_pool_id][_pooler] = _poolers_stakes[_main_pool_id][_pooler].add(_value);
-            _poolers[_main_pool_id].push(_pooler);
+            poolersStakes[mainPoolId][pooler] = poolersStakes[mainPoolId][pooler].add(_value);
+            poolers[mainPoolId].push(pooler);
         }
         
-        if(_poolers[_main_pool_id].length == _pool_sizes[_main_pool_id]) {                    
-            bytes32 _last_pool_id = _main_pool_id;
-            uint256 _last_pool_size = _pool_sizes[_main_pool_id];
+        if(poolers[mainPoolId].length == poolSizes[mainPoolId]) {                    
+            bytes32 _lastpoolId = mainPoolId;
+            uint256 _last_pool_size = poolSizes[mainPoolId];
             
             // restart pooling
-            _main_pool_index = _main_pool_index.add(1);
-            _main_pool_id = keccak256(abi.encodePacked(_main_pool_index));
-            _pool_ids.push(_main_pool_id);
-            _pool_prices[_main_pool_id] = _main_pool_price;
-            _pool_sizes[_main_pool_id] = _main_pool_size;
-            _pool_id_map[_main_pool_id] = _main_pool_index;
-            _is_main_pool[_main_pool_id] = true;
+            mainPoolIndex = mainPoolIndex.add(1);
+            mainPoolId = keccak256(abi.encodePacked(mainPoolIndex));
+            poolIds.push(mainPoolId);
+            poolPrices[mainPoolId] = gov.getMainPoolPrice();
+            poolSizes[mainPoolId] = gov.getMainPoolSize();
+            poolIdMap[mainPoolId] = mainPoolIndex;
+            isMainPool[mainPoolId] = true;
 
-            _pay_winner(_last_pool_id, _last_pool_size);
+            _pay_winner(_lastpoolId, _last_pool_size);
         }    
     }
     
     function getPoolers(bytes32 _pool) public view returns (address payable[] memory) {
-        return _poolers[_pool];
+        return poolers[_pool];
     }
 
-    function getWinner(bytes32 pool_id_) public view returns (address payable) {
-        return _winners[pool_id_];
+    function getWinner(bytes32 poolId) public view returns (address payable) {
+        return winners[poolId];
     }
     
     
@@ -187,30 +228,31 @@ contract Grotto is ERC20 ('Grotto', 'GROTTO') {
         return 500;
     } 
 
-    function _pay_winner(bytes32 pool_id_, uint256 pool_size_) internal {        
-        bytes32 randBase = keccak256(abi.encodePacked(_poolers_stakes[pool_id_][_poolers[pool_id_][0]], _poolers[pool_id_][0]));
-        uint256 _total_staked = _poolers_stakes[pool_id_][_poolers[pool_id_][0]];        
+    function _pay_winner(bytes32 poolId, uint256 pool_size_) internal {        
+        bytes32 randBase = keccak256(abi.encodePacked(poolersStakes[poolId][poolers[poolId][0]], poolers[poolId][0]));
+        uint256 totalStaked = poolersStakes[poolId][poolers[poolId][0]];        
         
         for(uint8 i = 1; i < pool_size_; i++) {
-            randBase = keccak256(abi.encodePacked(_poolers_stakes[pool_id_][_poolers[pool_id_][i]], randBase, _poolers[pool_id_][i]));
-            _total_staked = _total_staked.add(_poolers_stakes[pool_id_][_poolers[pool_id_][i]]);
+            randBase = keccak256(abi.encodePacked(poolersStakes[poolId][poolers[poolId][i]], randBase, poolers[poolId][i]));
+            totalStaked = totalStaked.add(poolersStakes[poolId][poolers[poolId][i]]);
         }
 
-        uint256 _to_house = _total_staked.mul(_house_cut).div(100);        
+        uint256 toHouse = totalStaked.mul(gov.getHouseCut()).div(100);        
 
         // Winner should pay all gas costs
-        uint256 _amount_to_win = _total_staked.sub(_to_house).sub(TRANSFER_GAS.mul(2));
+        uint256 _amount_to_win = totalStaked.sub(toHouse).sub(gov.getTransferGas().mul(2));
         
-        uint256 _winnner_id = uint256(keccak256(abi.encodePacked(_total_staked, randBase))) % (pool_size_);
+        uint256 _winnner_id = uint256(keccak256(abi.encodePacked(totalStaked, randBase))) % (pool_size_);
         
-        address payable _winner = _poolers[pool_id_][_winnner_id];
+        address payable _winner = poolers[poolId][_winnner_id];
 
         // pay winner first
         _winner.transfer(_amount_to_win);
         // then send house's cut to contract creator
-        house.transfer(_to_house);        
+        house.transfer(toHouse);        
         // set winner for pool_id
-        _winners[pool_id_] = _winner;
+        winners[poolId] = _winner;
+        isConcluded[poolId] = true;
     }
 
 function uint2str(
