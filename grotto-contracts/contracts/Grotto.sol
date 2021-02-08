@@ -52,6 +52,9 @@ contract Grotto is ERC20 ('Grotto', 'GROTTO') {
 
     // Map of pool ids to their creators
     mapping (bytes32 => address payable) internal poolCreators;
+
+    // Map of pool creator to their pools
+    mapping (address => bytes32[]) internal creatorPools;
     
     // poolers in a particular pool identified by bytes32
     mapping (bytes32 => address payable[]) internal poolers;
@@ -88,14 +91,6 @@ contract Grotto is ERC20 ('Grotto', 'GROTTO') {
         address payable pooler = msg.sender;
         _enter_pool(poolId, value, pooler);   
     }
-
-    // function enterPool(string calldata poolName, address creator) public payable {
-    //     uint256 value = msg.value;        
-    //     address payable pooler = msg.sender;
-    //     bytes32 poolId = keccak256(abi.encodePacked(poolName, creator));     
-
-    //     _enter_pool(poolId, value, pooler);   
-    // }
 
     function _enter_pool(bytes32 poolId, uint256 value, address payable pooler) internal {
         require(poolers[poolId].length < poolSizes[poolId], 'This Pool is full');
@@ -141,12 +136,8 @@ contract Grotto is ERC20 ('Grotto', 'GROTTO') {
         poolIdMap[mainPoolId] = _last_index;
         poolCreators[poolId] = pooler;
         isMainPool[poolId] = false;
+        creatorPools[pooler].push(poolId);
     }
-
-    // function getPoolDetails(string calldata pool_name_, address creator) public view returns (bytes32, address, uint256, uint256, address, bool) {
-    //     bytes32 poolId = keccak256(abi.encodePacked(pool_name_, creator));        
-    //     return (poolId, creator, poolPrices[poolId], poolSizes[poolId], poolCreators[poolId], isMainPool[poolId]);
-    // }
 
     /**
     returns
@@ -183,6 +174,10 @@ contract Grotto is ERC20 ('Grotto', 'GROTTO') {
 
     function getAllPools() public view returns (bytes32[] memory) {
         return poolIds;
+    }
+
+    function getPoolsByOwner(address creator) public view returns (bytes32[] memory) {
+        return creatorPools[creator];
     }
 
     function enterMainPool() public payable {
@@ -226,17 +221,6 @@ contract Grotto is ERC20 ('Grotto', 'GROTTO') {
         return winners[poolId];
     }
     
-    
-    // function changeMainPoolSize(uint256 new_size_) public {
-    //     // this function should be implemented only when governance is figured out
-    //     revert('Not Yet implemented');
-    // }
-    
-    // function changeMainPoolPrice(uint256 new_size_) public {
-    //     // this function should be implemented only when governance is figured out
-    //     revert('Not Yet implemented');
-    // }    
-
     function getLatestPrice() public pure returns (uint256) {
         // TODO: Uncomment in production
         // (
