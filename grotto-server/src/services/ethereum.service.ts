@@ -6,12 +6,11 @@ const path = require('path')
 const fs = require('fs')
 import { ethers } from 'ethers';
 import { PoolDetails } from 'src/models/pool.details';
-import { abi } from '../abis/grotto.abi';
 
 @Injectable()
 export class EthereumService {
     provider: ethers.providers.JsonRpcProvider;
-    grottoAbi = abi.abi;
+    grottoAbi;
     grottoAddress: string;
     grottoContract: ethers.Contract;
 
@@ -20,6 +19,7 @@ export class EthereumService {
     constructor() {
         this.provider = new ethers.providers.JsonRpcProvider(process.env.WEB3_PROVIDER);
         this.grottoAddress = process.env.GROTTO_ADDRESS;
+        this.grottoAbi = JSON.parse(fs.readFileSync(path.resolve('src/abis/grotto.abi.json'), 'utf8')).abi;
         this.logger.debug(this.grottoAddress);
         this.grottoContract = new ethers.Contract(this.grottoAddress, this.grottoAbi, this.provider);
     }
@@ -27,17 +27,20 @@ export class EthereumService {
     getPoolDetails(poolId: string): Promise<PoolDetails> {
         return new Promise(async (resolve, reject) => {
             try {
-                const pd = await this.grottoContract.getPoolDetails(poolId);
+                const pd = await this.grottoContract.getPoolDetails(poolId);     
+                console.log(pd);
                 const poolDetails: PoolDetails = {
                     winner: pd[0],
-                    currentPoolSize: pd[1],
+                    currentPoolSize: pd[1].toNumber(),
                     isInMainPool: pd[2],
-                    poolSize: pd[3],
-                    poolPrice: pd[4],
+                    poolSize: pd[3].toNumber(),
+                    poolPrice: +ethers.utils.formatEther(pd[4]),
                     poolCreator: pd[5],
-                    isPoolConcluded: pd[6]
+                    isPoolConcluded: pd[6],
+                    poolPriceInEther: +ethers.utils.formatEther(pd[7])
                 }
 
+                this.logger.debug(poolDetails);
                 resolve(poolDetails);
             } catch (error) {
                 reject(error);
@@ -50,8 +53,9 @@ export class EthereumService {
             try {
                 const allPoolDetails: PoolDetails[] = [];
 
-                const pools = await this.grottoContract.getAllPools();
-                for (let i = 0; i < 10; i++) {
+                const pools: string[] = await this.grottoContract.getAllPools();
+                const size = pools.length > +process.env.MAX_DISPLAYED_SIZE ? process.env.MAX_DISPLAYED_SIZE : pools.length;
+                for (let i = 0; i < size; i++) {
                     allPoolDetails.push(await this.getPoolDetails(pools[i]));
                 }
 

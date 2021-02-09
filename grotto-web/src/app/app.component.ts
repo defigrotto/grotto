@@ -1,4 +1,4 @@
-import { Component, Output } from '@angular/core';
+import { Component } from '@angular/core';
 declare const window: any
 
 @Component({
@@ -6,7 +6,6 @@ declare const window: any
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.css']
 })
-
 export class AppComponent {
   title = 'grotto-web';
   ethereum: any;

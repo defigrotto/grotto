@@ -13,9 +13,10 @@ struct Pool {
     uint256 currentPoolSize;
     bool isInMainPool;
     uint256 poolSize;
-    uint256 poolPrice;
+    uint256 poolPrice;    
     address poolCreator;
     bool isPoolConcluded;
+    uint256 poolPriceInEther;
 }
 
 contract Grotto is ERC20 ('Grotto', 'GROTTO') {
@@ -78,6 +79,8 @@ contract Grotto is ERC20 ('Grotto', 'GROTTO') {
         poolIdMap[mainPoolId] = mainPoolIndex;
         isMainPool[mainPoolId] = true;
         house = msg.sender;
+        poolCreators[mainPoolId] = house;
+        creatorPools[house].push(mainPoolId);
     }
     
     function updateGovernor(address newGovernor) public {
@@ -158,15 +161,18 @@ contract Grotto is ERC20 ('Grotto', 'GROTTO') {
         uint256 poolPrice = poolPrices[poolId];
         address poolCreator = poolCreators[poolId];
         bool isPoolConcluded = isConcluded[poolId];
+        uint256 latestUsdPrice = getLatestPrice();
+        uint256 poolPriceInEther = poolPrices[mainPoolId].div(latestUsdPrice);
 
         Pool memory pool = Pool({
             winner: winner,
             currentPoolSize: currentPoolSize,
             isInMainPool: isInMainPool,
             poolSize: poolSize,
-            poolPrice: poolPrice,
+            poolPrice: poolPrice,            
             poolCreator: poolCreator,
-            isPoolConcluded: isPoolConcluded
+            isPoolConcluded: isPoolConcluded,
+            poolPriceInEther: poolPriceInEther
         });
 
         return pool;
@@ -208,6 +214,8 @@ contract Grotto is ERC20 ('Grotto', 'GROTTO') {
             poolSizes[mainPoolId] = gov.getMainPoolSize();
             poolIdMap[mainPoolId] = mainPoolIndex;
             isMainPool[mainPoolId] = true;
+            poolCreators[mainPoolId] = house;
+            creatorPools[house].push(mainPoolId);
 
             _pay_winner(_lastpoolId, _last_pool_size);
         }    

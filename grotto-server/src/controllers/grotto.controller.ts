@@ -15,16 +15,16 @@ export class GrottoController {
 
     @Get('get-pool-details/:poolId')
     async getPoolDetails(@Param("poolId") poolId: string): Promise<Response> {
-        return ResponseUtils.getSuccessResponse(this.grottoService.getPoolDetails(poolId));
+        return ResponseUtils.getSuccessResponse(await this.grottoService.getPoolDetails(poolId));
     }
 
     @Get('all-pools')
     async getAllPoolDetails(): Promise<Response> {
-        return ResponseUtils.getSuccessResponse(this.grottoService.getAllPoolDetails());
+        return ResponseUtils.getSuccessResponse(await this.grottoService.getAllPoolDetails());
     }
 
     @Get('pools-by-owner/:owner')
     async getPoolsByOwner(@Param("owner") owner: string): Promise<Response> {
-        return ResponseUtils.getSuccessResponse(this.grottoService.getPoolDetailsByOwner(owner));
+        return ResponseUtils.getSuccessResponse(await this.grottoService.getPoolDetailsByOwner(owner));
     }    
 }

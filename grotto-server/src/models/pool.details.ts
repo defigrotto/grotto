@@ -3,7 +3,8 @@ export class PoolDetails {
     currentPoolSize: number;
     isInMainPool: boolean;
     poolSize: number;
-    poolPrice: number;
+    poolPrice: number;    
     poolCreator: string;
     isPoolConcluded: boolean;    
+    poolPriceInEther: number;
 }
