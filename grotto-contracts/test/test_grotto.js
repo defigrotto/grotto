@@ -66,7 +66,7 @@ describe('Grotto', function () {
     };
     
     console.log(`Creating Pool ${poolName}: ${creator} with ${ethers.utils.parseEther(toSend + "")}`);
-    await gi.startNewPool(poolName, 3, overrides);
+    await gi.startNewPool(poolName, 10, overrides);
   }).timeout(TIMEOUT);
 
   it('should start a second pool', async function () {
@@ -79,20 +79,20 @@ describe('Grotto', function () {
     };
     
     console.log(`Creating Pool ${poolName}: ${creator} with ${ethers.utils.parseEther(toSend + "")}`);
-    await gi.startNewPool(poolName, 4, overrides);
+    await gi.startNewPool(poolName, 10, overrides);
   }).timeout(TIMEOUT);  
 
   it('should start a third pool', async function () {
     const poolName = "The Martians";
     const creator = this.accounts[7];
     const gi = await this.grotto.connect(this.signers[7]);
-    const toSend = 0.125;
+    const toSend = 0.257;
     const overrides = {
       value: ethers.utils.parseEther(toSend + "")
     };
     
     console.log(`Creating Pool ${poolName}: ${creator} with ${ethers.utils.parseEther(toSend + "")}`);
-    await gi.startNewPool(poolName, 5, overrides);
+    await gi.startNewPool(poolName, 15, overrides);
   }).timeout(TIMEOUT);  
 
   it('should get all pools', async function () {
@@ -110,9 +110,9 @@ describe('Grotto', function () {
   it('should enter user defined pool', async function () {
     let sum = 0;
     const allPools = await this.grotto.getAllPools();
-    for (let i = 0; i < 5; i++) {      
+    for (let i = 0; i < 15; i++) {      
       const gi = await this.grotto.connect(this.signers[i]);
-      const toSend = 0.125 + Math.random();
+      const toSend = 0.25 + Math.random();
       const overrides = {
         value: ethers.utils.parseEther(toSend + "")
       };

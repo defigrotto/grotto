@@ -67,11 +67,11 @@ contract Grotto is ERC20 ('Grotto', 'GROTTO') {
 
     mapping(bytes32 => address payable) internal winners;    
     
-    address private governor = 0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0;
+    address private governor = 0x6a0e9925e6dA26D270135B79252e8Fd9B76F35a1;
     
     constructor() {
-        //gov = GovernanceInterface(0x728DF34e0D66f26266d62498174e97a2B390a9De);
-        gov = new Governance();
+        gov = GovernanceInterface(governor);
+        //gov = new Governance();
         priceFeed = AggregatorV3Interface(KOVAN_ETH_USD_PF);
         poolIds.push(mainPoolId);
         poolPrices[mainPoolId] = gov.getMainPoolPrice();
@@ -97,6 +97,7 @@ contract Grotto is ERC20 ('Grotto', 'GROTTO') {
 
     function _enter_pool(bytes32 poolId, uint256 value, address payable pooler) internal {
         require(poolers[poolId].length < poolSizes[poolId], 'This Pool is full');
+        require(pooler != poolCreators[poolId], 'Pool Creator can not participate in pool');
         // calculate dollar value  
         uint256 latestUsdPrice = getLatestPrice();
         uint256 usdtValue = latestUsdPrice.mul(value);    
@@ -125,7 +126,7 @@ contract Grotto is ERC20 ('Grotto', 'GROTTO') {
         }                    
     }
 
-    function startNewPool(string calldata poolName, uint256 poolSize) public payable {        
+    function startNewPool(string calldata poolName, uint256 poolSize) public payable {     
         require(poolSize >= gov.getMinimumPoolSize(), 'Pool size too low');
         require(poolSize <= gov.getMaximumPoolSize(), 'Pool size too high');
 
@@ -276,4 +277,33 @@ contract Grotto is ERC20 ('Grotto', 'GROTTO') {
         winners[poolId] = _winner;
         isConcluded[poolId] = true;
     }
+
+function uint2str(
+  uint256 _i
+)
+  internal
+  pure
+  returns (string memory str)
+{
+  if (_i == 0)
+  {
+    return "0";
+  }
+  uint256 j = _i;
+  uint256 length;
+  while (j != 0)
+  {
+    length++;
+    j /= 10;
+  }
+  bytes memory bstr = new bytes(length);
+  uint256 k = length;
+  j = _i;
+  while (j != 0)
+  {
+    bstr[--k] = bytes1(uint8(48 + j % 10));
+    j /= 10;
+  }
+  str = string(bstr);
+}    
 }

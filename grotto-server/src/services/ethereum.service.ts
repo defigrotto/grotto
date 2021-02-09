@@ -37,7 +37,9 @@ export class EthereumService {
                     poolPrice: +ethers.utils.formatEther(pd[4]),
                     poolCreator: pd[5],
                     isPoolConcluded: pd[6],
-                    poolPriceInEther: +ethers.utils.formatEther(pd[7])
+                    poolPriceInEther: +ethers.utils.formatEther(pd[7]),
+                    poolId: poolId,
+                    contractAddress: this.grottoAddress
                 }
 
                 this.logger.debug(poolDetails);

@@ -7,4 +7,6 @@ export class PoolDetails {
     poolCreator!: string;
     isPoolConcluded!: boolean;
     poolPriceInEther!: number;
+    poolId!: string;
+    contractAddress!: string;
 }

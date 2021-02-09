@@ -16,7 +16,7 @@ contract Governance is GovernanceInterface, ERC20('Governance Contract', 'DOTGOV
     uint256 private MAIN_POOL_PRICE = 100000000000000000000;
 
     // number of accounts before winner is calculated.
-    uint256 private MAIN_POOL_SIZE = 10;
+    uint256 private MAIN_POOL_SIZE = 3;
 
     // percentage of winning that goes to house. 10%
     uint256 private HOUSE_CUT = 10;
@@ -68,6 +68,6 @@ contract Governance is GovernanceInterface, ERC20('Governance Contract', 'DOTGOV
     }    
 
     function getMaximumPoolSize() public override view returns (uint256) {
-        return MINIMUM_POOL_SIZE;
+        return MAXIMUM_POOL_SIZE;
     }        
 }
