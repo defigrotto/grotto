@@ -31,7 +31,7 @@ contract Governance is GovernanceInterface, ERC20('Governance Contract', 'DOTGOV
     uint256 private MINIMUM_POOL_SIZE = 10;    
 
     // Maximum size for user defined pools
-    uint256 private MAXIMUM_POOL_SIZE = 10;    
+    uint256 private MAXIMUM_POOL_SIZE = 100;
 
     constructor() {
         INITIAL_GOVERNORS.push(0xC04915f6b3ff85b50A863eB1FcBF368171539413);
