@@ -6,6 +6,8 @@ interface GovernanceInterface {
     function getMainPoolPrice() external view returns (uint256);
     function getMainPoolSize() external view returns (uint256);
     function getHouseCut() external view returns (uint256);
-    function getNewTokensMinted() external view returns (uint256);
     function getHouseCutNewTokens() external view returns (uint256);
+    function getMinimumPoolPrice() external view returns (uint256);
+    function getMinimumPoolSize() external view returns (uint256);
+    function getMaximumPoolSize() external view returns (uint256);
 }

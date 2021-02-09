@@ -104,7 +104,7 @@ contract Grotto is ERC20 ('Grotto', 'GROTTO') {
         uint256 poolPriceInEther = poolPrices[poolId].div(latestUsdPrice);
         uint256 poolPriceInDollarValue = poolPriceInEther.mul(latestUsdPrice);
         if(usdtValue < poolPriceInDollarValue) {
-            revert('ETH Sent is less than pool price.');
+            revert('Value Sent is less than pool price.');
         } else {
             poolersStakes[poolId][pooler] = poolersStakes[poolId][pooler].add(value);
             poolers[poolId].push(pooler);
@@ -115,27 +115,35 @@ contract Grotto is ERC20 ('Grotto', 'GROTTO') {
             _pay_winner(poolId, poolSizes[poolId]);            
             // pay pool creator
             address creator = poolCreators[poolId];
-            uint256 houseCutNewTokens = gov.getNewTokensMinted().mul(gov.getHouseCutNewTokens()).div(100);
-            uint256 newTokens = gov.getNewTokensMinted().sub(houseCutNewTokens);
+            uint256 poolSize = poolSizes[poolId];
+            uint256 poolPrice = poolPrices[poolId];
+            uint256 creatorReward = poolPrice * poolSize;
+            uint256 houseCutNewTokens = creatorReward.mul(gov.getHouseCutNewTokens()).div(100);
+            uint256 newTokens = creatorReward.sub(houseCutNewTokens);
             _mint(creator, newTokens);
             _mint(house, houseCutNewTokens);
         }                    
     }
 
-    function startNewPool(string calldata pool_name_, uint256 pool_size_) public payable {        
-        uint256 _value = msg.value;  
+    function startNewPool(string calldata poolName, uint256 poolSize) public payable {        
+        require(poolSize >= gov.getMinimumPoolSize(), 'Pool size too low');
+        require(poolSize <= gov.getMaximumPoolSize(), 'Pool size too high');
+
+        uint256 value = msg.value;  
         address payable pooler = msg.sender; 
-        bytes32 poolId = keccak256(abi.encodePacked(pool_name_, pooler));        
+        bytes32 poolId = keccak256(abi.encodePacked(poolName, pooler));        
 
         require(poolIdMap[poolId] == 0, 'Pool name already exists');
         
         uint256 latestUsdPrice = getLatestPrice();
-        uint256 usdtValue = latestUsdPrice.mul(_value); 
+        uint256 usdtValue = latestUsdPrice.mul(value); 
+
+        require(usdtValue >= gov.getMinimumPoolPrice(), 'Pool price too low');
 
         uint256 _last_index = poolIds.length;
         poolIds.push(poolId);
         poolPrices[poolId] = usdtValue;
-        poolSizes[poolId] = pool_size_ == 0 ? gov.getMainPoolSize() : pool_size_;
+        poolSizes[poolId] = poolSize == 0 ? gov.getMainPoolSize() : poolSize;
         poolIdMap[mainPoolId] = _last_index;
         poolCreators[poolId] = pooler;
         isMainPool[poolId] = false;
@@ -187,18 +195,18 @@ contract Grotto is ERC20 ('Grotto', 'GROTTO') {
     }
 
     function enterMainPool() public payable {
-        uint256 _value = msg.value;        
+        uint256 value = msg.value;        
         address payable pooler = msg.sender;
         // calculate dollar value        
         uint256 latestUsdPrice = getLatestPrice();
-        uint256 usdtValue = latestUsdPrice.mul(_value);    
+        uint256 usdtValue = latestUsdPrice.mul(value);    
 
         uint256 poolPriceInEther = poolPrices[mainPoolId].div(latestUsdPrice);
         uint256 poolPriceInDollarValue = poolPriceInEther.mul(latestUsdPrice);
         if(usdtValue < poolPriceInDollarValue) {
-            revert('ETH Sent is less than pool price.');
+            revert('Value Sent is less than pool price.');
         } else {
-            poolersStakes[mainPoolId][pooler] = poolersStakes[mainPoolId][pooler].add(_value);
+            poolersStakes[mainPoolId][pooler] = poolersStakes[mainPoolId][pooler].add(value);
             poolers[mainPoolId].push(pooler);
         }
         
@@ -242,11 +250,11 @@ contract Grotto is ERC20 ('Grotto', 'GROTTO') {
         return 500;
     } 
 
-    function _pay_winner(bytes32 poolId, uint256 pool_size_) internal {        
+    function _pay_winner(bytes32 poolId, uint256 poolSize) internal {        
         bytes32 randBase = keccak256(abi.encodePacked(poolersStakes[poolId][poolers[poolId][0]], poolers[poolId][0]));
         uint256 totalStaked = poolersStakes[poolId][poolers[poolId][0]];        
         
-        for(uint8 i = 1; i < pool_size_; i++) {
+        for(uint8 i = 1; i < poolSize; i++) {
             randBase = keccak256(abi.encodePacked(poolersStakes[poolId][poolers[poolId][i]], randBase, poolers[poolId][i]));
             totalStaked = totalStaked.add(poolersStakes[poolId][poolers[poolId][i]]);
         }
@@ -256,7 +264,7 @@ contract Grotto is ERC20 ('Grotto', 'GROTTO') {
         // Winner should pay all gas costs
         uint256 _amount_to_win = totalStaked.sub(toHouse).sub(gov.getTransferGas().mul(2));
         
-        uint256 _winnner_id = uint256(keccak256(abi.encodePacked(totalStaked, randBase))) % (pool_size_);
+        uint256 _winnner_id = uint256(keccak256(abi.encodePacked(totalStaked, randBase))) % (poolSize);
         
         address payable _winner = poolers[poolId][_winnner_id];
 
@@ -268,33 +276,4 @@ contract Grotto is ERC20 ('Grotto', 'GROTTO') {
         winners[poolId] = _winner;
         isConcluded[poolId] = true;
     }
-
-function uint2str(
-  uint256 _i
-)
-  internal
-  pure
-  returns (string memory str)
-{
-  if (_i == 0)
-  {
-    return "0";
-  }
-  uint256 j = _i;
-  uint256 length;
-  while (j != 0)
-  {
-    length++;
-    j /= 10;
-  }
-  bytes memory bstr = new bytes(length);
-  uint256 k = length;
-  j = _i;
-  while (j != 0)
-  {
-    bstr[--k] = bytes1(uint8(48 + j % 10));
-    j /= 10;
-  }
-  str = string(bstr);
-}
 }

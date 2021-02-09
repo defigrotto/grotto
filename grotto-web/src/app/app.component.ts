@@ -4,13 +4,13 @@ declare const window: any
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
-  styleUrls: ['./app.component.css']
+  styleUrls: ['./app.component.scss']
 })
 export class AppComponent {
   title = 'grotto-web';
   ethereum: any;
 
-  account = "";
+  account = "Connect Metamask";
 
   constructor() {
     if (window.ethereum === undefined) {
