@@ -24,5 +24,9 @@ export class AppService {
     getAllPools() {
         return this.http.get<any>(`${environment.apiUrl}/all-pools`);
     }
+
+    getLatestPrice() {
+      return this.http.get<any>(`${environment.apiUrl}/get-latest-price`);
+  }    
   
 }

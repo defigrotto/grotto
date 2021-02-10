@@ -56,7 +56,7 @@ export class EthereumService {
                 const allPoolDetails: PoolDetails[] = [];
 
                 const pools: string[] = await this.grottoContract.getAllPools();
-                const size = pools.length > +process.env.MAX_DISPLAYED_SIZE ? process.env.MAX_DISPLAYED_SIZE : pools.length;
+                const size = pools.length;
                 for (let i = 0; i < size; i++) {
                     allPoolDetails.push(await this.getPoolDetails(pools[i]));
                 }
@@ -66,6 +66,17 @@ export class EthereumService {
                 reject(error);
             }
         });
+    }
+
+    getLatestPrice(): Promise<number> {
+        return new Promise(async (resolve, reject) => {
+            try {
+                const price = await this.grottoContract.getLatestPrice();
+                resolve(price.toNumber());
+            } catch (error) {
+                reject(error);
+            }
+        });        
     }
 
     getPoolDetailsByOwner(owner: string): Promise<PoolDetails[]> {

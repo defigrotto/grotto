@@ -39,4 +39,14 @@ export class GrottoService {
             }
         });        
     }
+
+    getLatestPrice() {
+        return new Promise(async (resolve, reject) => {
+            try {
+                resolve(await this.ethereumService.getLatestPrice());
+            } catch (error) {
+                reject(error);
+            }
+        });        
+    }    
 }

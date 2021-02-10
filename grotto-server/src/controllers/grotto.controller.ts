@@ -23,6 +23,11 @@ export class GrottoController {
         return ResponseUtils.getSuccessResponse(await this.grottoService.getAllPoolDetails());
     }
 
+    @Get('get-latest-price')
+    async getLatestPrice(): Promise<Response> {
+        return ResponseUtils.getSuccessResponse(await this.grottoService.getLatestPrice());
+    }    
+
     @Get('pools-by-owner/:owner')
     async getPoolsByOwner(@Param("owner") owner: string): Promise<Response> {
         return ResponseUtils.getSuccessResponse(await this.grottoService.getPoolDetailsByOwner(owner));
