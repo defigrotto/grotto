@@ -16,7 +16,8 @@ contract Governance is GovernanceInterface, ERC20('Governance Contract', 'DOTGOV
     uint256 private MAIN_POOL_PRICE = 100000000000000000000;
 
     // number of accounts before winner is calculated.
-    uint256 private MAIN_POOL_SIZE = 3;
+    // change to 10 for tests to pass
+    uint256 private MAIN_POOL_SIZE = 100;
 
     // percentage of winning that goes to house. 10%
     uint256 private HOUSE_CUT = 10;
@@ -25,7 +26,7 @@ contract Governance is GovernanceInterface, ERC20('Governance Contract', 'DOTGOV
     uint256 private HOUSE_CUT_NEW_TOKEN = 10;
 
     // Minimum price for user defined pools
-    uint256 private MINIMUM_POOL_PRICE = 10;
+    uint256 private MINIMUM_POOL_PRICE = 10000000000000000000;
 
     // Minimum size for user defined pools
     uint256 private MINIMUM_POOL_SIZE = 10;    
@@ -37,6 +38,8 @@ contract Governance is GovernanceInterface, ERC20('Governance Contract', 'DOTGOV
         INITIAL_GOVERNORS.push(0xC04915f6b3ff85b50A863eB1FcBF368171539413);
         INITIAL_GOVERNORS.push(0xb58c226a300fF6dc1eF762d62c536c7aED5CeA74);
         INITIAL_GOVERNORS.push(0xB6D80F6d661927afEf42f39e52d630E250696bc4);
+        INITIAL_GOVERNORS.push(0x6B33d96c8353D03433034171433b0Bd9bdaFaC8b);
+        INITIAL_GOVERNORS.push(0x0A0C8E469fef425eF7C6E9754dC563f9BBa588f0);
     }
 
     function getTransferGas() public override view returns (uint256) {

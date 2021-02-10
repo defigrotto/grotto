@@ -67,11 +67,14 @@ contract Grotto is ERC20 ('Grotto', 'GROTTO') {
 
     mapping(bytes32 => address payable) internal winners;    
     
-    address private governor = 0x6a0e9925e6dA26D270135B79252e8Fd9B76F35a1;
+    address private governor = 0x28551e73690BD7309D47f6e41Aa4f8d8DDe944c6;
     
     constructor() {
         gov = GovernanceInterface(governor);
+        
+        // uncomment for tests to pass
         //gov = new Governance();
+
         priceFeed = AggregatorV3Interface(KOVAN_ETH_USD_PF);
         poolIds.push(mainPoolId);
         poolPrices[mainPoolId] = gov.getMainPoolPrice();
@@ -145,7 +148,7 @@ contract Grotto is ERC20 ('Grotto', 'GROTTO') {
         poolIds.push(poolId);
         poolPrices[poolId] = usdtValue;
         poolSizes[poolId] = poolSize == 0 ? gov.getMainPoolSize() : poolSize;
-        poolIdMap[mainPoolId] = _last_index;
+        poolIdMap[poolId] = _last_index;
         poolCreators[poolId] = pooler;
         isMainPool[poolId] = false;
         creatorPools[pooler].push(poolId);
@@ -277,33 +280,4 @@ contract Grotto is ERC20 ('Grotto', 'GROTTO') {
         winners[poolId] = _winner;
         isConcluded[poolId] = true;
     }
-
-function uint2str(
-  uint256 _i
-)
-  internal
-  pure
-  returns (string memory str)
-{
-  if (_i == 0)
-  {
-    return "0";
-  }
-  uint256 j = _i;
-  uint256 length;
-  while (j != 0)
-  {
-    length++;
-    j /= 10;
-  }
-  bytes memory bstr = new bytes(length);
-  uint256 k = length;
-  j = _i;
-  while (j != 0)
-  {
-    bstr[--k] = bytes1(uint8(48 + j % 10));
-    j /= 10;
-  }
-  str = string(bstr);
-}    
 }

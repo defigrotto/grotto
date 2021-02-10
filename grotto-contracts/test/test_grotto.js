@@ -69,6 +69,24 @@ describe('Grotto', function () {
     await gi.startNewPool(poolName, 10, overrides);
   }).timeout(TIMEOUT);
 
+  it('should throw a pool name already exissts error', async function () {
+    const poolName = "Segun's Pool";
+    const creator = this.accounts[19];
+    const gi = await this.grotto.connect(this.signers[19]);
+    const toSend = 0.2;
+    const overrides = {
+      value: ethers.utils.parseEther(toSend + "")
+    };
+    
+    console.log(`Creating Pool ${poolName}: ${creator} with ${ethers.utils.parseEther(toSend + "")}`);
+    try {
+      await gi.startNewPool(poolName, 10, overrides);
+    } catch(error) {
+      console.log(error);
+      assert.isNotNull(error);
+    } 
+  }).timeout(TIMEOUT);  
+
   it('should start a second pool', async function () {
     const poolName = "Segun's Pool - 2";
     const creator = this.accounts[6];
@@ -98,7 +116,7 @@ describe('Grotto', function () {
   it('should get all pools', async function () {
     const allPools = await this.grotto.getAllPools();    
     console.log(allPools);
-    assert.equal(allPools.length, 6);
+    assert.equal(allPools.length, 7);
     let pd = await this.grotto.getPoolDetails(allPools[0]);
     assert.isTrue(pd[2]);
     pd = await this.grotto.getPoolDetails(allPools[1]);
@@ -110,7 +128,7 @@ describe('Grotto', function () {
   it('should enter user defined pool', async function () {
     let sum = 0;
     const allPools = await this.grotto.getAllPools();
-    for (let i = 0; i < 15; i++) {      
+    for (let i = 0; i < 20; i++) {      
       const gi = await this.grotto.connect(this.signers[i]);
       const toSend = 0.25 + Math.random();
       const overrides = {
@@ -118,16 +136,12 @@ describe('Grotto', function () {
       };
   
       sum += toSend;
-      await gi.enterPool(allPools[5], overrides);
+      try {
+        await gi.enterPool(allPools[6], overrides);
+      } catch(error) {
+        // do nothing.
+      }
       console.log(`Total Stacked: ${sum}`);
     }    
   }).timeout(TIMEOUT);
-  
-  it('should select winner', async function () {
-    const allPools = await this.grotto.getAllPools();
-    const address1 = await this.grotto.getWinner(allPools[5]);
-    console.log(address1);
-    assert.notEqual(address1, address0);    
-    console.log(await ethers.provider.getBalance(address1));
-  }).timeout(TIMEOUT);  
 });
