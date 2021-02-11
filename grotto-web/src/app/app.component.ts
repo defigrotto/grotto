@@ -1,8 +1,8 @@
-import { Component } from '@angular/core';
+import { Component, ElementRef, ViewChild } from '@angular/core';
 import { AppService } from './app.service';
 import { first } from 'rxjs/operators';
 import { PoolDetails } from './models/pool.model';
-import { ethers } from 'ethers';
+import { ethers, logger } from 'ethers';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 declare const window: any
 
@@ -18,11 +18,15 @@ export class AppComponent {
   account = "Connect Metamask";
   chainId = "";
 
-  poolDetails!: PoolDetails[];
-  mainPool!: PoolDetails[];
-  userPool!: PoolDetails[];
-  completedPool!: PoolDetails[];
+  poolDetails: PoolDetails[] = [];
+  mainPool: PoolDetails[] = [];
+  userPool: PoolDetails[] = [];
+  completedPool: PoolDetails[] = [];
+  myPool: PoolDetails[] = [];
+
   selectedPool!: PoolDetails;
+  selectedIndex = -1;
+
   noMetaMask = false;
   joinPoolSuccess = false;
   joinPoolFailure = false;
@@ -37,6 +41,7 @@ export class AppComponent {
   iFace = new ethers.utils.Interface(this.abi);
 
   form: FormGroup;
+  searchForm: FormGroup;
   contractAddress!: string;
 
   constructor(private appService: AppService, private formBuilder: FormBuilder) {
@@ -52,6 +57,10 @@ export class AppComponent {
       newPoolSize: ['', Validators.required],
     });
 
+    this.searchForm = this.formBuilder.group({
+      poolCreator: ['', Validators.required],
+    });
+
     this.getAllPools();
     this.connectMetamask();
     this.interval = setInterval(() => {
@@ -65,10 +74,48 @@ export class AppComponent {
     }
   }
 
+  filterPool() {
+    const poolCreator = this.searchForm.value.poolCreator;
+
+    if (poolCreator === '' || poolCreator === undefined) {
+      return;
+    }
+
+    console.log("filtering pools");
+
+    this.mainPool = [];
+    this.userPool = [];
+    this.completedPool = [];
+    this.myPool = [];
+    if (this.interval) {
+      clearInterval(this.interval);
+    }
+
+    this.appService.getAllPools()
+      .pipe(first())
+      .subscribe(pd => {
+        console.log(pd.data);
+        this.poolDetails = pd.data.reverse();
+        this.contractAddress = this.poolDetails[0].contractAddress;
+
+        this.mainPool = this.poolDetails.filter((pd) => {
+          if (pd.isPoolConcluded) return false;
+          if (!pd.isInMainPool) return false;
+          return true;
+        }).slice(0, 10);
+
+        this.userPool = this.poolDetails.filter((pd) => {
+          if (pd.poolCreator.toLocaleLowerCase() === poolCreator.toLocaleLowerCase()) return true;
+          return false;
+        }).slice(0, 10);
+      });
+  }
+
   getAllPools() {
     this.appService.getAllPools()
       .pipe(first())
       .subscribe(pd => {
+        console.log(pd.data);
         this.poolDetails = pd.data.reverse();
         this.contractAddress = this.poolDetails[0].contractAddress;
         this.mainPool = this.poolDetails.filter((pd) => {
@@ -85,6 +132,11 @@ export class AppComponent {
 
         this.completedPool = this.poolDetails.filter((pd) => {
           if (pd.isPoolConcluded) return true;
+          return false;
+        }).slice(0, 10);
+
+        this.myPool = this.poolDetails.filter((pd) => {
+          if (pd.poolCreator.toLocaleLowerCase() === this.account.toLocaleLowerCase()) return true;
           return false;
         }).slice(0, 10);
       });
@@ -164,8 +216,9 @@ export class AppComponent {
     });
   }
 
-  setSelectedPool(pool: PoolDetails) {
+  setSelectedPool(pool: PoolDetails, index: number) {
     this.selectedPool = pool;
+    this.selectedIndex = index;
   }
 
   registerEvents() {

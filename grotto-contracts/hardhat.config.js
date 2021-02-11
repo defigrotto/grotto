@@ -28,7 +28,9 @@ module.exports = {
     },
     sokol: {
       url: "https://sokol.poa.network",
-      accounts: myAccounts.privateKeys
+      accounts: myAccounts.privateKeys,
+      // gas: 582876,
+      // gasPrice: 10000000000
     }    
   },
 };

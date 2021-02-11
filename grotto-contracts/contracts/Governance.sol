@@ -12,12 +12,17 @@ contract Governance is GovernanceInterface, ERC20('Governance Contract', 'DOTGOV
     // amount of gas needed for transfer
     uint256 private TRANSFER_GAS = 2300;
 
+    uint256 private constant ONE_ETHER = 1 ether;
     // stake price for the main pool. $100
-    uint256 private MAIN_POOL_PRICE = 100000000000000000000;
+    //uint256 private MAIN_POOL_PRICE = 100 * ONE_ETHER;
+    // for testing make it $1
+    uint256 private MAIN_POOL_PRICE = 1 * ONE_ETHER;
 
     // number of accounts before winner is calculated.
     // change to 10 for tests to pass
-    uint256 private MAIN_POOL_SIZE = 100;
+    // change to 5 for sokol tests to pass
+    // change to 100 for prod
+    uint256 private MAIN_POOL_SIZE = 5;
 
     // percentage of winning that goes to house. 10%
     uint256 private HOUSE_CUT = 10;
@@ -26,10 +31,14 @@ contract Governance is GovernanceInterface, ERC20('Governance Contract', 'DOTGOV
     uint256 private HOUSE_CUT_NEW_TOKEN = 10;
 
     // Minimum price for user defined pools
-    uint256 private MINIMUM_POOL_PRICE = 10000000000000000000;
+    //uint256 private MINIMUM_POOL_PRICE = 10 * ONE_ETHER;
+    // for testing make it $1
+    uint256 private MINIMUM_POOL_PRICE = 1 * ONE_ETHER;
 
     // Minimum size for user defined pools
-    uint256 private MINIMUM_POOL_SIZE = 10;    
+    // change to 3 for sokol
+    // change to 10 for prod
+    uint256 private MINIMUM_POOL_SIZE = 3;    
 
     // Maximum size for user defined pools
     uint256 private MAXIMUM_POOL_SIZE = 100;

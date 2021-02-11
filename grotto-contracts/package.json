@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "npx hardhat test", 
+    "test:sokol": "npx hardhat test --network sokol", 
     "compile": "npx hardhat compile",
     "start-node": "npx hardhat node",
     "deploy": "npx hardhat run scripts/deploy.js",

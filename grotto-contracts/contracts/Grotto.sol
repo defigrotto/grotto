@@ -8,7 +8,7 @@ import "@openzeppelin/contracts/math/SafeMath.sol";
 import "./GovernanceInterface.sol";
 import "./Governance.sol";
 
-struct Pool {
+struct Pool {    
     address winner;
     uint256 currentPoolSize;
     bool isInMainPool;
@@ -17,6 +17,7 @@ struct Pool {
     address poolCreator;
     bool isPoolConcluded;
     uint256 poolPriceInEther;
+    bytes32 poolId;
 }
 
 contract Grotto is ERC20 ('Grotto', 'GROTTO') {
@@ -37,10 +38,11 @@ contract Grotto is ERC20 ('Grotto', 'GROTTO') {
     mapping (bytes32 => uint256) internal poolSizes;
     
     uint256 internal mainPoolIndex = 1;
+
+    Pool[] internal poolDetails;
     
     // Pool ID, increments after every time the pool is filled
     bytes32 internal mainPoolId = keccak256(abi.encodePacked(mainPoolIndex));
-    // uint256 oneEther = 1000000000000000000;
     
     // Array of pool IDs
     bytes32[] internal poolIds;
@@ -67,23 +69,25 @@ contract Grotto is ERC20 ('Grotto', 'GROTTO') {
 
     mapping(bytes32 => address payable) internal winners;    
     
-    address private governor = 0x28551e73690BD7309D47f6e41Aa4f8d8DDe944c6;
+    address private governor = 0x71D70b41efDE3C0D0705DBecE05E00fd60888df0;
     
     constructor() {
         gov = GovernanceInterface(governor);
         
         // uncomment for tests to pass
-        //gov = new Governance();
+        gov = new Governance();
 
         priceFeed = AggregatorV3Interface(KOVAN_ETH_USD_PF);
         poolIds.push(mainPoolId);
         poolPrices[mainPoolId] = gov.getMainPoolPrice();
         poolSizes[mainPoolId] = gov.getMainPoolSize();
-        poolIdMap[mainPoolId] = mainPoolIndex;
+        poolIdMap[mainPoolId] = 0;
         isMainPool[mainPoolId] = true;
         house = msg.sender;
         poolCreators[mainPoolId] = house;
         creatorPools[house].push(mainPoolId);
+
+        poolDetails.push(getPoolDetails(mainPoolId));
     }
     
     function updateGovernor(address newGovernor) public {
@@ -114,18 +118,14 @@ contract Grotto is ERC20 ('Grotto', 'GROTTO') {
             poolers[poolId].push(pooler);
         }
         
+        uint256 pidIndex = poolIdMap[poolId];
+        Pool memory pool = poolDetails[pidIndex];
+        pool.currentPoolSize = poolers[poolId].length;
+        poolDetails[pidIndex] = pool;
+
         if(poolers[poolId].length == poolSizes[poolId]) {                                
             // pay winner
-            _pay_winner(poolId, poolSizes[poolId]);            
-            // pay pool creator
-            address creator = poolCreators[poolId];
-            uint256 poolSize = poolSizes[poolId];
-            uint256 poolPrice = poolPrices[poolId];
-            uint256 creatorReward = poolPrice * poolSize;
-            uint256 houseCutNewTokens = creatorReward.mul(gov.getHouseCutNewTokens()).div(100);
-            uint256 newTokens = creatorReward.sub(houseCutNewTokens);
-            _mint(creator, newTokens);
-            _mint(house, houseCutNewTokens);
+            _pay_winner(poolId, poolSizes[poolId]);
         }                    
     }
 
@@ -140,18 +140,20 @@ contract Grotto is ERC20 ('Grotto', 'GROTTO') {
         require(poolIdMap[poolId] == 0, 'Pool name already exists');
         
         uint256 latestUsdPrice = getLatestPrice();
-        uint256 usdtValue = latestUsdPrice.mul(value); 
+        uint256 usdtValue = latestUsdPrice.mul(value);     
 
         require(usdtValue >= gov.getMinimumPoolPrice(), 'Pool price too low');
 
-        uint256 _last_index = poolIds.length;
+        uint256 lastIndex = poolIds.length;
         poolIds.push(poolId);
         poolPrices[poolId] = usdtValue;
         poolSizes[poolId] = poolSize == 0 ? gov.getMainPoolSize() : poolSize;
-        poolIdMap[poolId] = _last_index;
+        poolIdMap[poolId] = lastIndex;
         poolCreators[poolId] = pooler;
         isMainPool[poolId] = false;
         creatorPools[pooler].push(poolId);
+
+        poolDetails.push(getPoolDetails(poolId));        
     }
 
     /**
@@ -165,6 +167,11 @@ contract Grotto is ERC20 ('Grotto', 'GROTTO') {
         winner (if any),
         isConcluded
      */
+    function getPoolDetailsByPoolName(string calldata poolName, address creator) public view returns (Pool memory) {
+        bytes32 poolId = keccak256(abi.encodePacked(poolName, creator));
+        return getPoolDetails(poolId);
+    }
+
     function getPoolDetails(bytes32 poolId) public view returns (Pool memory) {        
         address winner = winners[poolId];
         uint256 currentPoolSize = poolers[poolId].length;
@@ -174,9 +181,10 @@ contract Grotto is ERC20 ('Grotto', 'GROTTO') {
         address poolCreator = poolCreators[poolId];
         bool isPoolConcluded = isConcluded[poolId];
         uint256 latestUsdPrice = getLatestPrice();
-        uint256 poolPriceInEther = poolPrices[mainPoolId].div(latestUsdPrice);
+        uint256 poolPriceInEther = poolPrices[poolId].div(latestUsdPrice);
 
         Pool memory pool = Pool({
+            poolId: poolId,
             winner: winner,
             currentPoolSize: currentPoolSize,
             isInMainPool: isInMainPool,
@@ -190,8 +198,8 @@ contract Grotto is ERC20 ('Grotto', 'GROTTO') {
         return pool;
     }
 
-    function getAllPools() public view returns (bytes32[] memory) {
-        return poolIds;
+    function getAllPools() public view returns (Pool[] memory) {
+        return poolDetails;
     }
 
     function getPoolsByOwner(address creator) public view returns (bytes32[] memory) {
@@ -214,20 +222,29 @@ contract Grotto is ERC20 ('Grotto', 'GROTTO') {
             poolers[mainPoolId].push(pooler);
         }
         
+        uint256 pidIndex = poolIdMap[mainPoolId];
+        //revert(uint2str(pidIndex));
+        Pool memory pool = poolDetails[pidIndex];
+        pool.currentPoolSize = poolers[mainPoolId].length;
+        poolDetails[pidIndex] = pool;
+
         if(poolers[mainPoolId].length == poolSizes[mainPoolId]) {                    
             bytes32 _lastpoolId = mainPoolId;
             uint256 _last_pool_size = poolSizes[mainPoolId];
             
             // restart pooling
             mainPoolIndex = mainPoolIndex.add(1);
+            uint256 lastIndex = poolIds.length;
             mainPoolId = keccak256(abi.encodePacked(mainPoolIndex));
             poolIds.push(mainPoolId);
             poolPrices[mainPoolId] = gov.getMainPoolPrice();
             poolSizes[mainPoolId] = gov.getMainPoolSize();
-            poolIdMap[mainPoolId] = mainPoolIndex;
+            poolIdMap[mainPoolId] = lastIndex;
             isMainPool[mainPoolId] = true;
             poolCreators[mainPoolId] = house;
             creatorPools[house].push(mainPoolId);
+
+            poolDetails.push(getPoolDetails(mainPoolId));
 
             _pay_winner(_lastpoolId, _last_pool_size);
         }    
@@ -279,5 +296,21 @@ contract Grotto is ERC20 ('Grotto', 'GROTTO') {
         // set winner for pool_id
         winners[poolId] = _winner;
         isConcluded[poolId] = true;
-    }
+
+        // pay pool creator
+        address creator = poolCreators[poolId];
+        uint256 poolPrice = poolPrices[poolId];
+        uint256 creatorReward = poolPrice * poolSize;
+        uint256 houseCutNewTokens = creatorReward.mul(gov.getHouseCutNewTokens()).div(100);
+        uint256 newTokens = creatorReward.sub(houseCutNewTokens);
+        _mint(creator, newTokens);
+        _mint(house, houseCutNewTokens);
+
+        uint256 pidIndex = poolIdMap[poolId];
+        Pool memory pool = poolDetails[pidIndex];
+        pool.winner = _winner;
+        pool.isPoolConcluded = true;
+
+        poolDetails[pidIndex] = pool;
+    }     
 }

@@ -6,27 +6,31 @@ import { HttpClient } from '@angular/common/http';
 import { environment } from '../environments/environment';
 
 @Injectable({
-    providedIn: 'root'
+  providedIn: 'root'
 })
 export class AppService {
-    private poolDetailsSubject: BehaviorSubject<PoolDetails>;
-    public poolDetails: Observable<PoolDetails>;
-  
-    constructor(private router: Router, private http: HttpClient) {
-      this.poolDetailsSubject = new BehaviorSubject<PoolDetails>(JSON.parse(localStorage.getItem('poolsDetails')!));
-      this.poolDetails = this.poolDetailsSubject.asObservable();
-    }
-  
-    public get poolDetailsValue(): PoolDetails {
-      return this.poolDetailsSubject.value;
-    }
+  private poolDetailsSubject: BehaviorSubject<PoolDetails>;
+  public poolDetails: Observable<PoolDetails>;
 
-    getAllPools() {
-        return this.http.get<any>(`${environment.apiUrl}/all-pools`);
-    }
+  constructor(private router: Router, private http: HttpClient) {
+    this.poolDetailsSubject = new BehaviorSubject<PoolDetails>(JSON.parse(localStorage.getItem('poolsDetails')!));
+    this.poolDetails = this.poolDetailsSubject.asObservable();
+  }
 
-    getLatestPrice() {
-      return this.http.get<any>(`${environment.apiUrl}/get-latest-price`);
-  }    
-  
+  public get poolDetailsValue(): PoolDetails {
+    return this.poolDetailsSubject.value;
+  }
+
+  getAllPools() {
+    return this.http.get<any>(`${environment.apiUrl}/all-pools`);
+  }
+
+  getLatestPrice() {
+    return this.http.get<any>(`${environment.apiUrl}/get-latest-price`);
+  }
+
+  getPoolDetails(poolId: string) {
+    return this.http.get<any>(`${environment.apiUrl}/get-pool-details/${poolId}`);
+  }
+
 }
