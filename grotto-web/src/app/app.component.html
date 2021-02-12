@@ -28,11 +28,11 @@
         Demo
       </button>
       |
-      <button *ngIf="mode === 'demo'" (click)="selectMode('prod')" class="btn btn-outline-success my-2 my-sm-0"
+      <button disabled *ngIf="mode === 'demo'" (click)="selectMode('prod')" class="btn btn-outline-success my-2 my-sm-0"
         type="button">
         Production
       </button>
-      <button *ngIf="mode === 'prod'" (click)="selectMode('prod')" class="btn btn-success my-2 my-sm-0" type="button">
+      <button disabled *ngIf="mode === 'prod'" (click)="selectMode('prod')" class="btn btn-success my-2 my-sm-0" type="button">
         Production
       </button>
       |
@@ -334,7 +334,7 @@
           <img src="assets/img/how_to.png" style="width: 32px;">
         </a>
         |
-        <a href="javascript:location.reload()">
+        <a href="#" (click)="reload()">
           <img src="assets/img/reload.png" style="width: 32px;">
         </a>
       </div>
@@ -358,7 +358,7 @@
           <td scope="col">{{pd.poolCreator}}</td>
           <td scope="col">{{pd.poolPrice | currency: 'USD'}}</td>
           <td scope="col">{{pd.poolSize}}</td>
-          <td scope="col">{{pd.poolPriceInEther}} BNB</td>
+          <td scope="col">{{pd.poolPriceInEther}} {{currency}}</td>
           <td scope="col">
             <div class="progress">
               <div class="progress-bar" role="progressbar" attr.aria-valuenow="{{pd.currentPoolSize}}"
@@ -403,7 +403,7 @@
           <td scope="col">{{pd.poolCreator}}</td>
           <td scope="col">{{pd.poolPrice | currency: 'USD'}}</td>
           <td scope="col">{{pd.poolSize}}</td>
-          <td scope="col">{{pd.poolPriceInEther}} BNB</td>
+          <td scope="col">{{pd.poolPriceInEther}} {{currency}}</td>
           <td scope="col">
             <div class="progress">
               <div class="progress-bar" role="progressbar" attr.aria-valuenow="{{pd.currentPoolSize}}"
@@ -437,7 +437,7 @@
           <td scope="col">{{pd.poolCreator}}</td>
           <td scope="col">{{pd.poolPrice | currency: 'USD'}}</td>
           <td scope="col">{{pd.poolSize}}</td>
-          <td scope="col">{{pd.poolPriceInEther}}BNB</td>
+          <td scope="col">{{pd.poolPriceInEther}}{{currency}}</td>
           <td scope="col">{{pd.winner}}</td>
         </tr>
       </tbody>
@@ -461,7 +461,7 @@
           <td scope="col">{{pd.poolCreator}}</td>
           <td scope="col">{{pd.poolPrice | currency: 'USD'}}</td>
           <td scope="col">{{pd.poolSize}}</td>
-          <td scope="col">{{pd.poolPriceInEther}}BNB</td>
+          <td scope="col">{{pd.poolPriceInEther}}{{currency}}</td>
           <td scope="col">
             <div class="progress">
               <div class="progress-bar" role="progressbar" attr.aria-valuenow="{{pd.currentPoolSize}}"
@@ -502,7 +502,7 @@
                 placeholder="Pool Price" formControlName="newPoolPrice">
               <small id="priceHelp" class="form-text text-muted">How much do you want each user to pool. Min:
                 {{poolPrice | currency: 'USD'}}</small>
-              <small id="priceHelp2" class="form-text text-muted">Note: This amount worth of BNB will be deducted from
+              <small id="priceHelp2" class="form-text text-muted">Note: This amount worth of {{currency}} will be deducted from
                 your wallet too.</small>
             </div>
             <div class="form-group">
@@ -547,7 +547,7 @@
           <p><span class="font-weight-bold">Creator: </span>{{selectedPool.poolCreator}}</p>
           <p><span class="font-weight-bold">Size: </span>{{selectedPool.poolSize}}</p>
           <p><span class="font-weight-bold">Price: </span>{{selectedPool.poolPrice | currency: 'USD'}}</p>
-          <p><span class="font-weight-bold">Value: </span>{{selectedPool.poolPriceInEther}} BNB</p>
+          <p><span class="font-weight-bold">Value: </span>{{selectedPool.poolPriceInEther}} {{currency}}</p>
           <div class="row">
             <div class="col col-6"></div>
             <div class="col col-3">

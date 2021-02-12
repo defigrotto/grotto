@@ -5,6 +5,7 @@ const path = require('path')
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const fs = require('fs')
 import { ethers } from 'ethers';
+import { Mode } from 'src/models/mode';
 import { PoolDetails } from 'src/models/pool.details';
 import { VoteDetails } from 'src/models/vote.details';
 
@@ -12,28 +13,57 @@ import { VoteDetails } from 'src/models/vote.details';
 export class EthereumService {
     provider: ethers.providers.JsonRpcProvider;
     grottoAbi;
-    grottoAddress: string;
+    grottoAddress: Mode = {
+        test: "",
+        prod: ""
+    };
+
     grottoContract: ethers.Contract;
 
-    governanceAddress: string;
+    governanceAddress: Mode = {
+        test: "",
+        prod: ""
+    };
     governanceContract: ethers.Contract;
     governanceAbi;
+
+    webProvider: Mode = {
+        test: "",
+        prod: ""
+    };
 
     private readonly logger = new Logger(EthereumService.name);
 
     constructor() {
-        this.provider = new ethers.providers.JsonRpcProvider(process.env.WEB3_PROVIDER);
-        this.grottoAddress = process.env.GROTTO_ADDRESS;
-        this.grottoAbi = JSON.parse(fs.readFileSync(path.resolve('src/abis/grotto.abi.json'), 'utf8')).abi;
-        this.logger.debug(this.grottoAddress);
-        this.grottoContract = new ethers.Contract(this.grottoAddress, this.grottoAbi, this.provider);
+        this.webProvider.prod = process.env.WEB3_PROVIDER;
+        this.webProvider.test = process.env.WEB3_PROVIDER_TEST;
 
-        this.governanceAddress = process.env.GOVERNANCE_ADDRESS;
+        this.grottoAddress.prod = process.env.GROTTO_ADDRESS;
+        this.grottoAddress.test = process.env.GROTTO_ADDRESS_TEST;
+
+        this.governanceAddress.prod = process.env.GOVERNANCE_ADDRESS;
+        this.governanceAddress.test = process.env.GOVERNANCE_ADDRESS_TEST;
+
+        this.grottoAbi = JSON.parse(fs.readFileSync(path.resolve('src/abis/grotto.abi.json'), 'utf8')).abi;
         this.governanceAbi = JSON.parse(fs.readFileSync(path.resolve('src/abis/governance.abi.json'), 'utf8')).abi;
-        this.governanceContract = new ethers.Contract(this.governanceAddress, this.governanceAbi, this.provider);
+        this.init('prod');
     }
 
-    getVotingDetails(voteId: string): Promise<VoteDetails> {
+    init(mode: string) {
+        if (mode === 'prod') {
+            this.provider = new ethers.providers.JsonRpcProvider(this.webProvider.prod);
+            this.grottoContract = new ethers.Contract(this.grottoAddress.prod, this.grottoAbi, this.provider);
+            this.governanceContract = new ethers.Contract(this.governanceAddress.prod, this.governanceAbi, this.provider);
+        } else {
+            this.provider = new ethers.providers.JsonRpcProvider(this.webProvider.test);
+            this.grottoContract = new ethers.Contract(this.grottoAddress.test, this.grottoAbi, this.provider);
+            this.governanceContract = new ethers.Contract(this.governanceAddress.test, this.governanceAbi, this.provider);
+        }
+    }
+
+    getVotingDetails(voteId: string, mode: string): Promise<VoteDetails> {
+        this.init(mode);
+        const contractAddress = mode === 'prod' ? this.governanceAddress.prod : this.governanceAddress.test;
         return new Promise(async (resolve, reject) => {
             try {
                 const vd = await this.governanceContract.votingDetails(voteId);
@@ -46,10 +76,10 @@ export class EthereumService {
                     yesVotes: vd[3].toNumber(),
                     noVotes: vd[4].toNumber(),
                     votes: vd[5].toNumber(),
-                    contractAddress: this.governanceAddress,
+                    contractAddress: contractAddress,
                     proposedValue: vd[6].toNumber(),
                     proposedGovernor: vd[7],
-                    currentValue: await this.getCurrentValue(voteId)
+                    currentValue: await this.getCurrentValue(voteId, mode)
                 };
 
                 resolve(voteDetails);
@@ -59,7 +89,10 @@ export class EthereumService {
         });
     }
 
-    getPoolDetails(poolId: string): Promise<PoolDetails> {
+    getPoolDetails(poolId: string, mode: string): Promise<PoolDetails> {
+        this.init(mode);
+        const contractAddress = mode === 'prod' ? this.grottoAddress.prod : this.grottoAddress.test;
+
         return new Promise(async (resolve, reject) => {
             try {
                 const pd = await this.grottoContract.getPoolDetails(poolId);
@@ -74,7 +107,7 @@ export class EthereumService {
                     isPoolConcluded: pd[6],
                     poolPriceInEther: +ethers.utils.formatEther(pd[7]),
                     poolId: poolId,
-                    contractAddress: this.grottoAddress
+                    contractAddress: contractAddress
                 }
 
                 this.logger.debug(poolDetails);
@@ -85,7 +118,10 @@ export class EthereumService {
         });
     }
 
-    getAllPoolDetails(): Promise<PoolDetails[]> {
+    getAllPoolDetails(mode: string): Promise<PoolDetails[]> {
+        this.init(mode);
+        const contractAddress = mode === 'prod' ? this.grottoAddress.prod : this.grottoAddress.test;
+
         return new Promise(async (resolve, reject) => {
             try {
                 const allPoolDetails: PoolDetails[] = [];
@@ -104,7 +140,7 @@ export class EthereumService {
                         isPoolConcluded: pd[6],
                         poolPriceInEther: +ethers.utils.formatEther(pd[7]),
                         poolId: pd[8],
-                        contractAddress: this.grottoAddress
+                        contractAddress: contractAddress
                     }
                     allPoolDetails.push(poolDetails);
                 }
@@ -116,7 +152,8 @@ export class EthereumService {
         });
     }
 
-    getLatestPrice(): Promise<number> {
+    getLatestPrice(mode: string): Promise<number> {
+        this.init(mode);
         return new Promise(async (resolve, reject) => {
             try {
                 const price = await this.grottoContract.getLatestPrice();
@@ -127,14 +164,15 @@ export class EthereumService {
         });
     }
 
-    getPoolDetailsByOwner(owner: string): Promise<PoolDetails[]> {
+    getPoolDetailsByOwner(owner: string, mode: string): Promise<PoolDetails[]> {
+        this.init(mode);
         return new Promise(async (resolve, reject) => {
             try {
                 const allPoolDetails: PoolDetails[] = [];
 
                 const pools = await this.grottoContract.getPoolsByOwner(owner);
                 for (let i = 0; i < pools.length; i++) {
-                    allPoolDetails.push(await this.getPoolDetails(pools[i]));
+                    allPoolDetails.push(await this.getPoolDetails(pools[i], mode));
                 }
 
                 resolve(allPoolDetails);
@@ -144,10 +182,11 @@ export class EthereumService {
         });
     }
 
-    getCurrentValue(voteId: string): Promise<any> {
+    getCurrentValue(voteId: string, mode: string): Promise<any> {
+        this.init(mode);
         return new Promise(async (resolve, reject) => {
             let retVal;
-            
+
             try {
                 switch (voteId) {
                     case 'add_new_governor':

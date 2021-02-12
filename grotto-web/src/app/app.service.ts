@@ -21,24 +21,25 @@ export class AppService {
     return this.poolDetailsSubject.value;
   }
 
-  getAllPools() {
-    return this.http.get<any>(`${environment.apiUrl}/all-pools`);
+  getAllPools(mode: string) {
+    console.log(mode);
+    return this.http.get<any>(`${environment.apiUrl}/all-pools/${mode}`);
   }
 
-  getLatestPrice() {
-    return this.http.get<any>(`${environment.apiUrl}/get-latest-price`);
+  getLatestPrice(mode: string) {
+    return this.http.get<any>(`${environment.apiUrl}/get-latest-price/${mode}`);
   }
 
-  getPoolDetails(poolId: string) {
-    return this.http.get<any>(`${environment.apiUrl}/get-pool-details/${poolId}`);
+  getPoolDetails(poolId: string, mode: string) {
+    return this.http.get<any>(`${environment.apiUrl}/get-pool-details/${poolId}/${mode}`);
   }
 
-  getVoteDetails(voteId: string) {
-    return this.http.get<any>(`${environment.apiUrl}/get-vote-details/${voteId}`);
+  getVoteDetails(voteId: string, mode: string) {
+    return this.http.get<any>(`${environment.apiUrl}/get-vote-details/${voteId}/${mode}`);
   }  
 
-  getCurrentValue(voteId: string) {
-    return this.http.get<any>(`${environment.apiUrl}/get-current-value/${voteId}`);
+  getCurrentValue(voteId: string, mode: string) {
+    return this.http.get<any>(`${environment.apiUrl}/get-current-value/${voteId}/${mode}`);
   }    
 
 }

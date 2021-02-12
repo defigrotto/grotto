@@ -12,60 +12,60 @@ export class GrottoService {
 
     }    
 
-    getCurrentValue(voteId: string): Promise<any> {
+    getCurrentValue(voteId: string, mode: string): Promise<any> {
         return new Promise(async (resolve, reject) => {
             try {
-                resolve(await this.ethereumService.getCurrentValue(voteId));
+                resolve(await this.ethereumService.getCurrentValue(voteId, mode));
             } catch (error) {
                 reject(error);
             }
         });                
     }
 
-    getVoteDetails(voteId: string): Promise<VoteDetails> {
+    getVoteDetails(voteId: string, mode: string): Promise<VoteDetails> {
         return new Promise(async (resolve, reject) => {
             try {
-                resolve(await this.ethereumService.getVotingDetails(voteId));
+                resolve(await this.ethereumService.getVotingDetails(voteId, mode));
             } catch (error) {
                 reject(error);
             }
         });        
     }
 
-    getPoolDetails(poolId: string): Promise<PoolDetails> {
+    getPoolDetails(poolId: string, mode: string): Promise<PoolDetails> {
         return new Promise(async (resolve, reject) => {
             try {
-                resolve(await this.ethereumService.getPoolDetails(poolId));
+                resolve(await this.ethereumService.getPoolDetails(poolId, mode));
             } catch (error) {
                 reject(error);
             }
         });
     }
 
-    getPoolDetailsByOwner(owner: string): Promise<PoolDetails[]> {
+    getPoolDetailsByOwner(owner: string, mode: string): Promise<PoolDetails[]> {
         return new Promise(async (resolve, reject) => {
             try {
-                resolve(await this.ethereumService.getPoolDetailsByOwner(owner));
+                resolve(await this.ethereumService.getPoolDetailsByOwner(owner, mode));
             } catch (error) {
                 reject(error);
             }
         });
     }    
 
-    getAllPoolDetails() {
+    getAllPoolDetails(mode: string) {
         return new Promise(async (resolve, reject) => {
             try {
-                resolve(await this.ethereumService.getAllPoolDetails());
+                resolve(await this.ethereumService.getAllPoolDetails(mode));
             } catch (error) {
                 reject(error);
             }
         });        
     }
 
-    getLatestPrice() {
+    getLatestPrice(mode: string) {
         return new Promise(async (resolve, reject) => {
             try {
-                resolve(await this.ethereumService.getLatestPrice());
+                resolve(await this.ethereumService.getLatestPrice(mode));
             } catch (error) {
                 reject(error);
             }

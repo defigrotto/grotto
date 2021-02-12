@@ -16,8 +16,7 @@ export class AppComponent {
   title = 'grotto-web';
   ethereum: any;
 
-  account = "Connect Metamask";
-  chainId = 56;
+  account = "Connect Metamask";  
 
   poolDetails: PoolDetails[] = [];
   mainPool: PoolDetails[] = [];
@@ -70,8 +69,10 @@ export class AppComponent {
   poolPrice!: number;
   poolMinSize!: number;
   poolMaxSize!: number;
-  mode = "prod";
-  explorer = "https://bscscan.com/address";
+  mode = "demo";
+  chainId = 77;
+  explorer = "https://blockscout.com/poa/sokol/address";
+  currency = 'ETH';
 
   constructor(private appService: AppService, private formBuilder: FormBuilder) {
     if (window.ethereum === undefined) {
@@ -99,12 +100,18 @@ export class AppComponent {
     }, 30000);
   }
 
+  reload() {
+    this.getAllPools();
+    this.selectVote(this.voteType, "New Governor");
+    this.getNewPoolValues();
+  }
+
   getNewPoolValues() {
-    this.appService.getCurrentValue('alter_min_price').pipe(first()).subscribe(vd => {
+    this.appService.getCurrentValue('alter_min_price', this.mode).pipe(first()).subscribe(vd => {
       this.poolPrice = vd.data;
-      this.appService.getCurrentValue('alter_min_size').pipe(first()).subscribe(vd => {
+      this.appService.getCurrentValue('alter_min_size', this.mode).pipe(first()).subscribe(vd => {
         this.poolMinSize = vd.data;
-        this.appService.getCurrentValue('alter_max_size').pipe(first()).subscribe(vd => {
+        this.appService.getCurrentValue('alter_max_size', this.mode).pipe(first()).subscribe(vd => {
           this.poolMaxSize = vd.data;
         });
       });
@@ -118,7 +125,7 @@ export class AppComponent {
 
     this.voteType = voteId;
     this.voteLabel = label;
-    this.appService.getVoteDetails(voteId)
+    this.appService.getVoteDetails(voteId, this.mode)
       .pipe(first())
       .subscribe(vd => {
         this.selectedVote = vd.data;
@@ -222,7 +229,7 @@ export class AppComponent {
       clearInterval(this.interval);
     }
 
-    this.appService.getAllPools()
+    this.appService.getAllPools(this.mode)
       .pipe(first())
       .subscribe(pd => {
         console.log(pd.data);
@@ -243,7 +250,7 @@ export class AppComponent {
   }
 
   getAllPools() {
-    this.appService.getAllPools()
+    this.appService.getAllPools(this.mode)
       .pipe(first())
       .subscribe(pd => {
         console.log(pd.data);
@@ -280,7 +287,7 @@ export class AppComponent {
       this.startPoolFailure = true;
       return;
     }
-    this.appService.getLatestPrice()
+    this.appService.getLatestPrice(this.mode)
       .pipe(first())
       .subscribe(pd => {
         console.log(pd.data);
@@ -373,8 +380,10 @@ export class AppComponent {
   selectMode(newMode: string) {
     if(newMode !== this.mode) {
       this.mode = newMode;
+      this.currency = newMode === 'prod' ? 'BNB' : 'ETH';
       this.chainId = newMode === 'prod' ? 56 : 77;
       this.explorer = newMode === 'prod' ? 'https://bscscan.com/address' : 'https://blockscout.com/poa/sokol/address'
+      this.reload();
     }
   }
 
