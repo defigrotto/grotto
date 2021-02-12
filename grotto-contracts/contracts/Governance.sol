@@ -267,10 +267,20 @@ contract Governance is
             emit VOTE_CASTED(governor, voteId);
 
             // count votes
-            if (votes[voteId] == governors.length) {
+            uint256 numGovs = governors.length;
+            uint256 allYes = yesVotes[voteId];
+            uint256 allNo = noVotes[voteId];
+            uint256 allVotes = votes[voteId];
+
+            bool countVotes = allVotes == numGovs;
+            if(!countVotes) {
+                countVotes = (allYes > allNo && (allNo + (numGovs - allYes) < allYes)) ||
+                            (allNo > allYes && (allYes + (numGovs - allNo) < allNo));
+            }
+
+            
+            if (countVotes) {
                 // all governors have voted
-                uint256 allYes = yesVotes[voteId];
-                uint256 allNo = noVotes[voteId];
 
                 if (allYes > allNo) {
                     if (

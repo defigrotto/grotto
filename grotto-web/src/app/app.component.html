@@ -61,8 +61,13 @@
           Pool Size</button>
         <button type="button" class="btn btn-success" (click)="selectVote('alter_max_size', 'Maximum Pool Size')">Max
           Pool Size</button>
+          <!-- TODO: Use BSC Address  -->
+          <a href="https://blockscout.com/poa/sokol/address/{{govContractAddress}}" target="_blank"
+          rel="noopener noreferrer" data-toggle="tooltip" data-placement="top" title="Smart Contract on Block Explorer">
+          <button type="button" class="btn btn-warning">Show Contract</button>          
+            </a>
       </div>
-    </div>
+    </div>    
   </div>
 
   <div class="container" style="padding-top: 100px;" *ngIf="voteType === 'add_new_governor'">
@@ -81,6 +86,14 @@
 
     <div *ngIf="!selectedVote.isInProgress" class="container">
       <div class="form-group">
+        <label for="poolSize">Current Value</label>
+        <ul class="list-group">
+          <li *ngFor="let voter of selectedVote.currentValue" class="list-group-item d-flex justify-content-between align-items-center">
+            {{voter}}
+          </li>
+        </ul>  
+        <p></p>
+        <br />        
         <label for="poolSize">Propose New Governor</label>
         <input type="text " class="form-control" aria-describedby="sizeHelp" id="poolSize"
           placeholder="New Governor's Address" [(ngModel)]="proposedGov">
@@ -93,7 +106,13 @@
 
   <div class="container" style="padding-top: 100px;" *ngIf="voteType === 'remove_governor'">
     <div *ngIf="selectedVote.isInProgress">
-      <div><span class="font-weight-bold">Voters: </span>{{selectedVote.voters}}</div>
+      <div><span class="font-weight-bold">Voters: </span>
+        <ul class="list-group">
+          <li *ngFor="let voter of selectedVote.voters" class="list-group-item d-flex justify-content-between align-items-center">
+            {{voter}}
+          </li>
+        </ul>              
+      </div>
       <div><span class="font-weight-bold">Yes Votes: </span>{{selectedVote.yesVotes}}
       </div>
       <div><span class="font-weight-bold">No Votes: </span>{{selectedVote.noVotes}}
@@ -106,6 +125,14 @@
 
     <div *ngIf="!selectedVote.isInProgress" class="container">
       <div class="form-group">
+        <label for="poolSize">Current Value</label>
+        <ul class="list-group">
+          <li *ngFor="let voter of selectedVote.currentValue" class="list-group-item d-flex justify-content-between align-items-center">
+            {{voter}}
+          </li>
+        </ul>  
+        <p></p>
+        <br />
         <label for="poolSize">Propose Remove Governor</label>
         <input type="text " class="form-control" aria-describedby="sizeHelp" id="poolSize"
           placeholder="Governor's Address" [(ngModel)]="proposedGov">
@@ -143,6 +170,7 @@
 
     <div *ngIf="!selectedVote.isInProgress" class="container">
       <div class="form-group">
+        <label for="poolSize">Current Value: {{selectedVote.currentValue}}</label><p></p><br />
         <label for="poolSize">Propose New Value for {{voteLabel}}</label>
         <input type="number " class="form-control" aria-describedby="sizeHelp" id="poolSize"
           placeholder="New {{voteLabel}}" [(ngModel)]="proposedValue">
@@ -218,7 +246,7 @@
       </div>
       <div class="p-2">
         <!--TODO: Replace with BSC URL-->
-        <a href="https://blockscout.com/poa/sokol/address/0x9De8f9d282789Df3a8fF7c15bfE1428a0577f667" target="_blank"
+        <a href="https://blockscout.com/poa/sokol/address/{{contractAddress}}" target="_blank"
           rel="noopener noreferrer" data-toggle="tooltip" data-placement="top" title="Smart Contract on Block Explorer">
           <img src="assets/img/sc.png" style="width: 32px;">
         </a>

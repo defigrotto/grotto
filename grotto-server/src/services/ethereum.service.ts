@@ -14,7 +14,7 @@ export class EthereumService {
     grottoAbi;
     grottoAddress: string;
     grottoContract: ethers.Contract;
-    
+
     governanceAddress: string;
     governanceContract: ethers.Contract;
     governanceAbi;
@@ -48,7 +48,8 @@ export class EthereumService {
                     votes: vd[5].toNumber(),
                     contractAddress: this.governanceAddress,
                     proposedValue: vd[6].toNumber(),
-                    proposedGovernor: vd[7]
+                    proposedGovernor: vd[7],
+                    currentValue: await this.getCurrentValue(voteId)
                 };
 
                 resolve(voteDetails);
@@ -61,7 +62,7 @@ export class EthereumService {
     getPoolDetails(poolId: string): Promise<PoolDetails> {
         return new Promise(async (resolve, reject) => {
             try {
-                const pd = await this.grottoContract.getPoolDetails(poolId);     
+                const pd = await this.grottoContract.getPoolDetails(poolId);
                 console.log(pd);
                 const poolDetails: PoolDetails = {
                     winner: pd[0],
@@ -104,7 +105,7 @@ export class EthereumService {
                         poolPriceInEther: +ethers.utils.formatEther(pd[7]),
                         poolId: pd[8],
                         contractAddress: this.grottoAddress
-                    }    
+                    }
                     allPoolDetails.push(poolDetails);
                 }
 
@@ -123,7 +124,7 @@ export class EthereumService {
             } catch (error) {
                 reject(error);
             }
-        });        
+        });
     }
 
     getPoolDetailsByOwner(owner: string): Promise<PoolDetails[]> {
@@ -141,5 +142,51 @@ export class EthereumService {
                 reject(error);
             }
         });
-    }    
+    }
+
+    getCurrentValue(voteId: string): Promise<any> {
+        return new Promise(async (resolve, reject) => {
+            let retVal;
+            
+            try {
+                switch (voteId) {
+                    case 'add_new_governor':
+                    case 'remove_governor':
+                        retVal = await this.governanceContract.getGovernors();
+                        resolve(retVal);
+                        break;
+                    case 'alter_main_pool_price':
+                        retVal = await this.governanceContract.getMainPoolPrice();
+                        resolve(ethers.utils.formatEther(retVal));
+                        break;
+                    case 'alter_main_pool_size':
+                        retVal = await this.governanceContract.getMainPoolSize();
+                        resolve(retVal.toNumber());
+                        break;
+                    case 'alter_house_cut':
+                        retVal = await this.governanceContract.getHouseCut();
+                        resolve(retVal.toNumber());
+                        break;
+                    case 'alter_house_cut_tokens':
+                        retVal = await this.governanceContract.getHouseCutNewTokens();
+                        resolve(retVal.toNumber());
+                        break;
+                    case 'alter_min_price':
+                        retVal = await this.governanceContract.getMinimumPoolPrice();
+                        resolve(ethers.utils.formatEther(retVal));
+                        break;
+                    case 'alter_min_size':
+                        retVal = await this.governanceContract.getMinimumPoolSize();
+                        resolve(retVal.toNumber());
+                        break;
+                    case 'alter_max_size':
+                        retVal = await this.governanceContract.getMaximumPoolSize();
+                        resolve(retVal.toNumber());
+                        break;
+                }
+            } catch (error) {
+                reject(error);
+            }
+        });
+    }
 }

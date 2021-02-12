@@ -37,4 +37,8 @@ export class AppService {
     return this.http.get<any>(`${environment.apiUrl}/get-vote-details/${voteId}`);
   }  
 
+  getCurrentValue(voteId: string) {
+    return this.http.get<any>(`${environment.apiUrl}/get-current-value/${voteId}`);
+  }    
+
 }

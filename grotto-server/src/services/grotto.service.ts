@@ -12,6 +12,16 @@ export class GrottoService {
 
     }    
 
+    getCurrentValue(voteId: string): Promise<any> {
+        return new Promise(async (resolve, reject) => {
+            try {
+                resolve(await this.ethereumService.getCurrentValue(voteId));
+            } catch (error) {
+                reject(error);
+            }
+        });                
+    }
+
     getVoteDetails(voteId: string): Promise<VoteDetails> {
         return new Promise(async (resolve, reject) => {
             try {

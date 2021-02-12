@@ -18,6 +18,11 @@ export class GrottoController {
         return ResponseUtils.getSuccessResponse(await this.grottoService.getVoteDetails(voteId));
     }    
 
+    @Get('get-current-value/:voteId')
+    async getCurrentValue(@Param("voteId") voteId: string): Promise<Response> {
+        return ResponseUtils.getSuccessResponse(await this.grottoService.getCurrentValue(voteId));
+    }    
+
     @Get('get-pool-details/:poolId')
     async getPoolDetails(@Param("poolId") poolId: string): Promise<Response> {
         return ResponseUtils.getSuccessResponse(await this.grottoService.getPoolDetails(poolId));

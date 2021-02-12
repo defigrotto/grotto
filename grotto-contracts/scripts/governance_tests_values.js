@@ -20,8 +20,9 @@ async function main() {
     });
 
     let gi = await gov.connect(signers[0]);
-    await gi.proposeNewMainPoolPrice(125);
+    await gi.proposeNewValue(125, 'alter_main_pool_price');
     for (i = 0; i < signers.length; i++) {
+        console.log(`Vote: ${i + 1}`);
         try {
             gi = await gov.connect(signers[i]);
             await gi.vote('alter_main_pool_price', true);
@@ -33,8 +34,9 @@ async function main() {
     console.log((await gov.getMainPoolPrice()).toString());
 
     gi = await gov.connect(signers[3]);
-    await gi.proposeNewHouseCutTokens(15);
+    await gi.proposeNewValue(15, 'alter_house_cut_tokens');
     for (i = 0; i < signers.length; i++) {
+        console.log(`Vote: ${i + 1}`);
         try {
             gi = await gov.connect(signers[i]);
             await gi.vote('alter_house_cut_tokens', true);

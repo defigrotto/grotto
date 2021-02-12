@@ -75,13 +75,13 @@ contract Grotto is ERC20 ('Grotto', 'GROTTO') {
     mapping(bytes32 => address payable) internal winners;    
     
     // TODO: Use the right address
-    address private governor = 0x71D70b41efDE3C0D0705DBecE05E00fd60888df0;
+    address private governor = 0xdA18A84fCCB867b09B6D272b07D6d0Cdc59711f9;
     
     constructor() {
         gov = GovernanceInterface(governor);
         
         // TODO: uncomment for tests to pass
-        gov = new Governance();
+        //gov = new Governance();
 
         priceFeed = AggregatorV3Interface(KOVAN_ETH_USD_PF);
         poolIds.push(mainPoolId);
