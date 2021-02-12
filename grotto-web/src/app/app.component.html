@@ -1,6 +1,6 @@
 <header>
   <div class="navbar navbar-dark bg-dark box-shadow fixed-top">
-    <a href="javascript:location.reload();" class="navbar-brand">
+    <a href="#" class="navbar-brand" (click)="gotoPage('home')">
       <img src="assets/img/logo.png" width="150" alt="CoolBrand">
     </a>
     <div class="container d-flex justify-content-between">>
@@ -13,16 +13,152 @@
           formControlName="poolCreator">
         <button class="btn btn-outline-success my-2 my-sm-0" type="submit" (click)="filterPool()">Find Pool</button>
       </form>
+      <a href="#" class="nav-link warning" (click)="gotoPage('governance')">
+        Governance
+      </a>
     </div>
   </div>
 </header>
 
 <br />
-<main role="main">
+<main role="main" *ngIf="page === 'governance'">
+  <div class="container" style="padding-top: 100px;">
+    <div class="alert alert-danger" role="alert" *ngIf="votingFailure">
+      <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+        <span aria-hidden="true">&times;</span>
+      </button>
+      <p>
+        Voting Failed. Please try again later and/or check the blockchain for more info.
+      </p>
+    </div>
+  
+    <div class="alert alert-success" role="alert" *ngIf="votingSuccess">
+      <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+        <span aria-hidden="true">&times;</span>
+      </button>
+      <p>
+        Voting Successful.
+      </p>
+    </div>
+
+    <div class="btn-toolbar" role="toolbar" aria-label="Voting">
+      <div class="btn-group mr-2" role="group" aria-label="First group">
+        <button type="button" class="btn btn-secondary" (click)="selectVote('add_new_governor', 'Add New Governor')">Add
+          Governor</button>
+        <button type="button" class="btn btn-danger" (click)="selectVote('remove_governor', 'Remove Governor')">Remove
+          Governors</button>
+        <button type="button" class="btn btn-primary"
+          (click)="selectVote('alter_main_pool_price', 'Main Pool Price')">Main Pool Price</button>
+        <button type="button" class="btn btn-success"
+          (click)="selectVote('alter_main_pool_size', 'Main Pool Size')">Main Pool Size</button>
+        <button type="button" class="btn btn-warning" (click)="selectVote('alter_house_cut', 'House Cut')">House
+          Cut</button>
+        <button type="button" class="btn btn-info"
+          (click)="selectVote('alter_house_cut_new_tokens', 'House Cut (New Tokens)')">House Cut (New Tokens)</button>
+        <button type="button" class="btn btn-dark" (click)="selectVote('alter_min_price', 'Minimum Pool Price')">Pool
+          Price</button>
+        <button type="button" class="btn btn-primary" (click)="selectVote('alter_min_size', 'Minimum Pool Size')">Min
+          Pool Size</button>
+        <button type="button" class="btn btn-success" (click)="selectVote('alter_max_size', 'Maximum Pool Size')">Max
+          Pool Size</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="container" style="padding-top: 100px;" *ngIf="voteType === 'add_new_governor'">
+    <div *ngIf="selectedVote.isInProgress">
+      <div><span class="font-weight-bold">Voters: </span>{{selectedVote.voters}}</div>
+      <div><span class="font-weight-bold">Yes Votes: </span>{{selectedVote.yesVotes}}
+      </div>
+      <div><span class="font-weight-bold">No Votes: </span>{{selectedVote.noVotes}}
+      </div>
+      <div><span class="font-weight-bold">Total Votes: </span>{{selectedVote.votes}}
+      </div>
+      <div><span class="font-weight-bold">Governor to Add: </span>{{selectedVote.proposedGovernor}}
+      </div>
+    </div>
+
+
+    <div *ngIf="!selectedVote.isInProgress" class="container">
+      <div class="form-group">
+        <label for="poolSize">Propose New Governor</label>
+        <input type="text " class="form-control" aria-describedby="sizeHelp" id="poolSize"
+          placeholder="New Governor's Address" [(ngModel)]="proposedGov">
+        <small id="sizeHelp" class="form-text text-muted">Propose a new governor that can vote</small>
+      </div>
+      <button type="button" class="btn btn-primary" data-dismiss="modal" (click)="proposeNewGovernor()">Propose New
+        Governor</button>
+    </div>
+  </div>
+
+  <div class="container" style="padding-top: 100px;" *ngIf="voteType === 'remove_governor'">
+    <div *ngIf="selectedVote.isInProgress">
+      <div><span class="font-weight-bold">Voters: </span>{{selectedVote.voters}}</div>
+      <div><span class="font-weight-bold">Yes Votes: </span>{{selectedVote.yesVotes}}
+      </div>
+      <div><span class="font-weight-bold">No Votes: </span>{{selectedVote.noVotes}}
+      </div>
+      <div><span class="font-weight-bold">Total Votes: </span>{{selectedVote.votes}}
+      </div>
+      <div><span class="font-weight-bold">Governor to Remove: </span>{{selectedVote.proposedGovernor}}
+      </div>
+    </div>
+
+    <div *ngIf="!selectedVote.isInProgress" class="container">
+      <div class="form-group">
+        <label for="poolSize">Propose Remove Governor</label>
+        <input type="text " class="form-control" aria-describedby="sizeHelp" id="poolSize"
+          placeholder="Governor's Address" [(ngModel)]="proposedGov">
+        <small id="sizeHelp" class="form-text text-muted">Propose removal of a governor</small>
+      </div>
+      <button type="button" class="btn btn-primary" data-dismiss="modal" (click)="removeGovernor()">Propose Removes
+        Governor</button>
+    </div>
+  </div>
+
+  <div class="container" style="padding-top: 100px;"
+    *ngIf="(voteType !== 'remove_governor' && voteType !== 'add_new_governor')">
+    <div *ngIf="selectedVote.isInProgress">
+      <div><span class="font-weight-bold">Voters: </span>
+        <ul class="list-group">
+          <li *ngFor="let voter of selectedVote.voters" class="list-group-item d-flex justify-content-between align-items-center">
+            {{voter}}
+          </li>
+        </ul>              
+      </div>
+      <div><span class="font-weight-bold">Yes Votes: </span>{{selectedVote.yesVotes}}
+      </div>
+      <div><span class="font-weight-bold">No Votes: </span>{{selectedVote.noVotes}}
+      </div>
+      <div><span class="font-weight-bold">Total Votes: </span>{{selectedVote.votes}}
+      </div>
+      <div><span class="font-weight-bold">Proposed New Value: </span>{{selectedVote.proposedValue}}
+      </div>
+      <div class="btn-group" role="group" aria-label="Basic example">
+        <button type="button" class="btn btn-success" data-dismiss="modal" (click)="vote(true)">Vote Yes</button>
+        <button type="button" class="btn btn-danger" data-dismiss="modal" (click)="vote(false)">Vote No</button>
+      </div>
+    </div>
+
+
+    <div *ngIf="!selectedVote.isInProgress" class="container">
+      <div class="form-group">
+        <label for="poolSize">Propose New Value for {{voteLabel}}</label>
+        <input type="number " class="form-control" aria-describedby="sizeHelp" id="poolSize"
+          placeholder="New {{voteLabel}}" [(ngModel)]="proposedValue">
+        <small id="sizeHelp" class="form-text text-muted">Propose New Value for {{voteLabel}}</small>
+      </div>
+      <button type="button" class="btn btn-primary" data-dismiss="modal" (click)="proposeNewValue()">Propose New
+        Value</button>
+    </div>
+  </div>
+</main>
+
+<main role="main" *ngIf="page === 'home'">
   <!-- <button type="button" class="btn btn-success btn-sm mr-1" data-toggle="modal" data-target="#howItWorkdModal">
     More Info...
   </button> -->
-  <div class="container"style="padding-top: 100px;">
+  <div class="container" style="padding-top: 100px;">
     <div class="alert alert-danger" role="alert" *ngIf="joinPoolFailure">
       <button type="button" class="close" data-dismiss="alert" aria-label="Close">
         <span aria-hidden="true">&times;</span>
@@ -95,6 +231,10 @@
         <a data-toggle="modal" data-target="#howItWorkdModal" href="#">
           <img src="assets/img/how_to.png" style="width: 32px;">
         </a>
+        |
+        <a href="javascript:location.reload()">
+          <img src="assets/img/reload.png" style="width: 32px;">
+        </a>
       </div>
     </div>
 
@@ -110,7 +250,8 @@
         </tr>
       </thead>
       <tbody>
-        <tr *ngFor="let pd of mainPool; let i = index" data-toggle="modal" data-target="#joinPoolModal" (click)="setSelectedPool(pd, i)">
+        <tr *ngFor="let pd of mainPool; let i = index" data-toggle="modal" data-target="#joinPoolModal"
+          (click)="setSelectedPool(pd, i)">
           <td scope="col">{{pd.poolId.substr(0, 10)}}...{{pd.poolId.substr(56)}}</td>
           <td scope="col">{{pd.poolCreator}}</td>
           <td scope="col">{{pd.poolPrice | currency: 'USD'}}</td>
@@ -153,7 +294,8 @@
         </tr>
       </thead>
       <tbody>
-        <tr *ngFor="let pd of userPool; let i = index" data-toggle="modal" data-target="#joinPoolModal" (click)="setSelectedPool(pd, i)">
+        <tr *ngFor="let pd of userPool; let i = index" data-toggle="modal" data-target="#joinPoolModal"
+          (click)="setSelectedPool(pd, i)">
           <td scope="col">{{pd.poolId.substr(0, 10)}}...{{pd.poolId.substr(56)}}</td>
           <td scope="col">{{pd.poolCreator}}</td>
           <td scope="col">{{pd.poolPrice | currency: 'USD'}}</td>
@@ -255,9 +397,8 @@
               <label for="poolPrice">Pool Price (in USD)</label>
               <input type="number" class="form-control" aria-describedby="priceHelp" id="poolPrice"
                 placeholder="Pool Price" formControlName="newPoolPrice">
-              <small id="priceHelp" class="form-text text-muted">How much do you want each user to pool. Min: $10,
-                Max:
-                $100</small>
+              <small id="priceHelp" class="form-text text-muted">How much do you want each user to pool. Min:
+                $10</small>
               <small id="priceHelp2" class="form-text text-muted">Note: This amount worth of BNB will be deducted from
                 your wallet too.</small>
             </div>

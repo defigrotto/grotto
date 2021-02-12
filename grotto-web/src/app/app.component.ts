@@ -4,6 +4,7 @@ import { first } from 'rxjs/operators';
 import { PoolDetails } from './models/pool.model';
 import { ethers, logger } from 'ethers';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { VoteDetails } from './models/vote.details';
 declare const window: any
 
 @Component({
@@ -38,11 +39,33 @@ export class AppComponent {
     "function enterMainPool()",
     "function startNewPool(string, uint256)",
   ];
+  govAbi = [
+    "function vote(string,bool)",
+    "function proposeNewValue(uint256,string)",
+    "function proposeRemoveGovernor(address)",    
+    "function proposeNewGovernor(address)",        
+  ];
+
+  govContractAddress = "";
+
   iFace = new ethers.utils.Interface(this.abi);
+  govFace = new ethers.utils.Interface(this.govAbi);
 
   form: FormGroup;
   searchForm: FormGroup;
   contractAddress!: string;
+
+  page = "home";
+  selectedVote!: VoteDetails;
+
+  voteType = "add_new_governor";
+  voteLabel = "";
+
+  proposedGov = "";
+  proposedValue = 0;
+
+  votingSuccess = false;
+  votingFailure = false;
 
   constructor(private appService: AppService, private formBuilder: FormBuilder) {
     if (window.ethereum === undefined) {
@@ -62,16 +85,100 @@ export class AppComponent {
     });
 
     this.getAllPools();
+    this.selectVote(this.voteType, "New Governor");
     this.connectMetamask();
     this.interval = setInterval(() => {
       this.getAllPools();
     }, 30000);
   }
 
-  ngOnDestroy() {
+  selectVote(voteId: string, label: string) {
     if (this.interval) {
       clearInterval(this.interval);
     }
+
+    this.voteType = voteId;
+    this.voteLabel = label;
+    this.appService.getVoteDetails(voteId)
+      .pipe(first())
+      .subscribe(vd => {
+        this.selectedVote = vd.data;
+        this.govContractAddress = vd.data.contractAddress;
+      });
+  }
+
+  proposeNewGovernor() {
+    this.votingSuccess = false;
+    this.votingFailure = false;  
+
+    console.log(this.proposedGov);
+  }
+
+  removeGovernor() {
+    this.votingSuccess = false;
+    this.votingFailure = false;  
+
+    console.log(this.proposedGov);
+  }
+
+  vote(yes: boolean) {
+    this.votingSuccess = false;
+    this.votingFailure = false;  
+    const data: string = this.govFace.encodeFunctionData("vote", [this.selectedVote.voteId, yes]);
+
+    const transactionParameters = {
+      nonce: '0x00', // ignored by MetaMask
+      //gasPrice: '0x37E11D600', // customizable by user during MetaMask confirmation.
+      //gas: '0x12C07', // customizable by user during MetaMask confirmation.
+      to: this.govContractAddress, // Required except during contract publications.
+      from: this.ethereum.selectedAddress, // must match user's active address.
+      value: "0x0", // Only required to send ether to the recipient from the initiating external account.
+      data: data,
+      chainId: this.chainId, // Used to prevent transaction reuse across blockchains. Auto-filled by MetaMask.
+    };
+
+    // txHash is a hex string
+    // As with any RPC call, it may throw an error
+    console.log(transactionParameters);
+    this.ethereum.request({ method: 'eth_sendTransaction', params: [transactionParameters], }).then((txHash: string) => {
+      console.log(txHash);
+      this.votingSuccess = true;
+      this.getAllPools();
+    }, (error: any) => {
+      this.votingFailure = true;
+    });    
+  }
+
+  proposeNewValue() {
+    this.votingSuccess = false;
+    this.votingFailure = false;  
+    const data: string = this.govFace.encodeFunctionData("proposeNewValue", [this.proposedValue, this.voteType]);
+
+    const transactionParameters = {
+      nonce: '0x00', // ignored by MetaMask
+      //gasPrice: '0x37E11D600', // customizable by user during MetaMask confirmation.
+      //gas: '0x12C07', // customizable by user during MetaMask confirmation.
+      to: this.govContractAddress, // Required except during contract publications.
+      from: this.ethereum.selectedAddress, // must match user's active address.
+      value: "0x0", // Only required to send ether to the recipient from the initiating external account.
+      data: data,
+      chainId: this.chainId, // Used to prevent transaction reuse across blockchains. Auto-filled by MetaMask.
+    };
+
+    // txHash is a hex string
+    // As with any RPC call, it may throw an error
+    console.log(transactionParameters);
+    this.ethereum.request({ method: 'eth_sendTransaction', params: [transactionParameters], }).then((txHash: string) => {
+      console.log(txHash);
+      this.votingSuccess = true;
+      this.getAllPools();
+    }, (error: any) => {
+      this.votingFailure = true;
+    });    
+  }
+  
+  gotoPage(page: string) {
+    this.page = page;
   }
 
   filterPool() {

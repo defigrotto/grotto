@@ -6,6 +6,13 @@ async function main() {
     await grotto.deployed();
     console.log(`Grotto: ${grotto.address}`);
 
+    grotto.on("*", (event) => {
+        console.log(event.event);
+        console.log(event.args);
+        console.log("---------------------------------");
+        console.log("");
+    });
+
     let acc = await ethers.provider.listAccounts();
     let sig = await ethers.getSigners();
 
@@ -99,7 +106,7 @@ async function main() {
 }
 
 main()
-    .then(() => process.exit(0))
+    .then(() => {})
     .catch(error => {
         console.error(error);
         process.exit(1);

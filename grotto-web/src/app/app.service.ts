@@ -33,4 +33,8 @@ export class AppService {
     return this.http.get<any>(`${environment.apiUrl}/get-pool-details/${poolId}`);
   }
 
+  getVoteDetails(voteId: string) {
+    return this.http.get<any>(`${environment.apiUrl}/get-vote-details/${voteId}`);
+  }  
+
 }

@@ -6,6 +6,7 @@ const path = require('path')
 const fs = require('fs')
 import { ethers } from 'ethers';
 import { PoolDetails } from 'src/models/pool.details';
+import { VoteDetails } from 'src/models/vote.details';
 
 @Injectable()
 export class EthereumService {
@@ -13,6 +14,10 @@ export class EthereumService {
     grottoAbi;
     grottoAddress: string;
     grottoContract: ethers.Contract;
+    
+    governanceAddress: string;
+    governanceContract: ethers.Contract;
+    governanceAbi;
 
     private readonly logger = new Logger(EthereumService.name);
 
@@ -22,6 +27,35 @@ export class EthereumService {
         this.grottoAbi = JSON.parse(fs.readFileSync(path.resolve('src/abis/grotto.abi.json'), 'utf8')).abi;
         this.logger.debug(this.grottoAddress);
         this.grottoContract = new ethers.Contract(this.grottoAddress, this.grottoAbi, this.provider);
+
+        this.governanceAddress = process.env.GOVERNANCE_ADDRESS;
+        this.governanceAbi = JSON.parse(fs.readFileSync(path.resolve('src/abis/governance.abi.json'), 'utf8')).abi;
+        this.governanceContract = new ethers.Contract(this.governanceAddress, this.governanceAbi, this.provider);
+    }
+
+    getVotingDetails(voteId: string): Promise<VoteDetails> {
+        return new Promise(async (resolve, reject) => {
+            try {
+                const vd = await this.governanceContract.votingDetails(voteId);
+                console.log(vd);
+
+                const voteDetails: VoteDetails = {
+                    voteId: vd[0],
+                    isInProgress: vd[1],
+                    voters: vd[2],
+                    yesVotes: vd[3].toNumber(),
+                    noVotes: vd[4].toNumber(),
+                    votes: vd[5].toNumber(),
+                    contractAddress: this.governanceAddress,
+                    proposedValue: vd[6].toNumber(),
+                    proposedGovernor: vd[7]
+                };
+
+                resolve(voteDetails);
+            } catch (error) {
+                reject(error);
+            }
+        });
     }
 
     getPoolDetails(poolId: string): Promise<PoolDetails> {

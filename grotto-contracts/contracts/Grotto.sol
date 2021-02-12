@@ -21,6 +21,11 @@ struct Pool {
 }
 
 contract Grotto is ERC20 ('Grotto', 'GROTTO') {
+
+    event POOL_CREATED(bytes32, address);
+    event POOL_JOINED(bytes32, address);
+    event WINNER_FOUND(bytes32, address);
+
     using SafeMath for uint256;
 
     AggregatorV3Interface internal priceFeed;
@@ -69,12 +74,13 @@ contract Grotto is ERC20 ('Grotto', 'GROTTO') {
 
     mapping(bytes32 => address payable) internal winners;    
     
+    // TODO: Use the right address
     address private governor = 0x71D70b41efDE3C0D0705DBecE05E00fd60888df0;
     
     constructor() {
         gov = GovernanceInterface(governor);
         
-        // uncomment for tests to pass
+        // TODO: uncomment for tests to pass
         gov = new Governance();
 
         priceFeed = AggregatorV3Interface(KOVAN_ETH_USD_PF);
@@ -123,9 +129,10 @@ contract Grotto is ERC20 ('Grotto', 'GROTTO') {
         pool.currentPoolSize = poolers[poolId].length;
         poolDetails[pidIndex] = pool;
 
+        emit POOL_JOINED(poolId, pooler);
         if(poolers[poolId].length == poolSizes[poolId]) {                                
             // pay winner
-            _pay_winner(poolId, poolSizes[poolId]);
+            _paywinner(poolId, poolSizes[poolId]);
         }                    
     }
 
@@ -153,7 +160,9 @@ contract Grotto is ERC20 ('Grotto', 'GROTTO') {
         isMainPool[poolId] = false;
         creatorPools[pooler].push(poolId);
 
-        poolDetails.push(getPoolDetails(poolId));        
+        poolDetails.push(getPoolDetails(poolId));      
+
+        emit POOL_CREATED(poolId, pooler);  
     }
 
     /**
@@ -246,7 +255,7 @@ contract Grotto is ERC20 ('Grotto', 'GROTTO') {
 
             poolDetails.push(getPoolDetails(mainPoolId));
 
-            _pay_winner(_lastpoolId, _last_pool_size);
+            _paywinner(_lastpoolId, _last_pool_size);
         }    
     }
     
@@ -271,7 +280,7 @@ contract Grotto is ERC20 ('Grotto', 'GROTTO') {
         return 500;
     } 
 
-    function _pay_winner(bytes32 poolId, uint256 poolSize) internal {        
+    function _paywinner(bytes32 poolId, uint256 poolSize) internal {        
         bytes32 randBase = keccak256(abi.encodePacked(poolersStakes[poolId][poolers[poolId][0]], poolers[poolId][0]));
         uint256 totalStaked = poolersStakes[poolId][poolers[poolId][0]];        
         
@@ -287,14 +296,14 @@ contract Grotto is ERC20 ('Grotto', 'GROTTO') {
         
         uint256 _winnner_id = uint256(keccak256(abi.encodePacked(totalStaked, randBase))) % (poolSize);
         
-        address payable _winner = poolers[poolId][_winnner_id];
+        address payable winner = poolers[poolId][_winnner_id];
 
         // pay winner first
-        _winner.transfer(_amount_to_win);
+        winner.transfer(_amount_to_win);
         // then send house's cut to contract creator
         house.transfer(toHouse);        
         // set winner for pool_id
-        winners[poolId] = _winner;
+        winners[poolId] = winner;
         isConcluded[poolId] = true;
 
         // pay pool creator
@@ -308,9 +317,11 @@ contract Grotto is ERC20 ('Grotto', 'GROTTO') {
 
         uint256 pidIndex = poolIdMap[poolId];
         Pool memory pool = poolDetails[pidIndex];
-        pool.winner = _winner;
+        pool.winner = winner;
         pool.isPoolConcluded = true;
 
         poolDetails[pidIndex] = pool;
+
+        emit WINNER_FOUND(poolId, winner);
     }     
 }
