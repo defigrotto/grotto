@@ -17,7 +17,7 @@ export class AppComponent {
   ethereum: any;
 
   account = "Connect Metamask";
-  chainId = "";
+  chainId = 56;
 
   poolDetails: PoolDetails[] = [];
   mainPool: PoolDetails[] = [];
@@ -42,8 +42,8 @@ export class AppComponent {
   govAbi = [
     "function vote(string,bool)",
     "function proposeNewValue(uint256,string)",
-    "function proposeRemoveGovernor(address)",    
-    "function proposeNewGovernor(address)",        
+    "function proposeRemoveGovernor(address)",
+    "function proposeNewGovernor(address)",
   ];
 
   govContractAddress = "";
@@ -67,6 +67,12 @@ export class AppComponent {
   votingSuccess = false;
   votingFailure = false;
 
+  poolPrice!: number;
+  poolMinSize!: number;
+  poolMaxSize!: number;
+  mode = "prod";
+  explorer = "https://bscscan.com/address";
+
   constructor(private appService: AppService, private formBuilder: FormBuilder) {
     if (window.ethereum === undefined) {
       this.noMetaMask = true;
@@ -86,10 +92,23 @@ export class AppComponent {
 
     this.getAllPools();
     this.selectVote(this.voteType, "New Governor");
-    this.connectMetamask();
+    this.getNewPoolValues();
+    //this.connectMetamask();
     this.interval = setInterval(() => {
       this.getAllPools();
     }, 30000);
+  }
+
+  getNewPoolValues() {
+    this.appService.getCurrentValue('alter_min_price').pipe(first()).subscribe(vd => {
+      this.poolPrice = vd.data;
+      this.appService.getCurrentValue('alter_min_size').pipe(first()).subscribe(vd => {
+        this.poolMinSize = vd.data;
+        this.appService.getCurrentValue('alter_max_size').pipe(first()).subscribe(vd => {
+          this.poolMaxSize = vd.data;
+        });
+      });
+    });
   }
 
   selectVote(voteId: string, label: string) {
@@ -109,14 +128,14 @@ export class AppComponent {
 
   proposeNewGovernor() {
     this.votingSuccess = false;
-    this.votingFailure = false;  
+    this.votingFailure = false;
     const data: string = this.govFace.encodeFunctionData("proposeNewGovernor", [this.proposedGov]);
     this.sendProposal(data);
   }
 
   removeGovernor() {
     this.votingSuccess = false;
-    this.votingFailure = false;  
+    this.votingFailure = false;
 
     const data: string = this.govFace.encodeFunctionData("proposeRemoveGovernor", [this.proposedGov]);
     this.sendProposal(data);
@@ -143,12 +162,12 @@ export class AppComponent {
       this.getAllPools();
     }, (error: any) => {
       this.votingFailure = true;
-    });    
+    });
   }
 
   vote(yes: boolean) {
     this.votingSuccess = false;
-    this.votingFailure = false;  
+    this.votingFailure = false;
     const data: string = this.govFace.encodeFunctionData("vote", [this.selectedVote.voteId, yes]);
 
     const transactionParameters = {
@@ -171,17 +190,17 @@ export class AppComponent {
       this.getAllPools();
     }, (error: any) => {
       this.votingFailure = true;
-    });    
+    });
   }
 
   proposeNewValue() {
     this.votingSuccess = false;
-    this.votingFailure = false;  
+    this.votingFailure = false;
     const data: string = this.govFace.encodeFunctionData("proposeNewValue", [this.proposedValue, this.voteType]);
 
     this.sendProposal(data);
   }
-  
+
   gotoPage(page: string) {
     this.page = page;
   }
@@ -346,18 +365,26 @@ export class AppComponent {
 
     this.ethereum.on('chainChanged', (chainId: string) => {
       console.log(chainId);
-      this.chainId = chainId;
+      this.chainId = +chainId;
     });
 
+  }
+
+  selectMode(newMode: string) {
+    if(newMode !== this.mode) {
+      this.mode = newMode;
+      this.chainId = newMode === 'prod' ? 56 : 77;
+      this.explorer = newMode === 'prod' ? 'https://bscscan.com/address' : 'https://blockscout.com/poa/sokol/address'
+    }
   }
 
   connectMetamask() {
     this.registerEvents();
     this.ethereum.request({ method: 'eth_requestAccounts' }).then((accounts: string[]) => {
       this.ethereum.request({ method: 'eth_chainId' }).then((chainId: string) => {
-        console.log(chainId);
-        this.chainId = chainId;
-        if (+this.chainId === 0x4d || +this.chainId === 77) {
+        console.log(+chainId);
+        console.log(this.chainId);
+        if (+this.chainId === +chainId) {
           this.account = accounts[0];
           this.noMetaMask = false;
         } else {

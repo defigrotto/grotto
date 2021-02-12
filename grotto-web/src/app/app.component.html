@@ -13,16 +13,61 @@
           formControlName="poolCreator">
         <button class="btn btn-outline-success my-2 my-sm-0" type="submit" (click)="filterPool()">Find Pool</button>
       </form>
-      <a href="#" class="nav-link warning" (click)="gotoPage('governance')">
-        Governance
-      </a>
     </div>
   </div>
 </header>
 
-<br />
+<div class="container" style="padding-top: 100px; padding-bottom: 50px;">
+  <div class="d-flex flex-row-reverse">
+    <div class="p-2">
+      <button *ngIf="mode === 'prod'" (click)="selectMode('demo')" class="btn btn-outline-danger my-2 my-sm-0"
+        type="button">
+        Demo
+      </button>
+      <button *ngIf="mode === 'demo'" (click)="selectMode('demo')" class="btn btn-danger my-2 my-sm-0" type="button">
+        Demo
+      </button>
+      |
+      <button *ngIf="mode === 'demo'" (click)="selectMode('prod')" class="btn btn-outline-success my-2 my-sm-0"
+        type="button">
+        Production
+      </button>
+      <button *ngIf="mode === 'prod'" (click)="selectMode('prod')" class="btn btn-success my-2 my-sm-0" type="button">
+        Production
+      </button>
+      |
+      <button *ngIf="page === 'home'" (click)="gotoPage('governance')" class="btn btn-outline-secondary my-2 my-sm-0"
+        type="button">
+        Governance
+      </button>
+      <button *ngIf="page === 'governance'" (click)="gotoPage('governance')" class="btn btn-secondary my-2 my-sm-0"
+        type="button">
+        Governance
+      </button>
+      |
+      <button *ngIf="page === 'home'" (click)="gotoPage('home')" class="btn btn-primary my-2 my-sm-0" type="button">
+        Home
+      </button>
+      <button *ngIf="page === 'governance'" (click)="gotoPage('home')" class="btn btn-outline-primary my-2 my-sm-0"
+        type="button">
+        Home
+      </button>
+    </div>
+  </div>
+  <div class="d-flex flex-row-reverse">
+    <div class="p-2">
+      <span *ngIf="mode=='prod'">
+        Chain-ID: 56, RPC-Url: https://bsc-dataseed.binance.org/, Explorer: https://bscscan.com
+      </span>
+      <span *ngIf="mode=='demo'">
+        Chain-ID: 77, RPC-Url: https://sokol.poa.network, Explorer: https://blockscout.com/poa/sokol, Faucet: https://faucet.poa.network/
+      </span>      
+    </div>
+  </div>
+</div>
+
 <main role="main" *ngIf="page === 'governance'">
-  <div class="container" style="padding-top: 100px;">
+  <div class="container">
     <div class="alert alert-danger" role="alert" *ngIf="votingFailure">
       <button type="button" class="close" data-dismiss="alert" aria-label="Close">
         <span aria-hidden="true">&times;</span>
@@ -31,7 +76,7 @@
         Voting Failed. Please try again later and/or check the blockchain for more info.
       </p>
     </div>
-  
+
     <div class="alert alert-success" role="alert" *ngIf="votingSuccess">
       <button type="button" class="close" data-dismiss="alert" aria-label="Close">
         <span aria-hidden="true">&times;</span>
@@ -46,11 +91,11 @@
         <button type="button" class="btn btn-secondary" (click)="selectVote('add_new_governor', 'Add New Governor')">Add
           Governor</button>
         <button type="button" class="btn btn-danger" (click)="selectVote('remove_governor', 'Remove Governor')">Remove
-          Governors</button>
+          Governor</button>
         <button type="button" class="btn btn-primary"
-          (click)="selectVote('alter_main_pool_price', 'Main Pool Price')">Main Pool Price</button>
+          (click)="selectVote('alter_main_pool_price', 'Main Pool Price')">Main Price</button>
         <button type="button" class="btn btn-success"
-          (click)="selectVote('alter_main_pool_size', 'Main Pool Size')">Main Pool Size</button>
+          (click)="selectVote('alter_main_pool_size', 'Main Pool Size')">Main Size</button>
         <button type="button" class="btn btn-warning" (click)="selectVote('alter_house_cut', 'House Cut')">House
           Cut</button>
         <button type="button" class="btn btn-info"
@@ -58,28 +103,32 @@
         <button type="button" class="btn btn-dark" (click)="selectVote('alter_min_price', 'Minimum Pool Price')">Pool
           Price</button>
         <button type="button" class="btn btn-primary" (click)="selectVote('alter_min_size', 'Minimum Pool Size')">Min
-          Pool Size</button>
+          Size</button>
         <button type="button" class="btn btn-success" (click)="selectVote('alter_max_size', 'Maximum Pool Size')">Max
-          Pool Size</button>
-          <!-- TODO: Use BSC Address  -->
-          <a href="https://blockscout.com/poa/sokol/address/{{govContractAddress}}" target="_blank"
-          rel="noopener noreferrer" data-toggle="tooltip" data-placement="top" title="Smart Contract on Block Explorer">
-          <button type="button" class="btn btn-warning">Show Contract</button>          
-            </a>
+          Size</button>
+        <!--TODO: Replace with BSC URL-->
+        <button type="button" class="btn btn-warning">
+          <a href="{{explorer}}/{{govContractAddress}}" target="_blank"
+            rel="noopener noreferrer" data-toggle="tooltip" data-placement="top"
+            title="Smart Contract on Block Explorer">
+            <img src="assets/img/sc.png" style="width: 32px;">
+          </a>
+        </button>
       </div>
-    </div>    
+    </div>
   </div>
 
-  <div class="container" style="padding-top: 100px;" *ngIf="voteType === 'add_new_governor'">
+  <div class="container" *ngIf="voteType === 'add_new_governor'">
     <div *ngIf="selectedVote.isInProgress">
       <label for="poolSize">Current Value</label>
       <ul class="list-group">
-        <li *ngFor="let voter of selectedVote.currentValue" class="list-group-item d-flex justify-content-between align-items-center">
+        <li *ngFor="let voter of selectedVote.currentValue"
+          class="list-group-item d-flex justify-content-between align-items-center">
           {{voter}}
         </li>
-      </ul>  
+      </ul>
       <p></p>
-      <br />  
+      <br />
       <div><span class="font-weight-bold">Voters: </span>{{selectedVote.voters}}</div>
       <div><span class="font-weight-bold">Yes Votes: </span>{{selectedVote.yesVotes}}
       </div>
@@ -92,7 +141,7 @@
       <div class="btn-group" role="group" aria-label="Basic example">
         <button type="button" class="btn btn-success" data-dismiss="modal" (click)="vote(true)">Vote Yes</button>
         <button type="button" class="btn btn-danger" data-dismiss="modal" (click)="vote(false)">Vote No</button>
-      </div>      
+      </div>
     </div>
 
 
@@ -100,12 +149,13 @@
       <div class="form-group">
         <label for="poolSize">Current Value</label>
         <ul class="list-group">
-          <li *ngFor="let voter of selectedVote.currentValue" class="list-group-item d-flex justify-content-between align-items-center">
+          <li *ngFor="let voter of selectedVote.currentValue"
+            class="list-group-item d-flex justify-content-between align-items-center">
             {{voter}}
           </li>
-        </ul>  
+        </ul>
         <p></p>
-        <br />        
+        <br />
         <label for="poolSize">Propose New Governor</label>
         <input type="text " class="form-control" aria-describedby="sizeHelp" id="poolSize"
           placeholder="New Governor's Address" [(ngModel)]="proposedGov">
@@ -120,18 +170,20 @@
     <div *ngIf="selectedVote.isInProgress">
       <label for="poolSize">Current Value</label>
       <ul class="list-group">
-        <li *ngFor="let voter of selectedVote.currentValue" class="list-group-item d-flex justify-content-between align-items-center">
+        <li *ngFor="let voter of selectedVote.currentValue"
+          class="list-group-item d-flex justify-content-between align-items-center">
           {{voter}}
         </li>
-      </ul>  
+      </ul>
       <p></p>
       <br />
       <div><span class="font-weight-bold">Voters: </span>
         <ul class="list-group">
-          <li *ngFor="let voter of selectedVote.voters" class="list-group-item d-flex justify-content-between align-items-center">
+          <li *ngFor="let voter of selectedVote.voters"
+            class="list-group-item d-flex justify-content-between align-items-center">
             {{voter}}
           </li>
-        </ul>              
+        </ul>
       </div>
       <div><span class="font-weight-bold">Yes Votes: </span>{{selectedVote.yesVotes}}
       </div>
@@ -144,17 +196,18 @@
       <div class="btn-group" role="group" aria-label="Basic example">
         <button type="button" class="btn btn-success" data-dismiss="modal" (click)="vote(true)">Vote Yes</button>
         <button type="button" class="btn btn-danger" data-dismiss="modal" (click)="vote(false)">Vote No</button>
-      </div>      
+      </div>
     </div>
 
     <div *ngIf="!selectedVote.isInProgress" class="container">
       <div class="form-group">
         <label for="poolSize">Current Value</label>
         <ul class="list-group">
-          <li *ngFor="let voter of selectedVote.currentValue" class="list-group-item d-flex justify-content-between align-items-center">
+          <li *ngFor="let voter of selectedVote.currentValue"
+            class="list-group-item d-flex justify-content-between align-items-center">
             {{voter}}
           </li>
-        </ul>  
+        </ul>
         <p></p>
         <br />
         <label for="poolSize">Propose Remove Governor</label>
@@ -162,7 +215,7 @@
           placeholder="Governor's Address" [(ngModel)]="proposedGov">
         <small id="sizeHelp" class="form-text text-muted">Propose removal of a governor</small>
       </div>
-      <button type="button" class="btn btn-primary" data-dismiss="modal" (click)="removeGovernor()">Propose Removes
+      <button type="button" class="btn btn-primary" data-dismiss="modal" (click)="removeGovernor()">Propose Remove
         Governor</button>
     </div>
   </div>
@@ -170,13 +223,15 @@
   <div class="container" style="padding-top: 100px;"
     *ngIf="(voteType !== 'remove_governor' && voteType !== 'add_new_governor')">
     <div *ngIf="selectedVote.isInProgress">
-      <label for="poolSize">Current Value: {{selectedVote.currentValue}}</label><p></p><br />
+      <label for="poolSize">Current Value: {{selectedVote.currentValue}}</label>
+      <p></p><br />
       <div><span class="font-weight-bold">Voters: </span>
         <ul class="list-group">
-          <li *ngFor="let voter of selectedVote.voters" class="list-group-item d-flex justify-content-between align-items-center">
+          <li *ngFor="let voter of selectedVote.voters"
+            class="list-group-item d-flex justify-content-between align-items-center">
             {{voter}}
           </li>
-        </ul>              
+        </ul>
       </div>
       <div><span class="font-weight-bold">Yes Votes: </span>{{selectedVote.yesVotes}}
       </div>
@@ -195,7 +250,8 @@
 
     <div *ngIf="!selectedVote.isInProgress" class="container">
       <div class="form-group">
-        <label for="poolSize">Current Value: {{selectedVote.currentValue}}</label><p></p><br />
+        <label for="poolSize">Current Value: {{selectedVote.currentValue}}</label>
+        <p></p><br />
         <label for="poolSize">Propose New Value for {{voteLabel}}</label>
         <input type="number " class="form-control" aria-describedby="sizeHelp" id="poolSize"
           placeholder="New {{voteLabel}}" [(ngModel)]="proposedValue">
@@ -208,10 +264,7 @@
 </main>
 
 <main role="main" *ngIf="page === 'home'">
-  <!-- <button type="button" class="btn btn-success btn-sm mr-1" data-toggle="modal" data-target="#howItWorkdModal">
-    More Info...
-  </button> -->
-  <div class="container" style="padding-top: 100px;">
+  <div class="container">
     <div class="alert alert-danger" role="alert" *ngIf="joinPoolFailure">
       <button type="button" class="close" data-dismiss="alert" aria-label="Close">
         <span aria-hidden="true">&times;</span>
@@ -250,11 +303,7 @@
 
     <div class="alert alert-danger" role="alert" *ngIf="noMetaMask">
       <h4 class="alert-heading"></h4>
-      <p>You're not connected to Metamask or connected to the wrong network. Please make sure you are connected to
-        Binance
-        Smart Chain on Metamask</p>
-      <p>Add Binance Smart Chain to Metamask - <a
-          href="https://academy.binance.com/en/articles/connecting-metamask-to-binance-smart-chain">Setup BSC</a></p>
+      <p>You're not connected to Metamask or connected to the wrong network.
       <hr>
       <button (click)="connectMetamask()" class="button" type="button">
         {{account}}
@@ -271,8 +320,8 @@
       </div>
       <div class="p-2">
         <!--TODO: Replace with BSC URL-->
-        <a href="https://blockscout.com/poa/sokol/address/{{contractAddress}}" target="_blank"
-          rel="noopener noreferrer" data-toggle="tooltip" data-placement="top" title="Smart Contract on Block Explorer">
+        <a href="{{explorer}}/{{contractAddress}}" target="_blank" rel="noopener noreferrer"
+          data-toggle="tooltip" data-placement="top" title="Smart Contract on Block Explorer">
           <img src="assets/img/sc.png" style="width: 32px;">
         </a>
         |
@@ -330,7 +379,8 @@
         <h3>User Defined Pools</h3>
       </div>
       <div class="p-2">
-        <button class="button" type="button" data-toggle="modal" data-target="#startNewPoolModal">
+        <button class="button" type="button" data-toggle="modal" data-target="#startNewPoolModal"
+          (click)="getNewPoolValues()">
           <i class="fas fa-plus" aria-hidden="true"></i>
         </button>
       </div>
@@ -451,7 +501,7 @@
               <input type="number" class="form-control" aria-describedby="priceHelp" id="poolPrice"
                 placeholder="Pool Price" formControlName="newPoolPrice">
               <small id="priceHelp" class="form-text text-muted">How much do you want each user to pool. Min:
-                $10</small>
+                {{poolPrice | currency: 'USD'}}</small>
               <small id="priceHelp2" class="form-text text-muted">Note: This amount worth of BNB will be deducted from
                 your wallet too.</small>
             </div>
@@ -460,8 +510,8 @@
               <input type="number" class="form-control" aria-describedby="sizeHelp" id="poolSize"
                 placeholder="Pool Size" formControlName="newPoolSize">
               <small id="sizeHelp" class="form-text text-muted">How many users before winner is found and pool closed?
-                Min: 10, Max: 100</small>
-              <small id="sizeHelp2" class="form-text text-muted">You will be rewarded with (price * size)GROTTO tokens
+                Min: {{poolMinSize}}, Max: {{poolMaxSize}}</small>
+              <small id="sizeHelp2" class="form-text text-muted">You will be rewarded with (price * size) GROTTO tokens
                 when pool is closed</small>
             </div>
             <div class="row">
