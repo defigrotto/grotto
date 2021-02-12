@@ -110,15 +110,40 @@ export class AppComponent {
   proposeNewGovernor() {
     this.votingSuccess = false;
     this.votingFailure = false;  
-
-    console.log(this.proposedGov);
+    const data: string = this.govFace.encodeFunctionData("proposeNewGovernor", [this.proposedGov]);
+    this.sendProposal(data);
   }
 
   removeGovernor() {
     this.votingSuccess = false;
     this.votingFailure = false;  
 
-    console.log(this.proposedGov);
+    const data: string = this.govFace.encodeFunctionData("proposeRemoveGovernor", [this.proposedGov]);
+    this.sendProposal(data);
+  }
+
+  sendProposal(data: string) {
+    const transactionParameters = {
+      nonce: '0x00', // ignored by MetaMask
+      //gasPrice: '0x37E11D600', // customizable by user during MetaMask confirmation.
+      //gas: '0x12C07', // customizable by user during MetaMask confirmation.
+      to: this.govContractAddress, // Required except during contract publications.
+      from: this.ethereum.selectedAddress, // must match user's active address.
+      value: "0x0", // Only required to send ether to the recipient from the initiating external account.
+      data: data,
+      chainId: this.chainId, // Used to prevent transaction reuse across blockchains. Auto-filled by MetaMask.
+    };
+
+    // txHash is a hex string
+    // As with any RPC call, it may throw an error
+    console.log(transactionParameters);
+    this.ethereum.request({ method: 'eth_sendTransaction', params: [transactionParameters], }).then((txHash: string) => {
+      console.log(txHash);
+      this.votingSuccess = true;
+      this.getAllPools();
+    }, (error: any) => {
+      this.votingFailure = true;
+    });    
   }
 
   vote(yes: boolean) {
@@ -154,27 +179,7 @@ export class AppComponent {
     this.votingFailure = false;  
     const data: string = this.govFace.encodeFunctionData("proposeNewValue", [this.proposedValue, this.voteType]);
 
-    const transactionParameters = {
-      nonce: '0x00', // ignored by MetaMask
-      //gasPrice: '0x37E11D600', // customizable by user during MetaMask confirmation.
-      //gas: '0x12C07', // customizable by user during MetaMask confirmation.
-      to: this.govContractAddress, // Required except during contract publications.
-      from: this.ethereum.selectedAddress, // must match user's active address.
-      value: "0x0", // Only required to send ether to the recipient from the initiating external account.
-      data: data,
-      chainId: this.chainId, // Used to prevent transaction reuse across blockchains. Auto-filled by MetaMask.
-    };
-
-    // txHash is a hex string
-    // As with any RPC call, it may throw an error
-    console.log(transactionParameters);
-    this.ethereum.request({ method: 'eth_sendTransaction', params: [transactionParameters], }).then((txHash: string) => {
-      console.log(txHash);
-      this.votingSuccess = true;
-      this.getAllPools();
-    }, (error: any) => {
-      this.votingFailure = true;
-    });    
+    this.sendProposal(data);
   }
   
   gotoPage(page: string) {
