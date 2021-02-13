@@ -46,7 +46,7 @@ export class EthereumService {
 
         this.grottoAbi = JSON.parse(fs.readFileSync(path.resolve('src/abis/grotto.abi.json'), 'utf8')).abi;
         this.governanceAbi = JSON.parse(fs.readFileSync(path.resolve('src/abis/governance.abi.json'), 'utf8')).abi;
-        this.init('prod');
+        this.init('test');
     }
 
     init(mode: string) {
