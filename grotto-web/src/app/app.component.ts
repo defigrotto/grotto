@@ -68,7 +68,11 @@ export class AppComponent {
 
   poolPrice!: number;
   poolMinSize!: number;
+  mainPoolPrice!: number;
+  mainPoolSize!: number;
   poolMaxSize!: number;
+  houseCut!: number;
+  houseCutNewTokens!: number;
   mode = "demo";
   chainId = 77;
   explorer = "https://blockscout.com/poa/sokol/address";
@@ -113,6 +117,18 @@ export class AppComponent {
         this.poolMinSize = vd.data;
         this.appService.getCurrentValue('alter_max_size', this.mode).pipe(first()).subscribe(vd => {
           this.poolMaxSize = vd.data;
+          this.appService.getCurrentValue('alter_house_cut', this.mode).pipe(first()).subscribe(vd => {
+            this.houseCut = vd.data;
+            this.appService.getCurrentValue('alter_house_cut_tokens', this.mode).pipe(first()).subscribe(vd => {
+              this.houseCutNewTokens = vd.data;
+              this.appService.getCurrentValue('alter_main_pool_price', this.mode).pipe(first()).subscribe(vd => {
+                this.mainPoolPrice = vd.data;
+                this.appService.getCurrentValue('alter_main_pool_size', this.mode).pipe(first()).subscribe(vd => {
+                  this.mainPoolSize = vd.data;
+                });                
+              });
+            });
+          });
         });
       });
     });
@@ -397,7 +413,7 @@ export class AppComponent {
           console.log(`Chain ID We want: ${+this.chainId}`);
           if (+this.chainId === +chainId) {
             this.account = accounts[0];
-            this.noMetaMask = false;            
+            this.noMetaMask = false;
           } else {
             this.account = "Connect Metamask";
             this.noMetaMask = true;
