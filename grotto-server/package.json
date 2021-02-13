@@ -10,7 +10,7 @@
     "prestart": "cp -r src/abis dist/src/",
     "prestart:dev": "npm run build && npm run prestart",
     "prestart:prod": "npm run prestart",
-    "build": "nest build",
+    "build": "nest build && cp -r src/abis dist/src/",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
     "start": "nest start",
     "start:dev": "nest start --watch",
