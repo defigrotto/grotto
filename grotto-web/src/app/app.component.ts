@@ -370,12 +370,10 @@ export class AppComponent {
 
     this.ethereum.on('connect', (connectInfo: any) => {
       console.log(connectInfo);
-      this.chainId = connectInfo.chainId;
     });
 
     this.ethereum.on('chainChanged', (chainId: string) => {
       console.log(chainId);
-      this.chainId = +chainId;
     });
 
   }
@@ -395,25 +393,27 @@ export class AppComponent {
       this.registerEvents();
       this.ethereum.request({ method: 'eth_requestAccounts' }).then((accounts: string[]) => {
         this.ethereum.request({ method: 'eth_chainId' }).then((chainId: string) => {
-          console.log(+chainId);
-          console.log(this.chainId);
+          console.log(`Metamask Chain ID: ${+chainId}`);
+          console.log(`Chain ID We want: ${+this.chainId}`);
           if (+this.chainId === +chainId) {
             this.account = accounts[0];
-            this.noMetaMask = false;
-            this.reload();
+            this.noMetaMask = false;            
           } else {
             this.account = "Connect Metamask";
             this.noMetaMask = true;
           }
+          this.reload();
         }, (error: any) => {
           this.noMetaMask = true;
           this.account = "Connect Metamask";
           console.log(error);
+          this.reload();
         });
       }, (error: any) => {
         this.noMetaMask = true;
         this.account = "Connect Metamask";
         console.log(error);
+        this.reload();
       });
     }
   }
