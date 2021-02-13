@@ -166,7 +166,7 @@
     </div>
   </div>
 
-  <div class="container" style="padding-top: 100px;" *ngIf="voteType === 'remove_governor'">
+  <div class="container" *ngIf="voteType === 'remove_governor'">
     <div *ngIf="selectedVote.isInProgress">
       <label for="poolSize">Current Value</label>
       <ul class="list-group">
@@ -220,8 +220,7 @@
     </div>
   </div>
 
-  <div class="container" style="padding-top: 100px;"
-    *ngIf="(voteType !== 'remove_governor' && voteType !== 'add_new_governor')">
+  <div class="container" *ngIf="(voteType !== 'remove_governor' && voteType !== 'add_new_governor')">
     <div *ngIf="selectedVote.isInProgress">
       <label for="poolSize">Current Value: {{selectedVote.currentValue}}</label>
       <p></p><br />
