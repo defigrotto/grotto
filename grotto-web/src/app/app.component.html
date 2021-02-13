@@ -57,6 +57,7 @@
   </div>
   <div class="d-flex flex-row-reverse">
     <div class="p-2">
+      <b>MetaMask:</b>
       <span *ngIf="mode=='prod'">
         Chain-ID: 56, RPC-Url: https://bsc-dataseed.binance.org/, Explorer: https://bscscan.com
       </span>
@@ -431,7 +432,7 @@
           <th scope="col">Creator</th>
           <th scope="col">Bet</th>
           <th scope="col">Size</th>
-          <th scope="col">Value</th>
+          <th scope="col">Prize</th>
           <th scope="col">Winner</th>
         </tr>
       </thead>
@@ -441,7 +442,7 @@
           <td scope="col">{{pd.poolCreator}}</td>
           <td scope="col">{{pd.poolPrice | currency: 'USD'}}</td>
           <td scope="col">{{pd.poolSize}}</td>
-          <td scope="col">{{pd.poolPriceInEther}}{{currency}}</td>
+          <td scope="col">{{(pd.poolSize * pd.poolPrice) | currency: 'USD'}}</td>
           <td scope="col">{{pd.winner}}</td>
         </tr>
       </tbody>
@@ -455,17 +456,17 @@
           <th scope="col">Creator</th>
           <th scope="col">Bet</th>
           <th scope="col">Size</th>
-          <th scope="col">Value</th>
+          <th scope="col">Prize</th>          
           <th scope="col">Filled</th>
         </tr>
       </thead>
       <tbody>
-        <tr *ngFor="let pd of myPool" data-toggle="modal" data-target="#joinPoolModal">
+        <tr *ngFor="let pd of myPool">
           <td scope="col">{{pd.poolId.substr(0, 2)}}...{{pd.poolId.substr(64)}}</td>
           <td scope="col">{{pd.poolCreator}}</td>
           <td scope="col">{{pd.poolPrice | currency: 'USD'}}</td>
           <td scope="col">{{pd.poolSize}}</td>
-          <td scope="col">{{pd.poolPriceInEther}}{{currency}}</td>
+          <td scope="col">{{(pd.poolSize * pd.poolPrice) | currency: 'USD'}}</td>
           <td scope="col">
             <div class="progress">
               <div class="progress-bar" role="progressbar" attr.aria-valuenow="{{pd.currentPoolSize}}"
