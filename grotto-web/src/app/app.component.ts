@@ -16,7 +16,7 @@ export class AppComponent {
   title = 'grotto-web';
   ethereum: any;
 
-  account = "Connect Metamask";  
+  account = "Connect Metamask";
 
   poolDetails: PoolDetails[] = [];
   mainPool: PoolDetails[] = [];
@@ -94,7 +94,7 @@ export class AppComponent {
     this.getAllPools();
     this.selectVote(this.voteType, "New Governor");
     this.getNewPoolValues();
-    //this.connectMetamask();
+    this.connectMetamask();
     this.interval = setInterval(() => {
       this.getAllPools();
     }, 30000);
@@ -277,6 +277,9 @@ export class AppComponent {
           if (pd.poolCreator.toLocaleLowerCase() === this.account.toLocaleLowerCase()) return true;
           return false;
         }).slice(0, 10);
+
+        console.log(this.account);
+        console.log(this.myPool);
       });
   }
 
@@ -378,7 +381,7 @@ export class AppComponent {
   }
 
   selectMode(newMode: string) {
-    if(newMode !== this.mode) {
+    if (newMode !== this.mode) {
       this.mode = newMode;
       this.currency = newMode === 'prod' ? 'BNB' : 'ETH';
       this.chainId = newMode === 'prod' ? 56 : 77;
@@ -388,27 +391,30 @@ export class AppComponent {
   }
 
   connectMetamask() {
-    this.registerEvents();
-    this.ethereum.request({ method: 'eth_requestAccounts' }).then((accounts: string[]) => {
-      this.ethereum.request({ method: 'eth_chainId' }).then((chainId: string) => {
-        console.log(+chainId);
-        console.log(this.chainId);
-        if (+this.chainId === +chainId) {
-          this.account = accounts[0];
-          this.noMetaMask = false;
-        } else {
-          this.account = "Connect Metamask";
+    if (!this.noMetaMask) {
+      this.registerEvents();
+      this.ethereum.request({ method: 'eth_requestAccounts' }).then((accounts: string[]) => {
+        this.ethereum.request({ method: 'eth_chainId' }).then((chainId: string) => {
+          console.log(+chainId);
+          console.log(this.chainId);
+          if (+this.chainId === +chainId) {
+            this.account = accounts[0];
+            this.noMetaMask = false;
+            this.reload();
+          } else {
+            this.account = "Connect Metamask";
+            this.noMetaMask = true;
+          }
+        }, (error: any) => {
           this.noMetaMask = true;
-        }
+          this.account = "Connect Metamask";
+          console.log(error);
+        });
       }, (error: any) => {
         this.noMetaMask = true;
         this.account = "Connect Metamask";
         console.log(error);
       });
-    }, (error: any) => {
-      this.noMetaMask = true;
-      this.account = "Connect Metamask";
-      console.log(error);
-    });
+    }
   }
 }

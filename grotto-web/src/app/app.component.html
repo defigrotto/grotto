@@ -3,7 +3,7 @@
     <a href="#" class="navbar-brand" (click)="gotoPage('home')">
       <img src="assets/img/logo.png" width="150" alt="CoolBrand">
     </a>
-    <div class="container d-flex justify-content-between">>
+    <div class="container d-flex justify-content-between">
       <button (click)="connectMetamask()" class="button" type="button">
         {{account}}
         &nbsp;<i class="fas fa-sync" aria-hidden="true" *ngIf="account !== 'Connect Metamask'"></i>
@@ -32,7 +32,8 @@
         type="button">
         Production
       </button>
-      <button disabled *ngIf="mode === 'prod'" (click)="selectMode('prod')" class="btn btn-success my-2 my-sm-0" type="button">
+      <button disabled *ngIf="mode === 'prod'" (click)="selectMode('prod')" class="btn btn-success my-2 my-sm-0"
+        type="button">
         Production
       </button>
       |
@@ -60,8 +61,9 @@
         Chain-ID: 56, RPC-Url: https://bsc-dataseed.binance.org/, Explorer: https://bscscan.com
       </span>
       <span *ngIf="mode=='demo'">
-        Chain-ID: 77, RPC-Url: https://sokol.poa.network, Explorer: https://blockscout.com/poa/sokol, Faucet: https://faucet.poa.network/
-      </span>      
+        Chain-ID: 77, RPC-Url: https://sokol.poa.network, Explorer: https://blockscout.com/poa/sokol, Faucet:
+        https://faucet.poa.network/
+      </span>
     </div>
   </div>
 </div>
@@ -108,9 +110,8 @@
           Size</button>
         <!--TODO: Replace with BSC URL-->
         <button type="button" class="btn btn-warning">
-          <a href="{{explorer}}/{{govContractAddress}}" target="_blank"
-            rel="noopener noreferrer" data-toggle="tooltip" data-placement="top"
-            title="Smart Contract on Block Explorer">
+          <a href="{{explorer}}/{{govContractAddress}}" target="_blank" rel="noopener noreferrer" data-toggle="tooltip"
+            data-placement="top" title="Smart Contract on Block Explorer">
             <img src="assets/img/sc.png" style="width: 32px;">
           </a>
         </button>
@@ -303,11 +304,11 @@
     <div class="alert alert-danger" role="alert" *ngIf="noMetaMask">
       <h4 class="alert-heading"></h4>
       <p>You're not connected to Metamask or connected to the wrong network.
-      <hr>
-      <button (click)="connectMetamask()" class="button" type="button">
-        {{account}}
-        &nbsp;<i class="fas fa-sync" aria-hidden="true" *ngIf="account !== 'Connect Metamask'"></i>
-      </button>
+        <hr>
+        <button (click)="connectMetamask()" class="button" type="button">
+          {{account}}
+          &nbsp;<i class="fas fa-sync" aria-hidden="true" *ngIf="account !== 'Connect Metamask'"></i>
+        </button>
     </div>
 
     <div class="d-flex">
@@ -319,8 +320,8 @@
       </div>
       <div class="p-2">
         <!--TODO: Replace with BSC URL-->
-        <a href="{{explorer}}/{{contractAddress}}" target="_blank" rel="noopener noreferrer"
-          data-toggle="tooltip" data-placement="top" title="Smart Contract on Block Explorer">
+        <a href="{{explorer}}/{{contractAddress}}" target="_blank" rel="noopener noreferrer" data-toggle="tooltip"
+          data-placement="top" title="Smart Contract on Block Explorer">
           <img src="assets/img/sc.png" style="width: 32px;">
         </a>
         |
@@ -336,6 +337,10 @@
         <a href="#" (click)="reload()">
           <img src="assets/img/reload.png" style="width: 32px;">
         </a>
+        |
+        <a data-toggle="modal" data-target="#me" href="#">
+          <img src="assets/img/code.png" style="width: 32px;">
+        </a>        
       </div>
     </div>
 
@@ -344,9 +349,9 @@
         <tr>
           <th scope="col">Pool ID</th>
           <th scope="col">Creator</th>
-          <th scope="col">Price</th>
+          <th scope="col">Bet</th>
           <th scope="col">Size</th>
-          <th scope="col">Value</th>
+          <th scope="col">Prize</th>
           <th scope="col">Filled</th>
         </tr>
       </thead>
@@ -357,7 +362,7 @@
           <td scope="col">{{pd.poolCreator}}</td>
           <td scope="col">{{pd.poolPrice | currency: 'USD'}}</td>
           <td scope="col">{{pd.poolSize}}</td>
-          <td scope="col">{{pd.poolPriceInEther}} {{currency}}</td>
+          <td scope="col">{{(pd.poolSize * pd.poolPrice) | currency: 'USD'}}</td>
           <td scope="col">
             <div class="progress">
               <div class="progress-bar" role="progressbar" attr.aria-valuenow="{{pd.currentPoolSize}}"
@@ -389,9 +394,9 @@
         <tr>
           <th scope="col">Pool ID</th>
           <th scope="col">Creator</th>
-          <th scope="col">Price</th>
+          <th scope="col">Bet</th>
           <th scope="col">Size</th>
-          <th scope="col">Value</th>
+          <th scope="col">Prize</th>
           <th scope="col">Filled</th>
         </tr>
       </thead>
@@ -402,7 +407,7 @@
           <td scope="col">{{pd.poolCreator}}</td>
           <td scope="col">{{pd.poolPrice | currency: 'USD'}}</td>
           <td scope="col">{{pd.poolSize}}</td>
-          <td scope="col">{{pd.poolPriceInEther}} {{currency}}</td>
+          <td scope="col">{{(pd.poolSize * pd.poolPrice) | currency: 'USD'}}</td>
           <td scope="col">
             <div class="progress">
               <div class="progress-bar" role="progressbar" attr.aria-valuenow="{{pd.currentPoolSize}}"
@@ -424,7 +429,7 @@
         <tr>
           <th scope="col">ID</th>
           <th scope="col">Creator</th>
-          <th scope="col">Price</th>
+          <th scope="col">Bet</th>
           <th scope="col">Size</th>
           <th scope="col">Value</th>
           <th scope="col">Winner</th>
@@ -448,7 +453,7 @@
         <tr>
           <th scope="col">ID</th>
           <th scope="col">Creator</th>
-          <th scope="col">Price</th>
+          <th scope="col">Bet</th>
           <th scope="col">Size</th>
           <th scope="col">Value</th>
           <th scope="col">Filled</th>
@@ -501,7 +506,8 @@
                 placeholder="Pool Price" formControlName="newPoolPrice">
               <small id="priceHelp" class="form-text text-muted">How much do you want each user to pool. Min:
                 {{poolPrice | currency: 'USD'}}</small>
-              <small id="priceHelp2" class="form-text text-muted">Note: This amount worth of {{currency}} will be deducted from
+              <small id="priceHelp2" class="form-text text-muted">Note: This amount worth of {{currency}} will be
+                deducted from
                 your wallet too.</small>
             </div>
             <div class="form-group">
@@ -618,3 +624,47 @@
     </div>
   </div>
 </main>
+
+
+<div class="modal fade" id="me" tabindex="-1" role="dialog" aria-labelledby="exampleModalLongTitle"
+  aria-hidden="true">
+  <div class="modal-dialog modal-sm" role="document">
+    <div class="modal-content" style="background-color: black; color: white;">
+      <div class="modal-header">
+        <span style="color: white;">/dev/segun</span>
+      </div>
+      <div class="modal-body">
+        <div class="p-2">
+          <a href="https://t.me/aardvocate" rel="noopener noreferrer" target="_blank" data-toggle="tooltip"
+            data-placement="top" title="Me on Telegram">
+            <img src="assets/img/telegram.png" style="width: 32px;">
+          &nbsp;&nbsp;@aardvocate</a>
+        </div>
+        <div class="p-2">
+          <a href="https://github.com/segun" rel="noopener noreferrer" target="_blank" data-toggle="tooltip"
+            data-placement="top" title="Me on Github">
+            <img src="assets/img/github.png">
+          &nbsp;&nbsp;segun</a>
+        </div>
+        <div class="p-2">
+          <a href="https://www.linkedin.com/in/segunakintayo/" rel="noopener noreferrer" target="_blank"
+            data-toggle="tooltip" data-placement="top" title="Me on LinkedIn">
+            <img src="assets/img/linked_in.png" style="width: 32px;">
+          &nbsp;&nbsp;segunakintayo</a>
+        </div>
+        <div class="p-2">
+          <a href="https://twitter.com/trinisoftinc" rel="noopener noreferrer" target="_blank" data-toggle="tooltip"
+            data-placement="top" title="Me on Twitter">
+            <img src="assets/img/twitter.png" style="width: 32px;">
+          &nbsp;&nbsp;trinisoftinc</a>
+        </div>
+        <div class="p-2">
+          <a href="mailto:defigrotto@gmail.com" rel="noopener noreferrer" target="_blank" data-toggle="tooltip"
+            data-placement="top" title="Me on Gmail">
+            <img src="assets/img/gmail.png" style="width: 32px;">
+          &nbsp;&nbsp;defigrotto@gmail.com</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
