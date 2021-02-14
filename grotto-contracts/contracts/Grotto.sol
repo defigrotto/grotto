@@ -2,15 +2,15 @@
 pragma solidity >=0.7.3 <0.8.0;
 pragma experimental ABIEncoderV2;
 
-import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@chainlink/contracts/src/v0.6/interfaces/AggregatorV3Interface.sol";
 import "@openzeppelin/contracts/math/SafeMath.sol";
 import "./interface/GovernanceInterface.sol";
+import "./interface/GrottoTokenInterface.sol";
 import "./interface/StorageInterface.sol";
 import "./lib/Data.sol";
 import "./Governance.sol";
 
-contract Grotto is ERC20("Grotto", "GROTTO") {
+contract Grotto {
     event POOL_CREATED(bytes32, address);
     event POOL_JOINED(bytes32, address);
     event WINNER_FOUND(bytes32, address);
@@ -25,11 +25,15 @@ contract Grotto is ERC20("Grotto", "GROTTO") {
 
     StorageInterface store;
 
-    // TODO: Use the right address
-    address private storeAddress = 0xbB4cb5a8527d8617F5be815A580dBC381b7A5fB0;
+    address private tokenAddress = 0xE6dC5F56F658a1868f10c374c4e1Fb39D2CD0F99;
+    address private storeAddress = 0xecb02254257B6F4b637463cAA1c4BB2D54AFE1aF;    
+
+    GrottoTokenInterface grottoToken;
 
     constructor() {
         store = StorageInterface(storeAddress);
+
+        grottoToken = GrottoTokenInterface(tokenAddress);
 
         store.setHouse(msg.sender);
 
@@ -39,6 +43,7 @@ contract Grotto is ERC20("Grotto", "GROTTO") {
     function updateGrotto(address payable newAddress) public {
         require(msg.sender == store.getHouse(), "Only a house can do that");
         store.setGrotto(newAddress);
+        grottoToken.setGrotto(newAddress);
         uint256 balance = address(this).balance;
         newAddress.transfer(balance);
     }
@@ -175,8 +180,8 @@ contract Grotto is ERC20("Grotto", "GROTTO") {
         pool = store.getPool(poolId);
         uint256 creatorReward = pool.poolPrice.mul(pool.poolSize);
         uint256 houseCutNewTokens = creatorReward.mul(store.getHouseCutNewTokens()).div(100);
-        _mint(pool.poolCreator, creatorReward.sub(houseCutNewTokens));
-        _mint(store.getHouse(), houseCutNewTokens);
+        grottoToken.mintToken(pool.poolCreator, creatorReward.sub(houseCutNewTokens));
+        grottoToken.mintToken(store.getHouse(), houseCutNewTokens);
 
         store.setPendingGrottoMintingPayments(store.getPendingGrottoMintingPayments().add(pool.poolPriceInEther));
 

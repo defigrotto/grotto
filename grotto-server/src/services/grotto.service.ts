@@ -1,16 +1,27 @@
 import { Injectable } from '@nestjs/common';
+import { resolve } from 'path';
 import { PoolDetails } from 'src/models/pool.details';
 import { VoteDetails } from 'src/models/vote.details';
 import { EthereumService } from './ethereum.service';
 
 @Injectable()
 export class GrottoService {
-
     constructor(
         private ethereumService: EthereumService
     ) {
 
     }    
+
+    getGrottoTokenAddress(mode: string): Promise<string> {
+        return new Promise(async (resolve, reject) => {
+            try {
+                const tokenAddress = (mode === 'prod') ? process.env.GROTTO_TOKEN_ADDRESS: process.env.GROTTO_TOKEN_ADDRESS_TEST;
+                resolve(tokenAddress);
+            } catch (error) {
+                reject(error);
+            }
+        });                        
+    }
 
     getCurrentValue(voteId: string, mode: string): Promise<any> {
         return new Promise(async (resolve, reject) => {

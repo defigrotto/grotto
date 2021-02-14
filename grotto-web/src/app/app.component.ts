@@ -80,6 +80,10 @@ export class AppComponent {
   explorer = "https://blockscout.com/poa/sokol/address";
   currency = 'ETH';
 
+  grottoTokenAddress = "";
+
+  isAdmin = false;
+  
   constructor(private appService: AppService, private formBuilder: FormBuilder) {
     if (window.ethereum === undefined) {
       this.noMetaMask = true;
@@ -98,7 +102,7 @@ export class AppComponent {
 
     this.getAllPools();
     this.selectVote(this.voteType, "New Governor");
-    this.getNewPoolValues();
+    this.getNewPoolValues();    
     this.connectMetamask();
     this.interval = setInterval(() => {
       this.getAllPools();
@@ -273,6 +277,12 @@ export class AppComponent {
   }
 
   getAllPools() {
+    this.appService.getGrottoTokenAddress(this.mode)
+    .pipe(first())
+    .subscribe(pd => {
+      console.log(pd.data);
+      this.grottoTokenAddress = pd.data;
+    });
     this.appService.getAllPools(this.mode)
       .pipe(first())
       .subscribe(pd => {

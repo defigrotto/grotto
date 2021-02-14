@@ -31,6 +31,10 @@ export class AppService {
     return this.http.get<any>(`${environment.apiUrl}/get-latest-price/${mode}`);
   }
 
+  getGrottoTokenAddress(mode: string) {
+    return this.http.get<any>(`${environment.apiUrl}/get-grotto-token-address/${mode}`);
+  }  
+
   getPoolDetails(poolId: string, mode: string) {
     return this.http.get<any>(`${environment.apiUrl}/get-pool-details/${poolId}/${mode}`);
   }

@@ -15,6 +15,7 @@ interface StorageInterface {
     function setPoolWinner(bytes32, address) external;
     function setPoolConcluded(bytes32, bool) external;
     function setPendingGrottoMintingPayments(uint256) external;
+    function setMinGrottoGovernor(uint256 mmp) external;
 
     function getPool(bytes32 poolId) external view returns (Data.Pool memory);
     function getPendingGrottoMintingPayments() external view returns (uint256);    
@@ -26,6 +27,7 @@ interface StorageInterface {
     function getHouse() external view returns (address payable newHouse);    
     function getAllPools() external view returns (Data.Pool[] memory);
 
+    function getMinGrottoGovernor() external view returns (uint256);
     function getGovernors() external view returns (address[] memory);
     function getMainPoolPrice() external view returns (uint256);
     function getMainPoolSize() external view returns (uint256);

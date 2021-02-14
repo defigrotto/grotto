@@ -16,6 +16,11 @@ export class GrottoController {
     @Get('get-vote-details/:voteId/:mode')
     async getVoteDetails(@Param("voteId") voteId: string, @Param("mode") mode: string): Promise<Response> {
         return ResponseUtils.getSuccessResponse(await this.grottoService.getVoteDetails(voteId, mode));
+    }
+    
+    @Get('get-grotto-token-address/:mode')
+    async getGrottoTokenAddress(@Param("mode") mode: string): Promise<Response> {
+        return ResponseUtils.getSuccessResponse(await this.grottoService.getGrottoTokenAddress(mode));
     }    
 
     @Get('get-current-value/:voteId/:mode')

@@ -94,7 +94,7 @@ export class EthereumService {
 
         return new Promise(async (resolve, reject) => {
             try {
-                const pd = await this.grottoContract.getPoolDetails(poolId);                
+                const pd = await this.grottoContract.getPoolDetails(poolId);
                 const poolDetails: PoolDetails = {
                     winner: pd[0],
                     currentPoolSize: pd[1].toNumber(),
@@ -236,6 +236,10 @@ export class EthereumService {
                     case 'alter_max_size':
                         retVal = await this.governanceContract.getMaximumPoolSize();
                         resolve(retVal.toNumber());
+                        break;
+                    case 'alter_min_gov_grotto':
+                        retVal = await this.governanceContract.getMinGrottoGovernor();
+                        resolve(ethers.utils.formatEther(retVal));
                         break;
                 }
             } catch (error) {

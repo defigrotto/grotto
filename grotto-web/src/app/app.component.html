@@ -70,6 +70,71 @@
 </div>
 
 <main role="main" *ngIf="page === 'governance'">
+  <div class="modal fade" id="becomeGovernorModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLongTitle"
+    aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+
+          <h5 class="modal-title" id="exampleModalLabel">Become a Governor</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <h3>Method 1</h3>
+          <p>Send an email to <a href="">defigrotto@gmail.com</a> with your Ethereum Address. The Administrator will
+            check that you have enough GROTTO to become a governor and Send a Proposal to add you as a Governor.</p>
+          <h3>Method 2</h3>
+          <p>If you know anyone who is alrady a governor, you can contact them to Send a Proposal to add you as a
+            governor.</p>
+          <br />
+          <hr />
+          <p><b>Very Important to note: </b>You need to check the Min Grotto tab for the amount of Grotto Required to
+            become a governor. If you don't have up to this amount of tokens, you won't be able to be nominated or act
+            as a governor. Once a proposal is sent on your behalf, the other governors will need to vote and a majority
+            of the governors must vote Yes before you can be added.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="btn-toolbar container" role="toolbar" aria-label="Voting" style="padding-bottom: 100px;">
+    <button *ngIf="isAdmin" type="button" class="btn btn-dark" (click)="updateGrotto()">Update Grotto</button>
+    <button *ngIf="isAdmin" type="button" class="btn btn-primary" (click)="updateGov()">Update Gov</button>
+
+    <div class="btn-group mr-2" role="group" aria-label="First group">
+      <button type="button" class="btn btn-secondary" (click)="selectVote('add_new_governor', 'Add New Governor')">Add
+        Governor</button>
+      <button type="button" class="btn btn-danger" (click)="selectVote('remove_governor', 'Remove Governor')">Remove
+        Governor</button>
+      <button type="button" class="btn btn-primary"
+        (click)="selectVote('alter_main_pool_price', 'Main Pool Price')">Main Price</button>
+      <button type="button" class="btn btn-success" (click)="selectVote('alter_main_pool_size', 'Main Pool Size')">Main
+        Size</button>
+      <button type="button" class="btn btn-warning" (click)="selectVote('alter_house_cut', 'House Cut')">House
+        Cut</button>
+      <button type="button" class="btn btn-info"
+        (click)="selectVote('alter_house_cut_tokens', 'House Cut (New Tokens)')">House Cut (New Tokens)</button>
+      <button type="button" class="btn btn-dark" (click)="selectVote('alter_min_price', 'Minimum Pool Price')">Pool
+        Price</button>
+      <button type="button" class="btn btn-primary" (click)="selectVote('alter_min_size', 'Minimum Pool Size')">Min
+        Size</button>
+      <button type="button" class="btn btn-success" (click)="selectVote('alter_max_size', 'Maximum Pool Size')">Max
+        Size</button>
+      <button type="button" class="btn btn-secondary"
+        (click)="selectVote('alter_min_gov_grotto', 'Minimum GROTTO Required for Governor')">Min Grotto</button>
+
+      <!--TODO: Replace with BSC URL-->
+      <button type="button" class="btn btn-warning">
+        <a href="{{explorer}}/{{govContractAddress}}" target="_blank" rel="noopener noreferrer" data-toggle="tooltip"
+          data-placement="top" title="Smart Contract on Block Explorer">
+          <img src="assets/img/sc.png" style="width: 32px;">
+        </a>
+      </button>
+    </div>
+  </div>
+
   <div class="container">
     <div class="alert alert-danger" role="alert" *ngIf="votingFailure">
       <button type="button" class="close" data-dismiss="alert" aria-label="Close">
@@ -87,39 +152,6 @@
       <p>
         Voting Successful.
       </p>
-    </div>
-
-    <div class="btn-toolbar" role="toolbar" aria-label="Voting">
-      <button type="button" class="btn btn-secondary" (click)="updateGrotto()">Update Grotto</button>
-      <button type="button" class="btn btn-primary" (click)="updateGov()">Update Gov</button>
-
-      <div class="btn-group mr-2" role="group" aria-label="First group">
-        <button type="button" class="btn btn-secondary" (click)="selectVote('add_new_governor', 'Add New Governor')">Add
-          Governor</button>
-        <button type="button" class="btn btn-danger" (click)="selectVote('remove_governor', 'Remove Governor')">Remove
-          Governor</button>
-        <button type="button" class="btn btn-primary"
-          (click)="selectVote('alter_main_pool_price', 'Main Pool Price')">Main Price</button>
-        <button type="button" class="btn btn-success"
-          (click)="selectVote('alter_main_pool_size', 'Main Pool Size')">Main Size</button>
-        <button type="button" class="btn btn-warning" (click)="selectVote('alter_house_cut', 'House Cut')">House
-          Cut</button>
-        <button type="button" class="btn btn-info"
-          (click)="selectVote('alter_house_cut_tokens', 'House Cut (New Tokens)')">House Cut (New Tokens)</button>
-        <button type="button" class="btn btn-dark" (click)="selectVote('alter_min_price', 'Minimum Pool Price')">Pool
-          Price</button>
-        <button type="button" class="btn btn-primary" (click)="selectVote('alter_min_size', 'Minimum Pool Size')">Min
-          Size</button>
-        <button type="button" class="btn btn-success" (click)="selectVote('alter_max_size', 'Maximum Pool Size')">Max
-          Size</button>
-        <!--TODO: Replace with BSC URL-->
-        <button type="button" class="btn btn-warning">
-          <a href="{{explorer}}/{{govContractAddress}}" target="_blank" rel="noopener noreferrer" data-toggle="tooltip"
-            data-placement="top" title="Smart Contract on Block Explorer">
-            <img src="assets/img/sc.png" style="width: 32px;">
-          </a>
-        </button>
-      </div>
     </div>
   </div>
 
@@ -173,8 +205,12 @@
           placeholder="New Governor's Address" [(ngModel)]="proposedGov">
         <small id="sizeHelp" class="form-text text-muted">Propose a new governor that can vote</small>
       </div>
-      <button type="button" class="btn btn-primary" data-dismiss="modal" (click)="proposeNewGovernor()">Propose New
-        Governor</button>
+      <div class="btn-group" role="group" aria-label="Basic example">
+        <button type="button" class="btn btn-primary" data-dismiss="modal" (click)="proposeNewGovernor()">Propose New
+          Governor</button> | 
+        <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#becomeGovernorModal">Become
+          Governor</button>
+      </div>
     </div>
   </div>
 
@@ -324,7 +360,7 @@
         <button class="button" type="button" data-toggle="modal" data-target="#howItWorkdModal">
           Show me how
           &nbsp;<i class="fas fa-sync" aria-hidden="true" *ngIf="account !== 'Connect Metamask'"></i>
-        </button>        
+        </button>
     </div>
 
     <div class="d-flex">
@@ -356,7 +392,7 @@
         |
         <a data-toggle="modal" data-target="#me" href="#">
           <img src="assets/img/code.png" style="width: 32px;">
-        </a>        
+        </a>
       </div>
     </div>
 
@@ -372,8 +408,8 @@
         </tr>
       </thead>
       <tbody>
-        <tr *ngFor="let pd of mainPool; let i = index" data-toggle="modal" data-target="#joinPoolModal" style="cursor: pointer;"
-          (click)="setSelectedPool(pd, i)">
+        <tr *ngFor="let pd of mainPool; let i = index" data-toggle="modal" data-target="#joinPoolModal"
+          style="cursor: pointer;" (click)="setSelectedPool(pd, i)">
           <td scope="col">{{pd.poolId.substr(0, 10)}}...{{pd.poolId.substr(56)}}</td>
           <td scope="col">{{pd.poolCreator}}</td>
           <td scope="col">{{pd.poolPrice | currency: 'USD'}}</td>
@@ -417,8 +453,8 @@
         </tr>
       </thead>
       <tbody>
-        <tr *ngFor="let pd of userPool; let i = index" data-toggle="modal" data-target="#joinPoolModal" style="cursor: pointer;"
-          (click)="setSelectedPool(pd, i)">
+        <tr *ngFor="let pd of userPool; let i = index" data-toggle="modal" data-target="#joinPoolModal"
+          style="cursor: pointer;" (click)="setSelectedPool(pd, i)">
           <td scope="col">{{pd.poolId.substr(0, 10)}}...{{pd.poolId.substr(56)}}</td>
           <td scope="col">{{pd.poolCreator}}</td>
           <td scope="col">{{pd.poolPrice | currency: 'USD'}}</td>
@@ -471,7 +507,7 @@
           <th scope="col">Creator</th>
           <th scope="col">Bet</th>
           <th scope="col">Size</th>
-          <th scope="col">Prize</th>          
+          <th scope="col">Prize</th>
           <th scope="col">Filled</th>
         </tr>
       </thead>
@@ -564,7 +600,8 @@
           <div class="row">
             <div class="col col-6"></div>
             <div class="col col-3">
-              <button type="button" class="btn btn-primary" data-dismiss="modal" (click)="joinPool(selectedPool)">Place Bet</button>
+              <button type="button" class="btn btn-primary" data-dismiss="modal" (click)="joinPool(selectedPool)">Place
+                Bet</button>
             </div>
             <div class="col col-2">
               <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
@@ -601,7 +638,7 @@
             <li>Select a pool and click place bet</li>
             <li>Click confirm on Metamask dialog</li>
             <li>If you win, your Metamask Account will be credited with your winnings</li>
-            <li>Finally add the GROTTO token (address: {{contractAddress}}, name: GROTTO) to
+            <li>Finally add the GROTTO token (address: {{grottoTokenAddress}}, name: GROTTO) to
               Metamask - <a href="https://docs.yearn.finance/how-to-guides/how-to-add-a-custom-token-to-metamask">Add
                 Token to Metamask</a></li>
           </ul>
@@ -612,7 +649,8 @@
           <h3>Main Pool</h3>
           <p>This is the pool that anyone can join at any time.</p>
           <p>The main pool is reset after a winner is found, the main pool has a size is currently {{mainPoolSize}}.</p>
-          <p>This means a winner is found after {{mainPoolSize}} people had joined the pool. A new pool is started immediately</p>
+          <p>This means a winner is found after {{mainPoolSize}} people had joined the pool. A new pool is started
+            immediately</p>
           <p>The main pool has a fixed price of {{mainPoolPrice | currency: 'USD'}} to join.</p>
           <p>Grotto is a winner takes all pool.</p>
           <p>The platform takes {{houseCut}}% of winnings.</p>
@@ -621,7 +659,8 @@
           <p>The user starting the pool (pool creator) sets the price and the size of the pool</p>
           <p>Size: The number of people that can join the pool before a winner is found</p>
           <p>Price: How much each user joining the pool needs to donate.</p>
-          <p>The pool creator gets rewarded with ((pool price * pool size) - {{houseCutNewTokens}}%) GROTTO tokens once a winner is found
+          <p>The pool creator gets rewarded with ((pool price * pool size) - {{houseCutNewTokens}}%) GROTTO tokens once
+            a winner is found
           </p>
           <p>The {{houseCutNewTokens}}% goes to the platform</p>
           <p>The Minimum price for a user defined pool is {{poolPrice | currency: 'USD'}}</p>
@@ -637,8 +676,7 @@
 </main>
 
 
-<div class="modal fade" id="me" tabindex="-1" role="dialog" aria-labelledby="exampleModalLongTitle"
-  aria-hidden="true">
+<div class="modal fade" id="me" tabindex="-1" role="dialog" aria-labelledby="exampleModalLongTitle" aria-hidden="true">
   <div class="modal-dialog modal-sm" role="document">
     <div class="modal-content" style="background-color: black; color: white;">
       <div class="modal-header">
@@ -649,31 +687,31 @@
           <a href="https://t.me/aardvocate" rel="noopener noreferrer" target="_blank" data-toggle="tooltip"
             data-placement="top" title="Me on Telegram">
             <img src="assets/img/telegram.png" style="width: 32px;">
-          &nbsp;&nbsp;@aardvocate</a>
+            &nbsp;&nbsp;@aardvocate</a>
         </div>
         <div class="p-2">
           <a href="https://github.com/segun" rel="noopener noreferrer" target="_blank" data-toggle="tooltip"
             data-placement="top" title="Me on Github">
             <img src="assets/img/github.png">
-          &nbsp;&nbsp;segun</a>
+            &nbsp;&nbsp;segun</a>
         </div>
         <div class="p-2">
           <a href="https://www.linkedin.com/in/segunakintayo/" rel="noopener noreferrer" target="_blank"
             data-toggle="tooltip" data-placement="top" title="Me on LinkedIn">
             <img src="assets/img/linked_in.png" style="width: 32px;">
-          &nbsp;&nbsp;segunakintayo</a>
+            &nbsp;&nbsp;segunakintayo</a>
         </div>
         <div class="p-2">
           <a href="https://twitter.com/trinisoftinc" rel="noopener noreferrer" target="_blank" data-toggle="tooltip"
             data-placement="top" title="Me on Twitter">
             <img src="assets/img/twitter.png" style="width: 32px;">
-          &nbsp;&nbsp;trinisoftinc</a>
+            &nbsp;&nbsp;trinisoftinc</a>
         </div>
         <div class="p-2">
           <a href="mailto:defigrotto@gmail.com" rel="noopener noreferrer" target="_blank" data-toggle="tooltip"
             data-placement="top" title="Me on Gmail">
             <img src="assets/img/gmail.png" style="width: 32px;">
-          &nbsp;&nbsp;defigrotto@gmail.com</a>
+            &nbsp;&nbsp;defigrotto@gmail.com</a>
         </div>
       </div>
     </div>

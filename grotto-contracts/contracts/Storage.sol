@@ -22,15 +22,11 @@ contract Storage is StorageInterface {
 
     address[] governors;
 
-    // TODO: stake price for the main pool. $100
+    // Stake price for the main pool. $100
     //uint256 private MAIN_POOL_PRICE = 100 * ONE_ETHER;
-    // for testing make it $1
     uint256 private MAIN_POOL_PRICE = 100 * Data.ONE_ETHER;
 
-    // TODO: number of accounts before winner is calculated.
-    // change to 10 for tests to pass
-    // change to 5 for sokol tests to pass
-    // change to 100 for prod
+    // Number of accounts before winner is calculated.
     uint256 private MAIN_POOL_SIZE = 5;
 
     // percentage of winning that goes to house. 10%
@@ -39,14 +35,10 @@ contract Storage is StorageInterface {
     // how many % of new tokens go to house. 10%
     uint256 private HOUSE_CUT_NEW_TOKEN = 10;
 
-    // TODO: Minimum price for user defined pools
-    //uint256 private MINIMUM_POOL_PRICE = 10 * ONE_ETHER;
-    // for testing make it $1
+    // Minimum price for user defined pools
     uint256 private MINIMUM_POOL_PRICE = 10 * Data.ONE_ETHER;
 
-    // TODO: Minimum size for user defined pools
-    // change to 3 for sokol
-    // change to 10 for prod
+    // Minimum size for user defined pools
     uint256 private MINIMUM_POOL_SIZE = 10;
 
     // Maximum size for user defined pools
@@ -56,8 +48,10 @@ contract Storage is StorageInterface {
         When user defines a pool, they pay the POOL PRICE in exchange for GROTTO tokens
         These payments should be sent to house
     */ 
-
     uint256 private PENDING_GROTTO_MINTING_PAYMENTS = 0;
+
+    // How much GROTTO is needed to be a governor
+    uint256 private MINIMUM_GROTTO_GOVERNOR = 600 * Data.ONE_ETHER;
 
     Data.Pool[] private poolDetails;
 
@@ -71,8 +65,8 @@ contract Storage is StorageInterface {
 
     address payable private house;
 
-    address grotto = 0x2398129Bf7aF7E521137c0CAa83113cbFb178551;
-    address gov = 0xE175547429ED36885FB63EC4128879132E1d3339;
+    address grotto = 0x602977Cc32F9199cF1d29a1f2E8cA7bD3b6b5805;
+    address gov = 0x74572a6e3817F971c91727825026aA90f02CD557;
 
     function setGrotto(address newGrotto) public override {
         require(msg.sender == grotto, "Grotto: You can't do that");
@@ -233,18 +227,27 @@ contract Storage is StorageInterface {
         return MAXIMUM_POOL_SIZE;
     }
 
+    function getGovernors() public override view returns (address[] memory) {
+        return governors;
+    }
+
+
+    function getMinGrottoGovernor() public view override returns (uint256) {
+        return MINIMUM_GROTTO_GOVERNOR;
+    }
+
+    function setMinGrottoGovernor(uint256 mmp) public override {
+        require(msg.sender == gov, "Gov: You can't do that");
+        MINIMUM_GROTTO_GOVERNOR = mmp;
+    }            
+
     function setMaximumPoolSize(uint256 mmp) public override {
         require(msg.sender == gov, "Gov: You can't do that");
         MAXIMUM_POOL_SIZE = mmp;
     }            
 
-
     function addGovernor(address governor) public override {
         governors.push(governor);
-    }
-
-    function getGovernors() public override view returns (address[] memory) {
-        return governors;
     }
 
     function isInProgress(string memory voteId) public override view returns (bool) {

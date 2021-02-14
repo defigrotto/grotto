@@ -14,6 +14,7 @@ interface GovernanceInterface {
     event MINIMUM_POOL_PRICE_CHANGED(uint256);
     event MINIMUM_POOL_SIZE_CHANGED(uint256);
     event MAXIMUM_POOL_SIZE_CHANGED(uint256);
+    event MIN_GROTTO_GOV_CHANGED(uint256);
     event NO_CONSENSUS(string);
     event VOTE_CASTED(address, string);
     event NEW_PROPOSAL(string);
