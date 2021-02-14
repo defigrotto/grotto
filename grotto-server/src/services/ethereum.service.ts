@@ -67,7 +67,6 @@ export class EthereumService {
         return new Promise(async (resolve, reject) => {
             try {
                 const vd = await this.governanceContract.votingDetails(voteId);
-                console.log(vd);
 
                 const voteDetails: VoteDetails = {
                     voteId: vd[0],
@@ -95,8 +94,7 @@ export class EthereumService {
 
         return new Promise(async (resolve, reject) => {
             try {
-                const pd = await this.grottoContract.getPoolDetails(poolId);
-                console.log(pd);
+                const pd = await this.grottoContract.getPoolDetails(poolId);                
                 const poolDetails: PoolDetails = {
                     winner: pd[0],
                     currentPoolSize: pd[1].toNumber(),
@@ -127,22 +125,39 @@ export class EthereumService {
                 const allPoolDetails: PoolDetails[] = [];
 
                 const pools: any[] = await this.grottoContract.getAllPools();
+                console.log(pools);
                 const size = pools.length;
-                for (let i = 0; i < size; i++) {
-                    const pd = pools[i];
+                if (size <= 0) {
                     const poolDetails: PoolDetails = {
-                        winner: pd[0],
-                        currentPoolSize: pd[1].toNumber(),
-                        isInMainPool: pd[2],
-                        poolSize: pd[3].toNumber(),
-                        poolPrice: +ethers.utils.formatEther(pd[4]),
-                        poolCreator: pd[5],
-                        isPoolConcluded: pd[6],
-                        poolPriceInEther: +ethers.utils.formatEther(pd[7]),
-                        poolId: pd[8],
+                        winner: "",
+                        currentPoolSize: 0,
+                        isInMainPool: false,
+                        poolSize: 0,
+                        poolPrice: 0,
+                        poolCreator: "",
+                        isPoolConcluded: false,
+                        poolPriceInEther: 0,
+                        poolId: "",
                         contractAddress: contractAddress
                     }
                     allPoolDetails.push(poolDetails);
+                } else {
+                    for (let i = 0; i < size; i++) {
+                        const pd = pools[i];
+                        const poolDetails: PoolDetails = {
+                            winner: pd[0],
+                            currentPoolSize: pd[1].toNumber(),
+                            isInMainPool: pd[2],
+                            poolSize: pd[3].toNumber(),
+                            poolPrice: +ethers.utils.formatEther(pd[4]),
+                            poolCreator: pd[5],
+                            isPoolConcluded: pd[6],
+                            poolPriceInEther: +ethers.utils.formatEther(pd[7]),
+                            poolId: pd[8],
+                            contractAddress: contractAddress
+                        }
+                        allPoolDetails.push(poolDetails);
+                    }
                 }
 
                 resolve(allPoolDetails);

@@ -10,7 +10,8 @@
     "start-node": "npx hardhat node",
     "deploy": "npx hardhat run scripts/deploy.js",
     "console": "npx hardhat console",
-    "deploy-gov": "npx hardhat run scripts/deploy_gov.js",
+    "deploy:gov": "npx hardhat run scripts/deploy_gov.js",
+    "deploy:store": "npx hardhat run scripts/deploy_store.js",
     "flatten": "./node_modules/.bin/poa-solidity-flattener",
     "index": "npx hardhat run --network localhost scripts/index.js"
   },

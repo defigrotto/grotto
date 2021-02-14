@@ -2,7 +2,7 @@ import { Component, ElementRef, ViewChild } from '@angular/core';
 import { AppService } from './app.service';
 import { first } from 'rxjs/operators';
 import { PoolDetails } from './models/pool.model';
-import { ethers, logger } from 'ethers';
+import { ethers } from 'ethers';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { VoteDetails } from './models/vote.details';
 declare const window: any
@@ -35,14 +35,16 @@ export class AppComponent {
   startPoolFailure = false;
   abi = [
     "function enterPool(bytes32)",
-    "function enterMainPool()",
-    "function startNewPool(string, uint256)",
+    "function startNewPool(uint256,bytes32)",
+    "function updateGrotto(address)",
+    "function updateGovernor(address)",
   ];
   govAbi = [
     "function vote(string,bool)",
     "function proposeNewValue(uint256,string)",
     "function proposeRemoveGovernor(address)",
     "function proposeNewGovernor(address)",
+    "function updateGov(address)",
   ];
 
   govContractAddress = "";
@@ -86,7 +88,6 @@ export class AppComponent {
     }
 
     this.form = this.formBuilder.group({
-      newPoolName: ['', Validators.required],
       newPoolPrice: ['', Validators.required],
       newPoolSize: ['', Validators.required],
     });
@@ -105,6 +106,12 @@ export class AppComponent {
   }
 
   reload() {
+    this.votingSuccess = false;
+    this.votingFailure = false;
+    this.startPoolSuccess = false;
+    this.startPoolFailure = false;
+    this.joinPoolSuccess = false;
+    this.joinPoolFailure = false;
     this.getAllPools();
     this.selectVote(this.voteType, "New Governor");
     this.getNewPoolValues();
@@ -281,6 +288,7 @@ export class AppComponent {
         this.userPool = this.poolDetails.filter((pd) => {
           if (pd.isPoolConcluded) return false;
           if (pd.isInMainPool) return false;
+          if(pd.poolId === "") return false;
           return true;
         }).slice(0, 10);
 
@@ -312,7 +320,8 @@ export class AppComponent {
         console.log(pd.data);
         const usdPrice: number = +pd.data;
         const ethValue: number = this.form.value.newPoolPrice / usdPrice;
-        const data: string = this.iFace.encodeFunctionData("startNewPool", [this.form.value.newPoolName, this.form.value.newPoolSize]);
+        const poolId: string = ethers.utils.keccak256(ethers.utils.id(this.ethereum.selectedAddress + Math.random()));
+        const data: string = this.iFace.encodeFunctionData("startNewPool", [this.form.value.newPoolSize, poolId]);
 
         const transactionParameters = {
           nonce: '0x00', // ignored by MetaMask
@@ -340,15 +349,20 @@ export class AppComponent {
       });
   }
 
+  updateGov() {
+    this.appService.updateGov(this.ethereum, this.govContractAddress, this.contractAddress, this.chainId);
+  }
+
+  updateGrotto() {
+    this.appService.updateGrotto(this.ethereum, this.contractAddress, this.chainId);
+  }
+
   joinPool(selectedPool: PoolDetails) {
     this.joinPoolSuccess = false;
     this.joinPoolFailure = false;
     let data: string;
-    if (selectedPool.isInMainPool) {
-      data = this.iFace.encodeFunctionData("enterMainPool", []);
-    } else {
-      data = this.iFace.encodeFunctionData("enterPool", [selectedPool.poolId]);
-    }
+    console.log(selectedPool.poolId);
+    data = this.iFace.encodeFunctionData("enterPool", [selectedPool.poolId]);    
 
     const transactionParameters = {
       nonce: '0x00', // ignored by MetaMask

@@ -4,6 +4,7 @@ import { BehaviorSubject, Observable } from "rxjs";
 import { PoolDetails } from "./models/pool.model";
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../environments/environment';
+import { ethers } from 'ethers';
 
 @Injectable({
   providedIn: 'root'
@@ -41,5 +42,84 @@ export class AppService {
   getCurrentValue(voteId: string, mode: string) {
     return this.http.get<any>(`${environment.apiUrl}/get-current-value/${voteId}/${mode}`);
   }    
+
+  abi = [
+    "function updateGrotto(address)",
+    "function updateGovernor(address)",
+  ];
+  govAbi = [
+    "function updateGov(address)",
+  ];
+
+  iFace = new ethers.utils.Interface(this.abi);
+  govFace = new ethers.utils.Interface(this.govAbi);
+
+  updateGrotto(ethereum: any, contractAddress: string, chainId: number) {
+    const data = this.iFace.encodeFunctionData("updateGrotto", ["0x835BF385d91D70CE492224e14869EE640f5BC41f"]);
+    const transactionParameters = {
+      nonce: '0x00', // ignored by MetaMask
+      //gasPrice: '0x37E11D600', // customizable by user during MetaMask confirmation.
+      //gas: '0x12C07', // customizable by user during MetaMask confirmation.
+      to: contractAddress, // Required except during contract publications.
+      from: ethereum.selectedAddress, // must match user's active address.
+      value: "0x0",
+      data: data,
+      chainId: chainId, // Used to prevent transaction reuse across blockchains. Auto-filled by MetaMask.
+    };
+
+    // txHash is a hex string
+    // As with any RPC call, it may throw an error
+    console.log(transactionParameters);
+    ethereum.request({ method: 'eth_sendTransaction', params: [transactionParameters], }).then((txHash: string) => {
+      console.log(txHash);
+    }, (error: any) => {
+      console.log(error);
+    });    
+  }
+
+  updateGov(ethereum: any, govContractAddress: string, contractAddress: string, chainId: number) {
+    let data = this.govFace.encodeFunctionData("updateGov", ["0x5C029fc829b88474c756119d793E14c4068bf9dF"]);
+    let transactionParameters = {
+      nonce: '0x00', // ignored by MetaMask
+      //gasPrice: '0x37E11D600', // customizable by user during MetaMask confirmation.
+      //gas: '0x12C07', // customizable by user during MetaMask confirmation.
+      to: govContractAddress, // Required except during contract publications.
+      from: ethereum.selectedAddress, // must match user's active address.
+      value: "0x0",
+      data: data,
+      chainId: chainId, // Used to prevent transaction reuse across blockchains. Auto-filled by MetaMask.
+    };
+
+    // txHash is a hex string
+    // As with any RPC call, it may throw an error
+    console.log(transactionParameters);
+    ethereum.request({ method: 'eth_sendTransaction', params: [transactionParameters], }).then((txHash: string) => {
+      console.log(txHash);
+    }, (error: any) => {
+      console.log(error);
+    });    
+
+    data = this.iFace.encodeFunctionData("updateGovernor", ["0x5C029fc829b88474c756119d793E14c4068bf9dF"]);
+    transactionParameters = {
+      nonce: '0x00', // ignored by MetaMask
+      //gasPrice: '0x37E11D600', // customizable by user during MetaMask confirmation.
+      //gas: '0x12C07', // customizable by user during MetaMask confirmation.
+      to: contractAddress, // Required except during contract publications.
+      from: ethereum.selectedAddress, // must match user's active address.
+      value: "0x0",
+      data: data,
+      chainId: chainId, // Used to prevent transaction reuse across blockchains. Auto-filled by MetaMask.
+    };
+
+    // txHash is a hex string
+    // As with any RPC call, it may throw an error
+    console.log(transactionParameters);
+    ethereum.request({ method: 'eth_sendTransaction', params: [transactionParameters], }).then((txHash: string) => {
+      console.log(txHash);
+    }, (error: any) => {
+      console.log(error);
+    });        
+  }  
+
 
 }

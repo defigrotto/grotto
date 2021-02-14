@@ -85,3 +85,4 @@ cache
 build
 env*
 .env
+*.bak
