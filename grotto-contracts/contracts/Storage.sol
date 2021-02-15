@@ -66,7 +66,7 @@ contract Storage is StorageInterface {
     address payable private house;
 
     address grotto = 0x9f2Ee575df41B27c966F05c3e9579E495d234368;
-    address gov = 0x32b0319f75490b1326380D74cDb4224bb293f9f0;
+    address gov = 0xEb3b048D517b5130804EF68B74A959c47abaCfb5;
 
     function setGrotto(address newGrotto) public override {
         require(msg.sender == grotto, "Grotto: You can't do that");
