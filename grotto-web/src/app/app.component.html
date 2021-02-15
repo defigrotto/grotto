@@ -4,7 +4,7 @@
       <img src="assets/img/logo.png" width="150" alt="CoolBrand">
     </a>
     <div class="container d-flex justify-content-between">
-      <button (click)="connectMetamask()" class="button" type="button">
+      <button (click)="connectMetamask(true)" class="button" type="button">
         {{account}}
         &nbsp;<i class="fas fa-sync" aria-hidden="true" *ngIf="account !== 'Connect Metamask'"></i>
       </button>
@@ -331,7 +331,7 @@
       <h4 class="alert-heading"></h4>
       <p>You're not connected to Metamask or connected to the wrong network.
         <hr>
-        <button (click)="connectMetamask()" class="button" type="button">
+        <button (click)="connectMetamask(true)" class="button" type="button">
           {{account}}
           &nbsp;<i class="fas fa-sync" aria-hidden="true" *ngIf="account !== 'Connect Metamask'"></i>
         </button>

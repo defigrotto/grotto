@@ -103,7 +103,7 @@ export class AppComponent {
     this.getAllPools();
     this.selectVote(this.voteType, "New Governor");
     this.getNewPoolValues();    
-    this.connectMetamask();
+    this.connectMetamask(false);
     this.interval = setInterval(() => {
       this.getAllPools();
     }, 30000);
@@ -428,33 +428,41 @@ export class AppComponent {
     }
   }
 
-  connectMetamask() {
+  connectMetamask(fromButton: boolean) {
+    if(fromButton) {
+      this.tryConnect();
+    }
+
     if (!this.noMetaMask) {
-      this.registerEvents();
-      this.ethereum.request({ method: 'eth_requestAccounts' }).then((accounts: string[]) => {
-        this.ethereum.request({ method: 'eth_chainId' }).then((chainId: string) => {
-          console.log(`Metamask Chain ID: ${+chainId}`);
-          console.log(`Chain ID We want: ${+this.chainId}`);
-          if (+this.chainId === +chainId) {
-            this.account = accounts[0];
-            this.noMetaMask = false;
-          } else {
-            this.account = "Connect Metamask";
-            this.noMetaMask = true;
-          }
-          this.reload();
-        }, (error: any) => {
-          this.noMetaMask = true;
+      this.tryConnect();
+    }
+  }
+
+  tryConnect() {
+    this.registerEvents();
+    this.ethereum.request({ method: 'eth_requestAccounts' }).then((accounts: string[]) => {
+      this.ethereum.request({ method: 'eth_chainId' }).then((chainId: string) => {
+        console.log(`Metamask Chain ID: ${+chainId}`);
+        console.log(`Chain ID We want: ${+this.chainId}`);
+        if (+this.chainId === +chainId) {
+          this.account = accounts[0];
+          this.noMetaMask = false;
+        } else {
           this.account = "Connect Metamask";
-          console.log(error);
-          this.reload();
-        });
+          this.noMetaMask = true;
+        }
+        this.reload();
       }, (error: any) => {
         this.noMetaMask = true;
         this.account = "Connect Metamask";
         console.log(error);
         this.reload();
       });
-    }
+    }, (error: any) => {
+      this.noMetaMask = true;
+      this.account = "Connect Metamask";
+      console.log(error);
+      this.reload();
+    });    
   }
 }
