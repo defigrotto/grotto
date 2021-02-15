@@ -606,21 +606,44 @@
         <div class="modal-body">
           Grotto is a lotto game on the Binance Smart Chain network. It allows anyone to host a lotto game and get
           rewarded with Grotto tokens if a winner is found.
+          <p></p>
           <h3>How to enter</h3>
-          <ul>
-            <li>Get Metamask wallet - <a href="https://metamask.io/">Install Metamask</a></li>
-            <li>Add Binance Smart Chain to Metamask - <a
-                href="https://academy.binance.com/en/articles/connecting-metamask-to-binance-smart-chain">Setup
-                BSC</a>
-            </li>
-            <li>Click connect on this page</li>
-            <li>Select a pool and click place bet</li>
-            <li>Click confirm on Metamask dialog</li>
-            <li>If you win, your Metamask Account will be credited with your winnings</li>
-            <li>Finally add the GROTTO token (address: {{grottoTokenAddress}}, name: GROTTO) to
-              Metamask - <a href="https://docs.yearn.finance/how-to-guides/how-to-add-a-custom-token-to-metamask">Add
-                Token to Metamask</a></li>
-          </ul>
+          <div *ngIf="mode==='demo'">
+            <h4>We are currently on the Sokol POA Testnet</h4>
+            <ul>
+              <li>Chain-ID: 77</li>
+              <li>RPC-Url: https://sokol.poa.network</li>
+              <li>Explorer: https://blockscout.com/poa/sokol</li>
+              <li>Faucet: https://faucet.poa.network/</li>
+              <li>Get Metamask wallet - <a href="https://metamask.io/">Install Metamask</a></li>
+              <li>Add Sokol POA to MetaMask: <a
+                  href="https://metamask.zendesk.com/hc/en-us/articles/360043227612-How-to-add-custom-Network-RPC-and-or-Block-Explorer">Add
+                  Sokol POA to Metamask</a></li>
+              <li>Click connect on this page</li>
+              <li>Select a pool and click place bet</li>
+              <li>Click confirm on Metamask dialog</li>
+              <li>If you win, your Metamask Account will be credited with your winnings</li>
+              <li>Finally add the GROTTO token (address: {{grottoTokenAddress}}, name: GROTTO) to
+                Metamask - <a href="https://docs.yearn.finance/how-to-guides/how-to-add-a-custom-token-to-metamask">Add
+                  Token to Metamask</a></li>
+            </ul>
+          </div>
+          <div *ngIf="mode==='prod'">
+            <ul>
+              <li>Get Metamask wallet - <a href="https://metamask.io/">Install Metamask</a></li>
+              <li>Add Binance Smart Chain to Metamask - <a
+                  href="https://academy.binance.com/en/articles/connecting-metamask-to-binance-smart-chain">Setup
+                  BSC</a>
+              </li>
+              <li>Click connect on this page</li>
+              <li>Select a pool and click place bet</li>
+              <li>Click confirm on Metamask dialog</li>
+              <li>If you win, your Metamask Account will be credited with your winnings</li>
+              <li>Finally add the GROTTO token (address: {{grottoTokenAddress}}, name: GROTTO) to
+                Metamask - <a href="https://docs.yearn.finance/how-to-guides/how-to-add-a-custom-token-to-metamask">Add
+                  Token to Metamask</a></li>
+            </ul>
+          </div>
           <p></p>
           <h3>How does it work?</h3><small>(Only if you're interested in the nitty gritty)</small>
           <p></p>
