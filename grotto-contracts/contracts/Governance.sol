@@ -20,6 +20,8 @@ contract Governance is GovernanceInterface {
 
     address[] private governors;
 
+    uint256 constant private MAX_GOVERNORS = 21;
+
     constructor() {
         store = StorageInterface(storeAddress);
         store.addGovernor(0xC04915f6b3ff85b50A863eB1FcBF368171539413);
@@ -121,6 +123,9 @@ contract Governance is GovernanceInterface {
         }
 
         require(grottoToken.balanceOf(newGovernor) >= store.getMinGrottoGovernor(), 'New Governor does not have enough GROTTO');
+
+        address[] memory govs = store.getGovernors();
+        require(govs.length <= MAX_GOVERNORS, 'You can not add more governors. Remove a governor first');
 
         string memory voteId = Data.ADD_GOVERNOR_VOTE_ID;
         bool isInProgress = store.isInProgress(voteId);
