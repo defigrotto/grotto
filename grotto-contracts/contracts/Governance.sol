@@ -11,9 +11,9 @@ contract Governance is GovernanceInterface {
     using SafeMath for uint256;
 
     StorageInterface store;
-    address private storeAddress = 0xecb02254257B6F4b637463cAA1c4BB2D54AFE1aF;
+    address private storeAddress = 0x32b0319f75490b1326380D74cDb4224bb293f9f0;
 
-    address private tokenAddress = 0xE6dC5F56F658a1868f10c374c4e1Fb39D2CD0F99;
+    address private tokenAddress = 0x9F9B1A890eF0275DabFF37C051D52F427A8a4501;
     GrottoTokenInterface grottoToken;
 
     address[] private voters;
@@ -24,20 +24,11 @@ contract Governance is GovernanceInterface {
 
     constructor() {
         store = StorageInterface(storeAddress);
-        store.addGovernor(0xC04915f6b3ff85b50A863eB1FcBF368171539413);
-        grottoToken.mintToken(0xC04915f6b3ff85b50A863eB1FcBF368171539413, store.getMinGrottoGovernor());  
-        
-        store.addGovernor(0xb58c226a300fF6dc1eF762d62c536c7aED5CeA74);
-        grottoToken.mintToken(0xb58c226a300fF6dc1eF762d62c536c7aED5CeA74, store.getMinGrottoGovernor());  
-
+        store.addGovernor(0xC04915f6b3ff85b50A863eB1FcBF368171539413);            
+        store.addGovernor(0xb58c226a300fF6dc1eF762d62c536c7aED5CeA74);        
         store.addGovernor(0xB6D80F6d661927afEf42f39e52d630E250696bc4);
-        grottoToken.mintToken(0xB6D80F6d661927afEf42f39e52d630E250696bc4, store.getMinGrottoGovernor());  
-
         store.addGovernor(0x6B33d96c8353D03433034171433b0Bd9bdaFaC8b);
-        grottoToken.mintToken(0x6B33d96c8353D03433034171433b0Bd9bdaFaC8b, store.getMinGrottoGovernor());  
-
         store.addGovernor(0x0A0C8E469fef425eF7C6E9754dC563f9BBa588f0); 
-        grottoToken.mintToken(0x0A0C8E469fef425eF7C6E9754dC563f9BBa588f0, store.getMinGrottoGovernor());  
 
         grottoToken = GrottoTokenInterface(tokenAddress);         
     }

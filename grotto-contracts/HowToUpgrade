@@ -1,0 +1,13 @@
+Generate new address using 
+    node scripts/future_address.js
+
+Upgrading Grotto
+    Call Grotto.updateGrotto(newAddress) using old Grotto. 
+    This call with update the addresses in Store and GrottoToken and send all unspent ETH to new Address
+
+Upgrading Gov
+    Call Governance.updateGov(newAddress) using old Gov.
+
+You can enable these buttons in the GUI by setting isAdmin to true;
+
+Store and GrottoToken updates will require Grotto and Governance updates too since Grotto and Governance don't store any data that can't be lost

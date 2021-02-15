@@ -13,7 +13,8 @@
     "deploy:gov": "npx hardhat run scripts/deploy_gov.js --network sokol",
     "deploy:store": "npx hardhat run scripts/deploy_store.js --network sokol",
     "deploy:grotto_token": "npx hardhat run scripts/deploy_grotto_token.js --network sokol",
-    "deploy:all": "npm run deploy:grotto_token && npm run deploy:store &&  npm run deploy:gov &&  npm run deploy",
+    "deploy:with_token": "npm run deploy:grotto_token && npm run deploy:store &&  npm run deploy:gov &&  npm run deploy",
+    "deploy:all": "npm run deploy:store &&  npm run deploy:gov &&  npm run deploy",
     "flatten": "./node_modules/.bin/poa-solidity-flattener",
     "index": "npx hardhat run --network localhost scripts/index.js"
   },

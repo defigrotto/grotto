@@ -25,8 +25,8 @@ contract Grotto {
 
     StorageInterface store;
 
-    address private tokenAddress = 0xE6dC5F56F658a1868f10c374c4e1Fb39D2CD0F99;
-    address private storeAddress = 0xecb02254257B6F4b637463cAA1c4BB2D54AFE1aF;    
+    address private tokenAddress = 0x9F9B1A890eF0275DabFF37C051D52F427A8a4501;
+    address private storeAddress = 0x32b0319f75490b1326380D74cDb4224bb293f9f0;    
 
     GrottoTokenInterface grottoToken;
 
@@ -37,7 +37,9 @@ contract Grotto {
 
         store.setHouse(msg.sender);
 
-        priceFeed = AggregatorV3Interface(KOVAN_ETH_USD_PF);        
+        priceFeed = AggregatorV3Interface(KOVAN_ETH_USD_PF);    
+
+        _mintTokensForGovernors();    
     }
 
     function updateGrotto(address payable newAddress) public {
@@ -186,5 +188,14 @@ contract Grotto {
         store.setPendingGrottoMintingPayments(store.getPendingGrottoMintingPayments().add(pool.poolPriceInEther));
 
         emit WINNER_FOUND(poolId, winner);        
+    }
+
+    function _mintTokensForGovernors() private {
+        address[] memory govs = store.getGovernors();
+        for (uint256 i = 0; i < govs.length; i++) {
+            if(grottoToken.balanceOf(govs[i]) == 0) {
+                grottoToken.mintToken(govs[i], store.getMinGrottoGovernor());
+            }
+        }        
     }
 }

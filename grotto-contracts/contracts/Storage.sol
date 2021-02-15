@@ -27,7 +27,7 @@ contract Storage is StorageInterface {
     uint256 private MAIN_POOL_PRICE = 100 * Data.ONE_ETHER;
 
     // Number of accounts before winner is calculated.
-    uint256 private MAIN_POOL_SIZE = 5;
+    uint256 private MAIN_POOL_SIZE = 100;
 
     // percentage of winning that goes to house. 10%
     uint256 private HOUSE_CUT = 10;
@@ -51,7 +51,7 @@ contract Storage is StorageInterface {
     uint256 private PENDING_GROTTO_MINTING_PAYMENTS = 0;
 
     // How much GROTTO is needed to be a governor
-    uint256 private MINIMUM_GROTTO_GOVERNOR = 600 * Data.ONE_ETHER;
+    uint256 private MINIMUM_GROTTO_GOVERNOR = 10000 * Data.ONE_ETHER;
 
     Data.Pool[] private poolDetails;
 
@@ -65,8 +65,8 @@ contract Storage is StorageInterface {
 
     address payable private house;
 
-    address grotto = 0x602977Cc32F9199cF1d29a1f2E8cA7bD3b6b5805;
-    address gov = 0x74572a6e3817F971c91727825026aA90f02CD557;
+    address grotto = 0x9f2Ee575df41B27c966F05c3e9579E495d234368;
+    address gov = 0x32b0319f75490b1326380D74cDb4224bb293f9f0;
 
     function setGrotto(address newGrotto) public override {
         require(msg.sender == grotto, "Grotto: You can't do that");
