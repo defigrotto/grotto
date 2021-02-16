@@ -51,7 +51,7 @@ contract Storage is StorageInterface {
     uint256 private PENDING_GROTTO_MINTING_PAYMENTS = 0;
 
     // How much GROTTO is needed to be a governor
-    uint256 private MINIMUM_GROTTO_GOVERNOR = 10000 * Data.ONE_ETHER;
+    uint256 private MINIMUM_GROTTO_GOVERNOR = 100000 * Data.ONE_ETHER;
 
     Data.Pool[] private poolDetails;
 

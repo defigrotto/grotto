@@ -1,4 +1,4 @@
-import { Component, ElementRef, ViewChild } from '@angular/core';
+import { Component } from '@angular/core';
 import { AppService } from './app.service';
 import { first } from 'rxjs/operators';
 import { PoolDetails } from './models/pool.model';
@@ -25,7 +25,7 @@ export class AppComponent {
   myPool: PoolDetails[] = [];
 
   selectedPool!: PoolDetails;
-  selectedIndex = -1;
+  selectedIndex = -1;  
 
   noMetaMask = false;
   joinPoolSuccess = false;
@@ -83,6 +83,10 @@ export class AppComponent {
   grottoTokenAddress = "";
 
   isAdmin = false;
+
+  bodyColor = "white";
+  failColor = "#f8d7da";
+  successsColor = "#d4edda";
   
   constructor(private appService: AppService, private formBuilder: FormBuilder) {
     if (window.ethereum === undefined) {
@@ -107,6 +111,14 @@ export class AppComponent {
     this.interval = setInterval(() => {
       this.getAllPools();
     }, 30000);
+  }
+
+  flash(color: string) {
+    this.bodyColor = color;
+    setTimeout(() => {
+      this.bodyColor = "white";
+      window.scroll(0,0);
+    }, 2000);
   }
 
   reload() {
@@ -350,11 +362,14 @@ export class AppComponent {
         this.ethereum.request({ method: 'eth_sendTransaction', params: [transactionParameters], }).then((txHash: string) => {
           console.log(txHash);
           this.startPoolSuccess = true;
+          this.flash(this.successsColor);
           this.getAllPools();
         }, (error: any) => {
+          this.flash(this.failColor);
           this.startPoolFailure = true;
         });
       }, (error: any) => {
+        this.flash(this.failColor);
         this.startPoolFailure = true;
       });
   }
@@ -391,9 +406,11 @@ export class AppComponent {
     this.ethereum.request({ method: 'eth_sendTransaction', params: [transactionParameters], }).then((txHash: string) => {
       console.log(txHash);
       this.joinPoolSuccess = true;
+      this.flash(this.successsColor);
       this.getAllPools();
     }, (error: any) => {
       this.joinPoolFailure = true;
+      this.flash(this.failColor);
     });
   }
 

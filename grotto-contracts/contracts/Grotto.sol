@@ -57,9 +57,7 @@ contract Grotto {
 
         require(store.getPoolers(poolId).length < pool.poolSize, "This Pool is full");        
 
-        if(pool.currentPoolSize > 0) {
-            require(pooler != pool.poolCreator, "You can't participate in this pool.");
-        }
+        require(pooler != pool.poolCreator, "You can't participate in this pool.");        
 
         // calculate dollar value
         uint256 latestUsdPrice = getLatestPrice();
@@ -158,15 +156,16 @@ contract Grotto {
         Data.Pool memory pool = store.getPool(poolId);
         address payable[] memory poolers = store.getPoolers(poolId);
         uint256 totalStaked = store.getPoolTotalStaked(poolId);
+        
         bytes32 randBase = keccak256(abi.encodePacked(poolers[0]));
-
         for (uint8 i = 1; i < pool.poolSize; i++) {            
             randBase = keccak256(abi.encodePacked(randBase, poolers[i]));
-        }
+        }        
+
+        uint256 winnerIndex = uint256(keccak256(abi.encodePacked(totalStaked, randBase))) % (pool.poolSize);
+        address payable winner = poolers[winnerIndex];
 
         uint256 toHouse = totalStaked.mul(store.getHouseCut()).div(100);
-
-        address payable winner = poolers[uint256(keccak256(abi.encodePacked(totalStaked, randBase))) % (pool.poolSize)];
 
         // pay winner first
         winner.transfer(totalStaked.sub(toHouse));
