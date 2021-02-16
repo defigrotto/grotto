@@ -56,18 +56,6 @@
         </button>
       </div>
     </div>
-    <div class="d-flex flex-row-reverse">
-      <div class="p-2">
-        <b>MetaMask:</b>
-        <span *ngIf="mode=='prod'">
-          Chain-ID: 56, RPC-Url: https://bsc-dataseed.binance.org/, Explorer: https://bscscan.com
-        </span>
-        <span *ngIf="mode=='demo'">
-          Chain-ID: 77, RPC-Url: https://sokol.poa.network, Explorer: https://blockscout.com/poa/sokol, Faucet:
-          https://faucet.poa.network/
-        </span>
-      </div>
-    </div>
   </div>
 
   <main role="main" *ngIf="page === 'governance'">
