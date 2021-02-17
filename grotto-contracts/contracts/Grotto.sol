@@ -25,13 +25,13 @@ contract Grotto {
 
     StorageInterface store;
 
-    address private tokenAddress = 0x9F9B1A890eF0275DabFF37C051D52F427A8a4501;
-    address private storeAddress = 0x32b0319f75490b1326380D74cDb4224bb293f9f0;    
+    address private tokenAddress = 0xE142A7338605D8c431dfE59C6cE7474351b55d31;
+    address private storeAddress = 0x2886EAC9b9408C4E5dBDE68B79FE7619EF7F1beF;
 
     GrottoTokenInterface grottoToken;
 
     constructor() {
-        store = StorageInterface(storeAddress);
+        store = StorageInterface(storeAddress);        
 
         grottoToken = GrottoTokenInterface(tokenAddress);
 
@@ -40,6 +40,55 @@ contract Grotto {
         priceFeed = AggregatorV3Interface(KOVAN_ETH_USD_PF);    
 
         _mintTokensForGovernors();    
+    }
+
+    function isGovernor(address governor) private view returns (bool) {
+        address[] memory govs = store.getGovernors();
+        for (uint256 i = 0; i < govs.length; i++) {
+            if (govs[i] == governor) {
+                if(grottoToken.balanceOf(governor) >= store.getMinGrottoGovernor()) {
+                    return true;
+                } else {
+                    return false;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    function stake(uint256 amount) public {
+        address payable staker = msg.sender;
+        require(grottoToken.balanceOf(staker) >= amount, 'You do not have enough GROTTO');
+        require(!isGovernor(staker), 'Governors can not stake');
+        grottoToken.stake(staker, store.getStakingMaster(), amount);
+        store.addStake(staker, amount);        
+    }
+
+    function withdrawStake() public {
+        address payable staker = msg.sender;
+        require(store.getStake(staker) > 0, 'You do not have a stake');
+        require(!isGovernor(staker), 'Governors can not stake');
+
+        uint256 _stake = store.getStake(staker);
+        store.withdrawStake(staker);
+        grottoToken.unstake(store.getStakingMaster(), staker, _stake);
+    }
+
+    function getStakers() public view returns (address payable[] memory) {
+        return store.getStakers();
+    }
+
+    function getStake(address staker) public view returns (uint256) {
+        return store.getStake(staker);
+    }
+
+    function getGrottoTokenBalance(address account) public view returns (uint256) {
+        return grottoToken.balanceOf(account);
+    }
+
+    function getStakingMasterBalance() public view returns (uint256) {
+        return grottoToken.balanceOf(store.getStakingMaster());
     }
 
     function updateGrotto(address payable newAddress) public {

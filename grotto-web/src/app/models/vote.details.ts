@@ -8,5 +8,6 @@ export class VoteDetails {
     contractAddress!: string;
     proposedValue!: number;
     proposedGovernor!: string;    
+    proposedShares!: any;    
     currentValue!: any;
 }

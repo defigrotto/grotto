@@ -25,7 +25,7 @@ export class AppComponent {
   myPool: PoolDetails[] = [];
 
   selectedPool!: PoolDetails;
-  selectedIndex = -1;  
+  selectedIndex = -1;
 
   noMetaMask = false;
   joinPoolSuccess = false;
@@ -38,12 +38,15 @@ export class AppComponent {
     "function startNewPool(uint256,bytes32)",
     "function updateGrotto(address)",
     "function updateGovernor(address)",
+    "function stake(uint256)",
+    "function withdrawStake()",
   ];
   govAbi = [
     "function vote(string,bool)",
     "function proposeNewValue(uint256,string)",
     "function proposeRemoveGovernor(address)",
     "function proposeNewGovernor(address)",
+    "function proposeNewShares(uint256,uint256,uint256)",
     "function updateGov(address)",
   ];
 
@@ -54,6 +57,8 @@ export class AppComponent {
 
   form: FormGroup;
   searchForm: FormGroup;
+  stakingForm: FormGroup;
+
   contractAddress!: string;
 
   page = "home";
@@ -87,7 +92,23 @@ export class AppComponent {
   bodyColor = "white";
   failColor = "#f8d7da";
   successsColor = "#d4edda";
-  
+
+  grottoTokenBalance = 0;
+  stake = 0;
+  stakers: any;
+  totalStaked = 0;
+
+  stakingSuccess = false;
+  stakingFailure = false;  
+
+  withdrawSuccess = false;
+  withdrawFailure = false;    
+
+  houseCutShares: any;
+  houseShare = 0;
+  govsShare = 0;
+  stakersShare = 0;
+
   constructor(private appService: AppService, private formBuilder: FormBuilder) {
     if (window.ethereum === undefined) {
       this.noMetaMask = true;
@@ -100,13 +121,18 @@ export class AppComponent {
       newPoolSize: ['', Validators.required],
     });
 
+    this.stakingForm = this.formBuilder.group({
+      amountToStake: ['', Validators.required],
+      amountToWithdraw: ['', Validators.required],
+    });
+
     this.searchForm = this.formBuilder.group({
       poolCreator: ['', Validators.required],
     });
 
     this.getAllPools();
     this.selectVote(this.voteType, "New Governor");
-    this.getNewPoolValues();    
+    this.getNewPoolValues();
     this.connectMetamask(false);
     this.interval = setInterval(() => {
       this.getAllPools();
@@ -117,7 +143,7 @@ export class AppComponent {
     this.bodyColor = color;
     setTimeout(() => {
       this.bodyColor = "white";
-      window.scroll(0,0);
+      window.scroll(0, 0);
     }, 2000);
   }
 
@@ -133,30 +159,6 @@ export class AppComponent {
     this.getNewPoolValues();
   }
 
-  getNewPoolValues() {
-    this.appService.getCurrentValue('alter_min_price', this.mode).pipe(first()).subscribe(vd => {
-      this.poolPrice = vd.data;
-      this.appService.getCurrentValue('alter_min_size', this.mode).pipe(first()).subscribe(vd => {
-        this.poolMinSize = vd.data;
-        this.appService.getCurrentValue('alter_max_size', this.mode).pipe(first()).subscribe(vd => {
-          this.poolMaxSize = vd.data;
-          this.appService.getCurrentValue('alter_house_cut', this.mode).pipe(first()).subscribe(vd => {
-            this.houseCut = vd.data;
-            this.appService.getCurrentValue('alter_house_cut_tokens', this.mode).pipe(first()).subscribe(vd => {
-              this.houseCutNewTokens = vd.data;
-              this.appService.getCurrentValue('alter_main_pool_price', this.mode).pipe(first()).subscribe(vd => {
-                this.mainPoolPrice = vd.data;
-                this.appService.getCurrentValue('alter_main_pool_size', this.mode).pipe(first()).subscribe(vd => {
-                  this.mainPoolSize = vd.data;
-                });                
-              });
-            });
-          });
-        });
-      });
-    });
-  }
-
   selectVote(voteId: string, label: string) {
     if (this.interval) {
       clearInterval(this.interval);
@@ -170,6 +172,13 @@ export class AppComponent {
         this.selectedVote = vd.data;
         this.govContractAddress = vd.data.contractAddress;
       });
+  }
+
+  proposeNewShares() {
+    this.votingSuccess = false;
+    this.votingFailure = false;
+    const data: string = this.govFace.encodeFunctionData("proposeNewShares", [this.houseShare, this.govsShare, this.stakersShare]);
+    this.sendProposal(data);    
   }
 
   proposeNewGovernor() {
@@ -247,7 +256,79 @@ export class AppComponent {
     this.sendProposal(data);
   }
 
+  getStakingValues() {
+    this.appService.getGrottoTokenBalance(this.ethereum.selectedAddress, this.mode).pipe(first()).subscribe(vd => {
+      this.grottoTokenBalance = vd.data;
+      this.appService.getStake(this.ethereum.selectedAddress, this.mode).pipe(first()).subscribe(vd => {
+        this.stake = vd.data;
+        this.appService.getStakers(this.mode).pipe(first()).subscribe(vd => {
+          this.stakers = vd.data;          
+          this.appService.getTotalStaked(this.mode).pipe(first()).subscribe(vd => {
+            this.totalStaked = vd.data;
+          });
+        });
+      });
+    });
+  }
+
+  stakeGrotto() {
+    const amount = this.stakingForm.value.amountToStake;
+    console.log(amount);
+    console.log(ethers.utils.parseEther(amount + ""))
+    const data: string = this.iFace.encodeFunctionData("stake", [ethers.utils.parseEther(amount + "").toHexString()]);
+
+    const transactionParameters = {
+      nonce: '0x00', // ignored by MetaMask
+      //gasPrice: '0x37E11D600', // customizable by user during MetaMask confirmation.
+      //gas: '0x12C07', // customizable by user during MetaMask confirmation.
+      to: this.contractAddress, // Required except during contract publications.
+      from: this.ethereum.selectedAddress, // must match user's active address.
+      value: "0x0", // Only required to send ether to the recipient from the initiating external account.
+      data: data,
+      chainId: this.chainId, // Used to prevent transaction reuse across blockchains. Auto-filled by MetaMask.
+    };
+
+    // txHash is a hex string
+    // As with any RPC call, it may throw an error
+    console.log(transactionParameters);
+    this.ethereum.request({ method: 'eth_sendTransaction', params: [transactionParameters], }).then((txHash: string) => {
+      console.log(txHash);
+      this.stakingSuccess = true;
+    }, (error: any) => {
+      this.stakingFailure = true;
+    });    
+  }
+
+  withdrawStake() {
+    const amount = this.stakingForm.value.amountToWithdraw;
+    const data: string = this.iFace.encodeFunctionData("withdrawStake", []);
+
+    const transactionParameters = {
+      nonce: '0x00', // ignored by MetaMask
+      //gasPrice: '0x37E11D600', // customizable by user during MetaMask confirmation.
+      //gas: '0x12C07', // customizable by user during MetaMask confirmation.
+      to: this.contractAddress, // Required except during contract publications.
+      from: this.ethereum.selectedAddress, // must match user's active address.
+      value: "0x0", // Only required to send ether to the recipient from the initiating external account.
+      data: data,
+      chainId: this.chainId, // Used to prevent transaction reuse across blockchains. Auto-filled by MetaMask.
+    };
+
+    // txHash is a hex string
+    // As with any RPC call, it may throw an error
+    console.log(transactionParameters);
+    this.ethereum.request({ method: 'eth_sendTransaction', params: [transactionParameters], }).then((txHash: string) => {
+      console.log(txHash);
+      this.withdrawSuccess = true;
+    }, (error: any) => {
+      this.withdrawFailure = true;
+    });    
+  }
+
   gotoPage(page: string) {
+    if (page === 'staking') {
+      this.getStakingValues();
+    }
     this.page = page;
   }
 
@@ -290,11 +371,11 @@ export class AppComponent {
 
   getAllPools() {
     this.appService.getGrottoTokenAddress(this.mode)
-    .pipe(first())
-    .subscribe(pd => {
-      console.log(pd.data);
-      this.grottoTokenAddress = pd.data;
-    });
+      .pipe(first())
+      .subscribe(pd => {
+        console.log(pd.data);
+        this.grottoTokenAddress = pd.data;
+      });
     this.appService.getAllPools(this.mode)
       .pipe(first())
       .subscribe(pd => {
@@ -310,7 +391,7 @@ export class AppComponent {
         this.userPool = this.poolDetails.filter((pd) => {
           if (pd.isPoolConcluded) return false;
           if (pd.isInMainPool) return false;
-          if(pd.poolId === "") return false;
+          if (pd.poolId === "") return false;
           return true;
         }).slice(0, 10);
 
@@ -387,7 +468,7 @@ export class AppComponent {
     this.joinPoolFailure = false;
     let data: string;
     console.log(selectedPool.poolId);
-    data = this.iFace.encodeFunctionData("enterPool", [selectedPool.poolId]);    
+    data = this.iFace.encodeFunctionData("enterPool", [selectedPool.poolId]);
 
     const transactionParameters = {
       nonce: '0x00', // ignored by MetaMask
@@ -446,7 +527,7 @@ export class AppComponent {
   }
 
   connectMetamask(fromButton: boolean) {
-    if(fromButton) {
+    if (fromButton) {
       this.tryConnect();
     }
 
@@ -480,6 +561,34 @@ export class AppComponent {
       this.account = "Connect Metamask";
       console.log(error);
       this.reload();
-    });    
+    });
   }
+
+  getNewPoolValues() {
+    this.appService.getCurrentValue('alter_min_price', this.mode).pipe(first()).subscribe(vd => {
+      this.poolPrice = vd.data;
+      this.appService.getCurrentValue('alter_min_size', this.mode).pipe(first()).subscribe(vd => {
+        this.poolMinSize = vd.data;
+        this.appService.getCurrentValue('alter_max_size', this.mode).pipe(first()).subscribe(vd => {
+          this.poolMaxSize = vd.data;
+          this.appService.getCurrentValue('alter_house_cut', this.mode).pipe(first()).subscribe(vd => {
+            this.houseCut = vd.data;
+            this.appService.getCurrentValue('alter_house_cut_tokens', this.mode).pipe(first()).subscribe(vd => {
+              this.houseCutNewTokens = vd.data;
+              this.appService.getCurrentValue('alter_main_pool_price', this.mode).pipe(first()).subscribe(vd => {
+                this.mainPoolPrice = vd.data;
+                this.appService.getCurrentValue('alter_main_pool_size', this.mode).pipe(first()).subscribe(vd => {
+                  this.mainPoolSize = vd.data;
+                  this.appService.getCurrentValue('alter_house_cut_shares', this.mode).pipe(first()).subscribe(vd => {
+                    this.houseCutShares = vd.data;
+                  });                  
+                });
+              });
+            });
+          });
+        });
+      });
+    });
+  }
+
 }

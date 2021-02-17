@@ -19,6 +19,8 @@ contract Storage is StorageInterface {
 
     mapping(string => address) proposedGovernor;
     mapping(string => uint256) proposedValue;
+    
+    Data.ProposedShare proposedShares;
 
     address[] governors;
 
@@ -29,8 +31,12 @@ contract Storage is StorageInterface {
     // Number of accounts before winner is calculated.
     uint256 private MAIN_POOL_SIZE = 100;
 
-    // percentage of winning that goes to house. 10%
+    // percentage of winning that goes to house/governors/stakers. 10%
     uint256 private HOUSE_CUT = 10;
+
+    uint256 GOVS_SHARE = 30;
+    uint256 HOUSE_SHARE = 10;
+    uint256 STAKERS_SHARE = 60;
 
     // how many % of new tokens go to house. 10%
     uint256 private HOUSE_CUT_NEW_TOKEN = 10;
@@ -65,8 +71,110 @@ contract Storage is StorageInterface {
 
     address payable private house;
 
-    address grotto = 0x9f2Ee575df41B27c966F05c3e9579E495d234368;
-    address gov = 0xEb3b048D517b5130804EF68B74A959c47abaCfb5;
+    address grotto = 0x23813B70e2ec4DC9230CA423B688008342256ff2;
+    address gov = 0x30A4fc73613b8dc4a1D1434d62e4902Ab4448Eb2;
+
+    // Holds all the staked GROTTO tokens.
+    address stakingMaster = 0x1337133713371337133713371337133713371337;
+    // Maps address to amount staked;    
+    mapping(address => uint256) staked;
+    // All the stakers
+    address payable[] stakers;
+    // Mapping staker to index in stakers
+    mapping(address => uint256) stakerIndex;
+
+    function setProposedShare(uint256 houseShare, uint256 govsShare, uint256 stakersShare) public override {
+        proposedShares = Data.ProposedShare ({
+            house: houseShare,
+            govs: govsShare,
+            stakers: stakersShare
+        });
+    }
+
+    function getHouseCutShares() public override view returns (uint256, uint256, uint256) {
+        return (HOUSE_SHARE, GOVS_SHARE, STAKERS_SHARE);
+    }
+
+    function getProposedShare() public override view returns (uint256, uint256, uint256) {        
+        return (proposedShares.house, proposedShares.govs, proposedShares.stakers);
+    }
+
+    function getGovernorsShare() public override view returns (uint256) {
+        return GOVS_SHARE;
+    }
+
+    function getStakersShare() public override view returns (uint256) {
+        return STAKERS_SHARE;
+    }
+
+    function getHouseSharee() public override view returns (uint256) {
+        return HOUSE_SHARE;
+    }
+
+    function setHouseShare(uint256 share) public override {
+        HOUSE_SHARE = share;
+    }
+
+    function setStakersShare(uint256 share) public override {
+        STAKERS_SHARE = share;
+    }
+
+    function setGovernorsShare(uint256 share) public override {
+        GOVS_SHARE = share;
+    }
+
+    function setStakingMaster(address newStakingMaster) public override {
+        stakingMaster = newStakingMaster;
+    }
+
+    function getStakingMaster() public override view returns (address) {
+        return stakingMaster;
+    }
+
+    function getStake(address staker) public override view returns (uint256) {
+        return staked[staker];
+    }
+
+    function getStakers() public override view returns (address payable[] memory) {
+        return stakers;
+    }
+
+    function withdrawStake(address payable staker) public override {
+        staked[staker] = 0;
+        uint256 index = stakerIndex[staker];
+
+        // remove from stakers.
+        if(index == (stakers.length.sub(1))) {
+            stakers.pop();
+        } else {
+            stakers[index] = stakers[stakers.length.sub(1)];
+            stakers.pop();
+        }
+    }
+
+    function addStake(address payable staker, uint256 stake) public override {
+        // check if this is the first staker
+        if(staked[address(0)] == 0) {
+            staked[address(0)] = 1;
+            stakers.push(address(0));
+            stakerIndex[address(0)] = 0;
+        }
+
+        uint256 currentStake = getStake(staker);
+        uint256 newStake = currentStake.add(stake);        
+
+        uint index = stakerIndex[staker];
+        if(index == 0) {
+            // first time staker...
+            index = stakers.length;
+            staked[staker] = newStake;
+            stakers.push(staker);
+            stakerIndex[staker] = index;
+        } else {
+            // already a staker
+            staked[staker] = newStake;
+        }
+    }
 
     function setGrotto(address newGrotto) public override {
         require(msg.sender == grotto, "Grotto: You can't do that");

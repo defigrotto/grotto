@@ -61,12 +61,67 @@ export class EthereumService {
         }
     }
 
+
+    getTotalStaked(mode: string): Promise<number> {
+        this.init(mode);
+        return new Promise(async (resolve, reject) => {
+            try {
+                const balance = await this.grottoContract.getStakingMasterBalance();
+                resolve(+ethers.utils.formatEther(balance));
+            } catch (error) {
+                reject(error);
+            }
+        });                        
+    }
+
+    getStakers(mode: string): Promise<any> {
+        this.init(mode);
+        return new Promise(async (resolve, reject) => {
+            try {
+                const stakers = await this.grottoContract.getStakers();
+                resolve(stakers);
+            } catch (error) {
+                reject(error);
+            }
+        });                        
+    }    
+
+    getGrottoTokenBalance(address: string, mode: string): Promise<number> {
+        this.init(mode);
+        return new Promise(async (resolve, reject) => {
+            try {
+                const balance = await this.grottoContract.getGrottoTokenBalance(address);
+                resolve(+ethers.utils.formatEther(balance));
+            } catch (error) {
+                reject(error);
+            }
+        });                        
+    }
+    
+    getStake(address: string, mode: string): Promise<number> {
+        this.init(mode);
+        return new Promise(async (resolve, reject) => {
+            try {
+                const stake = await this.grottoContract.getStake(address);
+                resolve(+ethers.utils.formatEther(stake));
+            } catch (error) {
+                reject(error);
+            }
+        });                        
+    }    
+
     getVotingDetails(voteId: string, mode: string): Promise<VoteDetails> {
         this.init(mode);
         const contractAddress = mode === 'prod' ? this.governanceAddress.prod : this.governanceAddress.test;
         return new Promise(async (resolve, reject) => {
             try {
                 const vd = await this.governanceContract.votingDetails(voteId);
+                console.log(vd);
+                const proposedShares = {
+                    house: vd[8][0].toNumber(),
+                    govs: vd[8][1].toNumber(),
+                    stakers: vd[8][2].toNumber(),
+                }  
 
                 const voteDetails: VoteDetails = {
                     voteId: vd[0],
@@ -78,6 +133,7 @@ export class EthereumService {
                     contractAddress: contractAddress,
                     proposedValue: vd[6].toNumber(),
                     proposedGovernor: vd[7],
+                    proposedShares: proposedShares,
                     currentValue: await this.getCurrentValue(voteId, mode)
                 };
 
@@ -241,6 +297,15 @@ export class EthereumService {
                         retVal = await this.governanceContract.getMinGrottoGovernor();
                         resolve(ethers.utils.formatEther(retVal));
                         break;
+                    case 'alter_house_cut_shares':
+                        retVal = await this.governanceContract.getHouseCutShares();
+                        const result = {
+                            house: retVal[0].toNumber(),
+                            govs: retVal[1].toNumber(),
+                            stakers: retVal[2].toNumber(),
+                        }
+                        resolve(result);
+                        break;                        
                 }
             } catch (error) {
                 reject(error);

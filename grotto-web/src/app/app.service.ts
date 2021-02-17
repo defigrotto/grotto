@@ -35,6 +35,22 @@ export class AppService {
     return this.http.get<any>(`${environment.apiUrl}/get-grotto-token-address/${mode}`);
   }  
 
+  getGrottoTokenBalance(address: string, mode: string) {
+    return this.http.get<any>(`${environment.apiUrl}/get-grotto-token-balance/${address}/${mode}`);
+  }    
+
+  getStake(address: string, mode: string) {
+    return this.http.get<any>(`${environment.apiUrl}/get-stake/${address}/${mode}`);
+  }      
+
+  getStakers(mode: string) {
+    return this.http.get<any>(`${environment.apiUrl}/get-stakers/${mode}`);
+  }      
+  
+  getTotalStaked(mode: string) {
+    return this.http.get<any>(`${environment.apiUrl}/get-total-staked/${mode}`);
+  }        
+
   getPoolDetails(poolId: string, mode: string) {
     return this.http.get<any>(`${environment.apiUrl}/get-pool-details/${poolId}/${mode}`);
   }

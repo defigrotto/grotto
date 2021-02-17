@@ -5,7 +5,7 @@ import "./interface/GrottoTokenInterface.sol";
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 
 contract GrottoToken is GrottoTokenInterface, ERC20("Grotto", "GROTTO") {
-    address grotto = 0x9f2Ee575df41B27c966F05c3e9579E495d234368;
+    address grotto = 0x23813B70e2ec4DC9230CA423B688008342256ff2;
     
     constructor() {
     }    
@@ -19,5 +19,13 @@ contract GrottoToken is GrottoTokenInterface, ERC20("Grotto", "GROTTO") {
     function setGrotto(address newGrotto) public override {
         require(msg.sender == grotto, "Grotto: You can't do that");
         grotto = newGrotto;
+    }
+
+    function stake(address staker, address stakeMaster, uint256 amount) public override {
+        _transfer(staker, stakeMaster, amount);
+    }
+
+    function unstake(address stakeMaster, address staker, uint256 amount) public override {
+        _transfer(stakeMaster, staker, amount);
     }    
 }

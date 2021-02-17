@@ -21,7 +21,27 @@ export class GrottoController {
     @Get('get-grotto-token-address/:mode')
     async getGrottoTokenAddress(@Param("mode") mode: string): Promise<Response> {
         return ResponseUtils.getSuccessResponse(await this.grottoService.getGrottoTokenAddress(mode));
+    }
+    
+    @Get('get-grotto-token-balance/:address/:mode')
+    async getGrottoTokenBalance(@Param("address") address: string, @Param("mode") mode: string): Promise<Response> {
+        return ResponseUtils.getSuccessResponse(await this.grottoService.getGrottoTokenBalance(address, mode));
+    }
+    
+    @Get('get-stake/:address/:mode')
+    async getStake(@Param("address") address: string, @Param("mode") mode: string): Promise<Response> {
+        return ResponseUtils.getSuccessResponse(await this.grottoService.getStake(address, mode));
     }    
+
+    @Get('get-stakers/:mode')
+    async getStakers(@Param("mode") mode: string): Promise<Response> {
+        return ResponseUtils.getSuccessResponse(await this.grottoService.getStakers(mode));
+    }    
+    
+    @Get('get-total-staked/:mode')
+    async getTotalStaked(@Param("mode") mode: string): Promise<Response> {
+        return ResponseUtils.getSuccessResponse(await this.grottoService.getTotalStaked(mode));
+    }        
 
     @Get('get-current-value/:voteId/:mode')
     async getCurrentValue(@Param("voteId") voteId: string, @Param("mode") mode: string): Promise<Response> {

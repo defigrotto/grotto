@@ -21,15 +21,16 @@
   <div class="container" style="padding-top: 100px; padding-bottom: 50px;">
     <div class="d-flex flex-row-reverse">
       <div class="p-2">
-        <button *ngIf="mode === 'prod'" (click)="selectMode('demo')" class="btn btn-outline-danger my-2 my-sm-0"
+        <button *ngIf="mode !== 'demo'" (click)="selectMode('demo')" class="btn btn-outline-danger my-2 my-sm-0"
           type="button">
           Demo
         </button>
-        <button *ngIf="mode === 'demo'" (click)="selectMode('demo')" class="btn btn-danger my-2 my-sm-0" type="button">
+        <button disabled *ngIf="mode === 'demo'" (click)="selectMode('demo')" class="btn btn-danger my-2 my-sm-0"
+          type="button">
           Demo
         </button>
         |
-        <button disabled *ngIf="mode === 'demo'" (click)="selectMode('prod')"
+        <button disabled *ngIf="mode !== 'prod'" (click)="selectMode('prod')"
           class="btn btn-outline-success my-2 my-sm-0" type="button">
           Production
         </button>
@@ -38,25 +39,119 @@
           Production
         </button>
         |
-        <button *ngIf="page === 'home'" (click)="gotoPage('governance')" class="btn btn-outline-secondary my-2 my-sm-0"
+        <button *ngIf="page !== 'staking'" (click)="gotoPage('staking')" class="btn btn-outline-secondary my-2 my-sm-0"
           type="button">
-          Governance
+          Staking&nbsp;&nbsp;<i class="fas fa-coins"></i>
+        </button>
+        <button *ngIf="page === 'staking'" (click)="gotoPage('staking')" class="btn btn-secondary my-2 my-sm-0"
+          type="button">
+          Staking&nbsp;&nbsp;<i class="fas fa-coins"></i>
+        </button>
+        |
+        <button *ngIf="page !== 'governance'" (click)="gotoPage('governance')"
+          class="btn btn-outline-secondary my-2 my-sm-0" type="button">
+          Governance&nbsp;&nbsp;<i class="fas fa-users"></i>
         </button>
         <button *ngIf="page === 'governance'" (click)="gotoPage('governance')" class="btn btn-secondary my-2 my-sm-0"
           type="button">
-          Governance
+          Governance&nbsp;&nbsp;<i class="fas fa-users"></i>
         </button>
         |
         <button *ngIf="page === 'home'" (click)="gotoPage('home')" class="btn btn-primary my-2 my-sm-0" type="button">
-          Home
+          Home&nbsp;&nbsp;<i class="fas fa-home"></i>
         </button>
-        <button *ngIf="page === 'governance'" (click)="gotoPage('home')" class="btn btn-outline-primary my-2 my-sm-0"
+        <button *ngIf="page !== 'home'" (click)="gotoPage('home')" class="btn btn-outline-primary my-2 my-sm-0"
           type="button">
-          Home
+          Home&nbsp;&nbsp;<i class="fas fa-home"></i>
         </button>
       </div>
     </div>
   </div>
+
+  <main role="main" *ngIf="page === 'staking'">
+    <div class="container">
+      <div class="container">
+        <div class="alert alert-danger" role="alert" *ngIf="stakingFailure">
+          <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+          <p>
+            Staking Failed. Please try again later and/or check the blockchain for more info.
+          </p>
+        </div>
+
+        <div class="alert alert-success" role="alert" *ngIf="stakingSuccess">
+          <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+          <p>
+            Staking Successful. Please refresh page for updates.
+          </p>
+        </div>
+      </div>
+      <div class="container">
+        <div class="alert alert-danger" role="alert" *ngIf="withdrawFailure">
+          <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+          <p>
+            Staking Withdrawal Failed. Please try again later and/or check the blockchain for more info.
+          </p>
+        </div>
+
+        <div class="alert alert-success" role="alert" *ngIf="withdrawSuccess">
+          <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+          <p>
+            Staking Withdrawal Successful. Please refresh page for updates.
+          </p>
+        </div>
+      </div>
+      <form [formGroup]="stakingForm">
+        <div class="form-group">
+          <label><b>Your GROTTO Balance:</b> {{grottoTokenBalance | number}} GROTTO</label>
+        </div>
+        <div class="form-group">
+          <label><b>Amount Staked:</b> {{stake | number}} GROTTO</label>
+        </div>
+        <div class="row">
+          <div class="col-sm">
+            <h4>Staking Info</h4>
+            <div class="alert alert-secondary" role="alert">
+              <p>
+                Total Number of Tokens Staked: {{totalStaked | number}} GROTTO
+              </p>
+              <p>
+                Total Number of Stakers: {{stakers.length}} GROTTO
+              </p>
+            </div>
+          </div>
+          <div class="col-sm">
+            <h4>Stake GROTTO</h4>
+            <div class="form-group">
+              <label for="poolPrice">Amount to Stake</label>
+              <input type="number" class="form-control" aria-describedby="priceHelp" id="stakeAmount"
+                placeholder="Amount to stake" formControlName="amountToStake">
+            </div>
+            <button type="button" class="btn btn-outline-primary btn-block" data-dismiss="modal"
+              (click)="stakeGrotto()">Stake</button>
+          </div>
+          <div class="col-sm">
+            <h4>Withdraw your stake</h4>
+            <div class="form-group">
+              <label for="poolPrice">Amount to Withdraw</label>
+            </div>
+            <div>
+              <label>{{stake | number}} GROTTO</label>
+            </div>
+            <button type="button" class="btn btn-outline-danger btn-block" data-dismiss="modal"
+              (click)="withdrawStake()">Withdraw Stake</button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </main>
 
   <main role="main" *ngIf="page === 'governance'">
     <div class="modal fade" id="becomeGovernorModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLongTitle"
@@ -115,6 +210,8 @@
           Size</button>
         <button type="button" class="btn btn-secondary"
           (click)="selectVote('alter_min_gov_grotto', 'Minimum GROTTO Required for Governor')">Min Grotto</button>
+        <button type="button" class="btn btn-info"
+          (click)="selectVote('alter_house_cut_shares', 'Minimum GROTTO Required for Governor')">Shares</button>
 
         <!--TODO: Replace with BSC URL-->
         <button type="button" class="btn btn-warning">
@@ -241,7 +338,66 @@
       </div>
     </div>
 
-    <div class="container" *ngIf="(voteType !== 'remove_governor' && voteType !== 'add_new_governor')">
+    <div class="container" *ngIf="voteType === 'alter_house_cut_shares'">
+      <div *ngIf="selectedVote.isInProgress">
+        <span class="font-weight-bold">Current Shares: </span>
+        <p></p><br />
+        <p>Platform's Share: {{selectedVote.currentValue.house}}%</p>
+        <p>Governors' Share: {{selectedVote.currentValue.govs}}%</p>
+        <p>Stakers' Share: {{selectedVote.currentValue.stakers}}%</p>
+        <p></p><br />
+        <div><span class="font-weight-bold">Voters: </span>
+          <span *ngFor="let voter of selectedVote.voters">
+            {{voter}};
+          </span>
+        </div>
+        <div><span class="font-weight-bold">Yes Votes: </span>{{selectedVote.yesVotes}}
+        </div>
+        <div><span class="font-weight-bold">No Votes: </span>{{selectedVote.noVotes}}
+        </div>
+        <div><span class="font-weight-bold">Total Votes: </span>{{selectedVote.votes}}
+        </div>
+        <div>
+          <p></p>
+          <span class="font-weight-bold">Proposed Shares: </span>
+          <p></p>
+          <p>Platform's Share: {{selectedVote.proposedShares.house}}%</p>
+          <p>Governors' Share: {{selectedVote.proposedShares.govs}}%</p>
+          <p>Stakers' Share: {{selectedVote.proposedShares.stakers}}%</p>
+        </div>
+        <div class="btn-group" role="group" aria-label="Basic example">
+          <button type="button" class="btn btn-success" data-dismiss="modal" (click)="vote(true)">Vote Yes</button>
+          <button type="button" class="btn btn-danger" data-dismiss="modal" (click)="vote(false)">Vote No</button>
+        </div>
+      </div>
+
+      <div *ngIf="!selectedVote.isInProgress" class="container">
+        <div class="form-group">
+          <span class="font-weight-bold">Current Shares: </span>
+          <p></p><br />
+          <p>Platform's Share: {{selectedVote.currentValue.house}}%</p>
+          <p>Governors' Share: {{selectedVote.currentValue.govs}}%</p>
+          <p>Stakers' Share: {{selectedVote.currentValue.stakers}}%</p>
+          <p></p>
+          <br />
+          <p>Propose New Shares</p>
+          <label for="poolSize">Platform's Share</label>
+          <input type="text " class="form-control" aria-describedby="sizeHelp" id="poolSize"
+            placeholder="Platform's Share" [(ngModel)]="houseShare">
+          <label for="poolSize">Governors' Share</label>
+          <input type="text " class="form-control" aria-describedby="sizeHelp" id="poolSize"
+            placeholder="Governor's Share" [(ngModel)]="govsShare">
+          <label for="poolSize">Stakers' Share</label>
+          <input type="text " class="form-control" aria-describedby="sizeHelp" id="poolSize"
+            placeholder="Stakers' Share" [(ngModel)]="stakersShare">
+        </div>
+        <button type="button" class="btn btn-primary" data-dismiss="modal" (click)="proposeNewShares()">Propose new
+          shares</button>
+      </div>
+    </div>
+
+    <div class="container"
+      *ngIf="(voteType !== 'remove_governor' && voteType !== 'add_new_governor' && voteType !== 'alter_house_cut_shares')">
       <div *ngIf="selectedVote.isInProgress">
         <label for="poolSize">Current Value: {{selectedVote.currentValue}}</label>
         <p></p><br />

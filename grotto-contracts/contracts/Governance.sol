@@ -11,9 +11,9 @@ contract Governance is GovernanceInterface {
     using SafeMath for uint256;
 
     StorageInterface store;
-    address private storeAddress = 0x32b0319f75490b1326380D74cDb4224bb293f9f0;
+    address private storeAddress = 0x2886EAC9b9408C4E5dBDE68B79FE7619EF7F1beF;
 
-    address private tokenAddress = 0x9F9B1A890eF0275DabFF37C051D52F427A8a4501;
+    address private tokenAddress = 0xE142A7338605D8c431dfE59C6cE7474351b55d31;
     GrottoTokenInterface grottoToken;
 
     address[] private voters;
@@ -39,6 +39,13 @@ contract Governance is GovernanceInterface {
     }    
 
     function votingDetails(string memory voteId) public override view returns (Data.Vote memory) {
+        (uint256 house, uint256 govs, uint256 stakers) = store.getProposedShare(); 
+        Data.ProposedShare memory p = Data.ProposedShare({
+            house: house,
+            govs: govs,
+            stakers: stakers
+        });
+
         return
             Data.Vote({
                 voteId: voteId,
@@ -48,7 +55,8 @@ contract Governance is GovernanceInterface {
                 noVotes: store.getNoVotes(voteId),
                 votes: store.getVotes(voteId),
                 proposedValue: store.getProposedValue(voteId),
-                proposedGovernor: store.getProposedGovernor(voteId)
+                proposedGovernor: store.getProposedGovernor(voteId),
+                proposedShare: p
             });
     }
 
@@ -86,7 +94,11 @@ contract Governance is GovernanceInterface {
 
     function getMaximumPoolSize() view public returns (uint256) {
         return store.getMaximumPoolSize();
-    }          
+    }
+
+    function getHouseCutShares() view public returns (uint256, uint256, uint256) {
+        return store.getHouseCutShares();
+    }       
 
     function isGovernor(address governor) public override view returns (bool) {
         address[] memory govs = store.getGovernors();
@@ -158,6 +170,26 @@ contract Governance is GovernanceInterface {
             revert("Already In Progress");
         } else {
             store.addProposedValue(voteId, value);
+            _continueToVote(voteId, governor);
+        }
+    }
+
+    function proposeNewShares(uint256 houseShare, uint256 govsShare, uint256 stakersShare) public override {
+        uint256 totalShares = houseShare.add(govsShare);
+        totalShares = totalShares.add(stakersShare);
+
+        require(totalShares == 100, 'Shares not properly distributed');
+        address governor = msg.sender;
+        if (!isGovernor(governor)) {
+            revert("Only a governor can do that");
+        }
+
+        string memory voteId = Data.ALTER_HOUSE_CUT_SHARES;
+        bool isInProgress = store.isInProgress(voteId);
+        if (isInProgress) {
+            revert("Already In Progress");
+        } else {
+            store.setProposedShare(houseShare, govsShare, stakersShare);
             _continueToVote(voteId, governor);
         }
     }
@@ -348,7 +380,16 @@ contract Governance is GovernanceInterface {
                     ) {
                         store.setMinGrottoGovernor(store.getProposedValue(voteId) * Data.ONE_ETHER);
                         emit MIN_GROTTO_GOV_CHANGED(store.getProposedValue(voteId));
-                    }                    
+                    } else if (
+                        keccak256(bytes(voteId)) ==
+                        keccak256(bytes(Data.ALTER_HOUSE_CUT_SHARES))
+                    ) {
+                        (uint256 house, uint256 govs, uint256 stakers) = store.getProposedShare();
+                        store.setHouseShare(house);
+                        store.setStakersShare(stakers);
+                        store.setGovernorsShare(govs);
+                        emit SHARES_CHANGED(house, govs, stakers);
+                    }
                 } else {
                     emit NO_CONSENSUS(voteId);
                 }
