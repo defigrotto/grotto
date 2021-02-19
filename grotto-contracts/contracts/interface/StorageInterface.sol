@@ -23,7 +23,7 @@ interface StorageInterface {
 
     function setPendingGrottoMintingPayments(uint256) external;
 
-    function setMinGrottoGovernor(uint256 mmp) external;
+    function setMinGrottoGovernor(uint256) external;
 
     function getPool(bytes32 poolId) external view returns (Data.Pool memory);
 
@@ -46,7 +46,7 @@ interface StorageInterface {
 
     function getMinGrottoGovernor() external view returns (uint256);
 
-    function getGovernors() external view returns (address[] memory);
+    function getGovernors() external view returns (address payable[] memory);
 
     function getMainPoolPrice() external view returns (uint256);
 
@@ -62,13 +62,13 @@ interface StorageInterface {
 
     function getMaximumPoolSize() external view returns (uint256);
 
-    function addGovernor(address) external;
+    function addGovernor(address payable) external;
 
-    function addProposedGovernor(string memory, address) external;
+    function addProposedGovernor(string memory, address payable) external;
 
     function addProposedValue(string memory, uint256) external;
 
-    function addVoter(string memory, address) external;
+    function addVoter(string memory, address payable) external;
 
     function setProgress(string memory, bool) external;
 
@@ -78,7 +78,7 @@ interface StorageInterface {
         bool
     ) external;
 
-    function setVoters(string memory, address[] memory) external;
+    function setVoters(string memory, address payable[] memory) external;
 
     function setYesVotes(string memory, uint256) external;
 
@@ -86,23 +86,23 @@ interface StorageInterface {
 
     function setVotes(string memory, uint256) external;
 
-    function setMainPoolPrice(uint256 mmp) external;
+    function setMainPoolPrice(uint256) external;
 
-    function setMainPoolSize(uint256 mmp) external;
+    function setMainPoolSize(uint256) external;
 
-    function setHouseCut(uint256 mmp) external;
+    function setHouseCut(uint256) external;
 
-    function setHouseCutNewTokens(uint256 mmp) external;
+    function setHouseCutNewTokens(uint256) external;
 
-    function setMinimumPoolPrice(uint256 mmp) external;
+    function setMinimumPoolPrice(uint256) external;
 
-    function setMinimumPoolSize(uint256 mmp) external;
+    function setMinimumPoolSize(uint256) external;
 
-    function setMaximumPoolSize(uint256 mmp) external;
+    function setMaximumPoolSize(uint256) external;
 
     function isInProgress(string memory) external view returns (bool);
 
-    function getVoters(string memory) external view returns (address[] memory);
+    function getVoters(string memory) external view returns (address payable[] memory);
 
     function getYesVotes(string memory) external view returns (uint256);
 
@@ -112,15 +112,15 @@ interface StorageInterface {
 
     function getProposedValue(string memory) external view returns (uint256);
 
-    function getProposedGovernor(string memory) external view returns (address);
+    function getProposedGovernor(string memory) external view returns (address payable);
 
     function getVoted(string memory, address) external view returns (bool);
 
     function setGrotto(address) external;
 
-    function setGov(address) external;
+    function setGov(address payable) external;
 
-    function setGovernors(address[] memory govs) external;
+    function setGovernors(address payable[] memory) external;
 
     function setStakingMaster(address) external;
 
@@ -128,27 +128,53 @@ interface StorageInterface {
 
     function addStake(address payable, uint256) external;
 
-    function getStake(address staker) external view returns (uint256);
+    function getStake(address, uint256) external view returns (uint256);
+
+    function setStake(address, uint256, uint256)  external;
 
     function getStakers() external view returns (address payable[] memory);
 
-    function withdrawStake(address payable staker) external;
+    function withdrawStake(address payable) external;
 
     function getGovernorsShare() external view returns (uint256);
 
     function getStakersShare() external view returns (uint256);
 
-    function getHouseSharee() external view returns (uint256);
+    function getHouseShare() external view returns (uint256);
 
-    function setHouseShare(uint256 share) external;
+    function setHouseShare(uint256) external;
 
-    function setStakersShare(uint256 share) external;
+    function setStakersShare(uint256) external;
 
-    function setGovernorsShare(uint256 share) external;
+    function setGovernorsShare(uint256) external;
 
-    function setProposedShare(uint256 houseShare, uint256 govsShare, uint256 stakersShare) external;
+    function setProposedShare(uint256, uint256, uint256) external;
 
     function getProposedShare() external view returns (uint256, uint256, uint256);
 
     function getHouseCutShares() external view returns (uint256, uint256, uint256);  
+
+    function getRewardsCollected(address staker) external view returns(uint256);
+    
+    function setRewardsCollected(address, uint256) external;
+
+    function addressIsGovernor(address payable) external view returns (bool);
+    
+    function setIsGovernor(address payable, bool) external;
+
+    function getUserStakes(address) external view returns (uint256);
+
+    function setUserStakes(address, uint256) external;
+
+    function getCurrentStakePoolIndex() external view returns(uint256);
+
+    function setCurrentStakePoolIndex(uint256) external;
+
+    function geRewardPerGrotto(uint256) external view returns(uint256);
+
+    function setRewardPerGrotto(uint256, uint256) external;
+
+    function addCompletedPool(uint256) external;
+
+    function getCompletedPools() external view returns(uint256[] memory);
 }

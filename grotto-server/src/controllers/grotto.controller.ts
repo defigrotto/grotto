@@ -1,6 +1,6 @@
 import { Controller, Get, Param } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
-import { GrottoService } from 'src/services/grotto.service';
+import { EthereumService } from 'src/services/ethereum.service';
 import { Response, ResponseUtils } from 'src/utils/response.utils';
 
 @ApiTags('grotto-controller')
@@ -8,14 +8,14 @@ import { Response, ResponseUtils } from 'src/utils/response.utils';
 export class GrottoController {
 
     constructor(
-        private grottoService: GrottoService
+        private grottoService: EthereumService
     ) {
 
     }
 
     @Get('get-vote-details/:voteId/:mode')
     async getVoteDetails(@Param("voteId") voteId: string, @Param("mode") mode: string): Promise<Response> {
-        return ResponseUtils.getSuccessResponse(await this.grottoService.getVoteDetails(voteId, mode));
+        return ResponseUtils.getSuccessResponse(await this.grottoService.getVotingDetails(voteId, mode));
     }
     
     @Get('get-grotto-token-address/:mode')
@@ -32,6 +32,16 @@ export class GrottoController {
     async getStake(@Param("address") address: string, @Param("mode") mode: string): Promise<Response> {
         return ResponseUtils.getSuccessResponse(await this.grottoService.getStake(address, mode));
     }    
+
+    @Get('get-completed-stakes/:mode')
+    async getCompletedStakes(@Param("mode") mode: string): Promise<Response> {
+        return ResponseUtils.getSuccessResponse(await this.grottoService.getCompletedStakes(mode));
+    }        
+
+    @Get('get-stake-rewards/:address/:pool/:mode')
+    async getStakeRewards(@Param("address") address: string, @Param("pool") pool: number, @Param("mode") mode: string): Promise<Response> {
+        return ResponseUtils.getSuccessResponse(await this.grottoService.getStakeRewards(address, pool, mode));
+    }        
 
     @Get('get-stakers/:mode')
     async getStakers(@Param("mode") mode: string): Promise<Response> {

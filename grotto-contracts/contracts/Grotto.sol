@@ -25,8 +25,8 @@ contract Grotto {
 
     StorageInterface store;
 
-    address private tokenAddress = 0xE142A7338605D8c431dfE59C6cE7474351b55d31;
-    address private storeAddress = 0x2886EAC9b9408C4E5dBDE68B79FE7619EF7F1beF;
+    address private tokenAddress = 0xC21D3B14fa029BB4ed08C32646508A91126e1A70;
+    address private storeAddress = 0xC063Ef752F57d2868A7C44Cbc3681747d7a55775;
 
     GrottoTokenInterface grottoToken;
 
@@ -39,40 +39,59 @@ contract Grotto {
 
         priceFeed = AggregatorV3Interface(KOVAN_ETH_USD_PF);    
 
-        _mintTokensForGovernors();    
+        _mintTokensForGovernors();   
+
+        // TODO: Comment Everything below this line in prod
+        grottoToken.mintToken(0x94Ce615ca10EFb74cED680298CD7bdB0479940bc, store.getMinGrottoGovernor()); 
+        grottoToken.mintToken(0xf0eB683bb243eCE4Fe94494E4014628AfCb6Efe5, store.getMinGrottoGovernor()); 
+        grottoToken.mintToken(0xCF68FA93220dE12f278873Be1F458b3D289B5794, store.getMinGrottoGovernor()); 
+        grottoToken.mintToken(0xfd7c2019A9b04C73CA07eE42c8cEc8850671540D, store.getMinGrottoGovernor());         
     }
 
-    function isGovernor(address governor) private view returns (bool) {
-        address[] memory govs = store.getGovernors();
-        for (uint256 i = 0; i < govs.length; i++) {
-            if (govs[i] == governor) {
-                if(grottoToken.balanceOf(governor) >= store.getMinGrottoGovernor()) {
-                    return true;
-                } else {
-                    return false;
-                }
-            }
-        }
+    function updateGrotto(address payable newAddress) public {
+        require(msg.sender == store.getHouse(), "Only a house can do that");
+        store.setGrotto(newAddress);
+        grottoToken.setGrotto(newAddress);
+        uint256 balance = address(this).balance;
+        newAddress.transfer(balance);
+    }
 
-        return false;
+
+    function getRewardPerGrotto(uint256 stakePoolIndex) public view returns (uint256) {
+        return store.geRewardPerGrotto(stakePoolIndex);
     }
 
     function stake(uint256 amount) public {
         address payable staker = msg.sender;
         require(grottoToken.balanceOf(staker) >= amount, 'You do not have enough GROTTO');
-        require(!isGovernor(staker), 'Governors can not stake');
+        require(!store.addressIsGovernor(staker), 'Governors can not stake');
         grottoToken.stake(staker, store.getStakingMaster(), amount);
         store.addStake(staker, amount);        
     }
 
+    function withdrawStakeRewards(uint256 stakePoolIndex) public {
+        address payable staker = msg.sender;
+        uint256 stakeInPool = store.getStake(staker, stakePoolIndex);
+        uint256 rewardPerGrotto = store.geRewardPerGrotto(stakePoolIndex);
+        // we multiplied by 1 ether when calculating RPG, now we divide by 1 ether
+        uint256 totalRewards = (stakeInPool.mul(rewardPerGrotto)) / 1 ether;
+        withdrawStake();
+        store.setStake(staker, stakePoolIndex, 0);
+        staker.transfer(totalRewards);
+    }
+
     function withdrawStake() public {
         address payable staker = msg.sender;
-        require(store.getStake(staker) > 0, 'You do not have a stake');
-        require(!isGovernor(staker), 'Governors can not stake');
+        require(store.getUserStakes(staker) > 0, 'You do not have a stake');
+        require(!store.addressIsGovernor(staker), 'Governors can not stake');
 
-        uint256 _stake = store.getStake(staker);
+        uint256 _stake = store.getUserStakes(staker);
         store.withdrawStake(staker);
         grottoToken.unstake(store.getStakingMaster(), staker, _stake);
+    }
+
+    function getStakeInPool(address staker, uint256 stakePoolIndex) public view returns (uint256) {
+        return store.getStake(staker, stakePoolIndex);
     }
 
     function getStakers() public view returns (address payable[] memory) {
@@ -80,7 +99,7 @@ contract Grotto {
     }
 
     function getStake(address staker) public view returns (uint256) {
-        return store.getStake(staker);
+        return store.getUserStakes(staker);
     }
 
     function getGrottoTokenBalance(address account) public view returns (uint256) {
@@ -91,12 +110,30 @@ contract Grotto {
         return grottoToken.balanceOf(store.getStakingMaster());
     }
 
-    function updateGrotto(address payable newAddress) public {
-        require(msg.sender == store.getHouse(), "Only a house can do that");
-        store.setGrotto(newAddress);
-        grottoToken.setGrotto(newAddress);
-        uint256 balance = address(this).balance;
-        newAddress.transfer(balance);
+    function getCompletedStakePools() public view returns (uint256[] memory) {
+        return store.getCompletedPools();
+    }
+
+    function processShares() public {
+        require(msg.sender == store.getHouse(), 'Only house can do that');
+        if(store.getPendingGrottoMintingPayments() >= 10 ether) {
+            uint256 payment = store.getPendingGrottoMintingPayments();
+            uint256 toHouse = payment.mul(store.getHouseShare()).div(100);
+            uint256 toGovs = payment.mul(store.getGovernorsShare()).div(100);
+            uint256 toStakers = payment.mul(store.getStakersShare()).div(100);
+
+            uint256 totalStakedForCurrentPool = store.getStake(store.getStakingMaster(), store.getCurrentStakePoolIndex());
+            // multiply by 1 ether so that result will not be 0 for result like (0.12/60000)
+            uint256 ethPerGrotto = toStakers.mul(1 ether).div(totalStakedForCurrentPool);
+            store.setRewardPerGrotto(store.getCurrentStakePoolIndex(), ethPerGrotto);                     
+            store.setPendingGrottoMintingPayments(0);  
+            store.addCompletedPool(store.getCurrentStakePoolIndex());
+            store.setCurrentStakePoolIndex(store.getCurrentStakePoolIndex().add(1));
+
+            // store.setStake(address(0), store.getCurrentStakePool(), 1);
+             store.getHouse().transfer(toHouse);
+            _payGovernors(toGovs);
+        }        
     }
 
     function enterPool(bytes32 poolId) public payable {
@@ -121,15 +158,6 @@ contract Grotto {
         address payable[] memory poolers = store.getPoolers(poolId);
         store.setPoolCurrentSize(poolId, poolers.length);
 
-        // check if we have any pending grotto payments...
-        if(store.getPendingGrottoMintingPayments() > 0) {
-            uint256 payment = store.getPendingGrottoMintingPayments();
-            if(payment > 1 ether) {
-                store.getHouse().transfer(1 ether);
-                store.setPendingGrottoMintingPayments(payment.sub(1 ether));
-            }
-        }
-
         pool = store.getPool(poolId);
         if (poolers.length == pool.poolSize) {
             // pay winner
@@ -137,6 +165,14 @@ contract Grotto {
         }
         
         emit POOL_JOINED(poolId, pooler);
+    }
+
+    function _payGovernors(uint256 share) private {
+        address payable[] memory governors = store.getGovernors();
+        uint256 each = share.div(governors.length);
+        for(uint256 i = 0; i < governors.length; i++) {
+            governors[i].transfer(each);
+        }
     }
 
     function startNewPool(uint256 poolSize, bytes32 poolId) public payable {
@@ -206,10 +242,11 @@ contract Grotto {
         address payable[] memory poolers = store.getPoolers(poolId);
         uint256 totalStaked = store.getPoolTotalStaked(poolId);
         
-        bytes32 randBase = keccak256(abi.encodePacked(poolers[0]));
-        for (uint8 i = 1; i < pool.poolSize; i++) {            
-            randBase = keccak256(abi.encodePacked(randBase, poolers[i]));
-        }        
+        uint mid = poolers.length / 2;
+        uint end = poolers.length - 1;
+        bytes32 randBase = keccak256(abi.encodePacked(poolers[0]));            
+        randBase = keccak256(abi.encodePacked(randBase, poolers[mid]));
+        randBase = keccak256(abi.encodePacked(randBase, poolers[end]));
 
         uint256 winnerIndex = uint256(keccak256(abi.encodePacked(totalStaked, randBase))) % (pool.poolSize);
         address payable winner = poolers[winnerIndex];
@@ -238,8 +275,12 @@ contract Grotto {
         emit WINNER_FOUND(poolId, winner);        
     }
 
+    function getPendingGrottoMintingPayments() public view returns (uint256) {
+        return store.getPendingGrottoMintingPayments();
+    }
+
     function _mintTokensForGovernors() private {
-        address[] memory govs = store.getGovernors();
+        address payable[] memory govs = store.getGovernors();
         for (uint256 i = 0; i < govs.length; i++) {
             if(grottoToken.balanceOf(govs[i]) == 0) {
                 grottoToken.mintToken(govs[i], store.getMinGrottoGovernor());

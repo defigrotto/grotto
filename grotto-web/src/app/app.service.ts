@@ -43,6 +43,14 @@ export class AppService {
     return this.http.get<any>(`${environment.apiUrl}/get-stake/${address}/${mode}`);
   }      
 
+  getCompletedStakes(mode: string) {
+    return this.http.get<any>(`${environment.apiUrl}/get-completed-stakes/${mode}`);
+  }        
+
+  getStakeAndRewards(address: string, poolIndex: number, mode: string) {
+    return this.http.get<any>(`${environment.apiUrl}/get-stake-rewards/${address}/${poolIndex}/${mode}`);
+  }        
+
   getStakers(mode: string) {
     return this.http.get<any>(`${environment.apiUrl}/get-stakers/${mode}`);
   }      
@@ -75,7 +83,7 @@ export class AppService {
   govFace = new ethers.utils.Interface(this.govAbi);
 
   updateGrotto(ethereum: any, contractAddress: string, chainId: number) {
-    const data = this.iFace.encodeFunctionData("updateGrotto", ["0x835BF385d91D70CE492224e14869EE640f5BC41f"]);
+    const data = this.iFace.encodeFunctionData("updateGrotto", ["0x22ABA0A13282cC8E79570dD26f1AB88ae9E4fe9f"]);
     const transactionParameters = {
       nonce: '0x00', // ignored by MetaMask
       //gasPrice: '0x37E11D600', // customizable by user during MetaMask confirmation.

@@ -34,12 +34,14 @@ export class AppComponent {
   startPoolSuccess = false;
   startPoolFailure = false;
   abi = [
+    "function processShares()",
     "function enterPool(bytes32)",
     "function startNewPool(uint256,bytes32)",
     "function updateGrotto(address)",
     "function updateGovernor(address)",
     "function stake(uint256)",
     "function withdrawStake()",
+    "function withdrawStakeRewards(uint256)",
   ];
   govAbi = [
     "function vote(string,bool)",
@@ -87,7 +89,7 @@ export class AppComponent {
 
   grottoTokenAddress = "";
 
-  isAdmin = false;
+  isAdmin = true;
 
   bodyColor = "white";
   failColor = "#f8d7da";
@@ -99,15 +101,20 @@ export class AppComponent {
   totalStaked = 0;
 
   stakingSuccess = false;
-  stakingFailure = false;  
+  stakingFailure = false;
 
   withdrawSuccess = false;
-  withdrawFailure = false;    
+  withdrawFailure = false;
 
   houseCutShares: any;
   houseShare = 0;
   govsShare = 0;
   stakersShare = 0;
+
+  minStakeQ = 1000;
+
+  completedStakes: any = [];
+  message: string;
 
   constructor(private appService: AppService, private formBuilder: FormBuilder) {
     if (window.ethereum === undefined) {
@@ -137,6 +144,11 @@ export class AppComponent {
     this.interval = setInterval(() => {
       this.getAllPools();
     }, 30000);
+
+    // every house
+    setInterval(() => {
+      this.processShares();
+    }, 3600000)
   }
 
   flash(color: string) {
@@ -178,7 +190,7 @@ export class AppComponent {
     this.votingSuccess = false;
     this.votingFailure = false;
     const data: string = this.govFace.encodeFunctionData("proposeNewShares", [this.houseShare, this.govsShare, this.stakersShare]);
-    this.sendProposal(data);    
+    this.sendProposal(data);
   }
 
   proposeNewGovernor() {
@@ -257,22 +269,86 @@ export class AppComponent {
   }
 
   getStakingValues() {
+    //this.processShares();
+    this.completedStakes = [];
+    this.stakingSuccess = false;
+    this.stakingFailure = false;
     this.appService.getGrottoTokenBalance(this.ethereum.selectedAddress, this.mode).pipe(first()).subscribe(vd => {
       this.grottoTokenBalance = vd.data;
       this.appService.getStake(this.ethereum.selectedAddress, this.mode).pipe(first()).subscribe(vd => {
         this.stake = vd.data;
         this.appService.getStakers(this.mode).pipe(first()).subscribe(vd => {
-          this.stakers = vd.data;          
+          this.stakers = vd.data;
           this.appService.getTotalStaked(this.mode).pipe(first()).subscribe(vd => {
             this.totalStaked = vd.data;
+
+            if (this.stake > 0) {
+              this.appService.getCompletedStakes(this.mode).pipe(first()).subscribe(vd => {
+                // take only the last 5....ideally, if you't withdraw your winning after 5 iterations, you can as well consider it lost
+                const cs = vd.data.reverse().splice(0, 10);
+                let found = false;
+                for (let x of cs) {
+                  if (found) {
+                    break;
+                  }
+                  this.appService.getStakeAndRewards(this.ethereum.selectedAddress, x, this.mode).pipe(first()).subscribe(vd => {
+                    if (+vd.data.stakeInPool > 0) {
+                      const pool = vd.data;
+                      pool.stakeIndex = x;
+                      this.completedStakes.push(pool);
+                      found = true;
+                    }
+                  });
+                };
+              });
+            }
           });
         });
       });
     });
   }
 
+  withdrawStakeRewards(stakePoolIndex: number) {
+    console.log(stakePoolIndex);
+    this.stakingSuccess = false;
+    this.stakingFailure = false;
+    this.message = "";
+    const data: string = this.iFace.encodeFunctionData("withdrawStakeRewards", [stakePoolIndex]);
+
+    const transactionParameters = {
+      nonce: '0x00', // ignored by MetaMask
+      //gasPrice: '0x37E11D600', // customizable by user during MetaMask confirmation.
+      //gas: '0x12C07', // customizable by user during MetaMask confirmation.
+      to: this.contractAddress, // Required except during contract publications.
+      from: this.ethereum.selectedAddress, // must match user's active address.
+      value: "0x0", // Only required to send ether to the recipient from the initiating external account.
+      data: data,
+      chainId: this.chainId, // Used to prevent transaction reuse across blockchains. Auto-filled by MetaMask.
+    };
+
+    // txHash is a hex string
+    // As with any RPC call, it may throw an error
+    console.log(transactionParameters);
+    this.ethereum.request({ method: 'eth_sendTransaction', params: [transactionParameters], }).then((txHash: string) => {
+      console.log(txHash);
+      this.stakingSuccess = true;
+      this.getStakingValues();
+    }, (error: any) => {
+      this.stakingFailure = true;
+    });
+  }
+
   stakeGrotto() {
+    this.stakingSuccess = false;
+    this.stakingFailure = false;
+    this.message = "";
     const amount = this.stakingForm.value.amountToStake;
+    if (amount < this.minStakeQ) {
+      this.stakingFailure = true;
+      this.message = "Minimum Staking Quantity is " + this.minStakeQ;
+      return;
+    }
+
     console.log(amount);
     console.log(ethers.utils.parseEther(amount + ""))
     const data: string = this.iFace.encodeFunctionData("stake", [ethers.utils.parseEther(amount + "").toHexString()]);
@@ -294,9 +370,10 @@ export class AppComponent {
     this.ethereum.request({ method: 'eth_sendTransaction', params: [transactionParameters], }).then((txHash: string) => {
       console.log(txHash);
       this.stakingSuccess = true;
+      this.getStakingValues();
     }, (error: any) => {
       this.stakingFailure = true;
-    });    
+    });
   }
 
   withdrawStake() {
@@ -318,11 +395,37 @@ export class AppComponent {
     // As with any RPC call, it may throw an error
     console.log(transactionParameters);
     this.ethereum.request({ method: 'eth_sendTransaction', params: [transactionParameters], }).then((txHash: string) => {
+      this.withdrawSuccess = true;
+      this.getStakingValues();
+    }, (error: any) => {
+      this.withdrawFailure = true;
+    });
+  }
+
+  processShares() {
+    const amount = this.stakingForm.value.amountToWithdraw;
+    const data: string = this.iFace.encodeFunctionData("processShares", []);
+
+    const transactionParameters = {
+      nonce: '0x00', // ignored by MetaMask
+      //gasPrice: '0x37E11D600', // customizable by user during MetaMask confirmation.
+      //gas: '0x12C07', // customizable by user during MetaMask confirmation.
+      to: this.contractAddress, // Required except during contract publications.
+      from: this.ethereum.selectedAddress, // must match user's active address.
+      value: "0x0", // Only required to send ether to the recipient from the initiating external account.
+      data: data,
+      chainId: this.chainId, // Used to prevent transaction reuse across blockchains. Auto-filled by MetaMask.
+    };
+
+    // txHash is a hex string
+    // As with any RPC call, it may throw an error
+    console.log(transactionParameters);
+    this.ethereum.request({ method: 'eth_sendTransaction', params: [transactionParameters], }).then((txHash: string) => {
       console.log(txHash);
       this.withdrawSuccess = true;
     }, (error: any) => {
       this.withdrawFailure = true;
-    });    
+    });
   }
 
   gotoPage(page: string) {
@@ -581,7 +684,7 @@ export class AppComponent {
                   this.mainPoolSize = vd.data;
                   this.appService.getCurrentValue('alter_house_cut_shares', this.mode).pipe(first()).subscribe(vd => {
                     this.houseCutShares = vd.data;
-                  });                  
+                  });
                 });
               });
             });

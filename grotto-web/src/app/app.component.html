@@ -70,13 +70,63 @@
 
   <main role="main" *ngIf="page === 'staking'">
     <div class="container">
+      <div class="d-flex">
+        <div class="mr-auto p-2">
+          <h3>Staking</h3>
+        </div>
+        <div class="p-2">
+          <a data-toggle="modal" data-target="#howItWorksStaking" href="#">
+            <img src="assets/img/how_to.png" style="width: 32px;">
+          </a>
+          |
+          <a href="#" (click)="getStakingValues()">
+            <img src="assets/img/reload.png" style="width: 32px;">
+          </a>
+        </div>
+      </div>
+
+      <div class="modal fade" id="howItWorksStaking" tabindex="-1" role="dialog" aria-labelledby="exampleModalLongTitle"
+        aria-hidden="true">
+        <div class="modal-dialog modal-lg" role="document">
+          <div class="modal-content">
+            <div class="modal-header">
+              <img src="assets/img/logo.png" width="400" alt="Defi Grotto">
+              <!-- <h5 class="modal-title" id="exampleModalLabel">How does it work?</h5> -->
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <div class="modal-body">
+              Staking on Grotto is straight forward, you stake your GROTTO tokens and get {{currency}}.
+              <p></p>
+              <div>
+                <ul>
+                  <li>Get GROTTO by creating a pool and when a winner is found, you're rewarded with GROTTO using this
+                    formula: ((pool price * pool size) - {{houseCutNewTokens}}%)</li>
+                  <li>Every time someone wins on GROTTO, a percentage of their winnings is set aside to be shared by the
+                    Platform, Governors and Stakers</li>
+                  <li>When the percentage set aside reaches 10 {{currency}}, Stakers rewards is calculated and stakers
+                    will see a button on the staking tab to get their rewards.</li>
+                  <li>You can stake as many times as possible, but once rewards are calculated, you need to collect your
+                    rewards or withdraw your stake before you can stake again</li>
+                </ul>
+              </div>
+              <p></p>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <div class="container">
         <div class="alert alert-danger" role="alert" *ngIf="stakingFailure">
           <button type="button" class="close" data-dismiss="alert" aria-label="Close">
             <span aria-hidden="true">&times;</span>
           </button>
           <p>
-            Staking Failed. Please try again later and/or check the blockchain for more info.
+            Staking Failed {{message}}. Please try again later and/or check the blockchain for more info.
           </p>
         </div>
 
@@ -89,6 +139,7 @@
           </p>
         </div>
       </div>
+
       <div class="container">
         <div class="alert alert-danger" role="alert" *ngIf="withdrawFailure">
           <button type="button" class="close" data-dismiss="alert" aria-label="Close">
@@ -108,46 +159,81 @@
           </p>
         </div>
       </div>
+
       <form [formGroup]="stakingForm">
-        <div class="form-group">
-          <label><b>Your GROTTO Balance:</b> {{grottoTokenBalance | number}} GROTTO</label>
-        </div>
-        <div class="form-group">
-          <label><b>Amount Staked:</b> {{stake | number}} GROTTO</label>
-        </div>
         <div class="row">
           <div class="col-sm">
-            <h4>Staking Info</h4>
-            <div class="alert alert-secondary" role="alert">
-              <p>
-                Total Number of Tokens Staked: {{totalStaked | number}} GROTTO
-              </p>
-              <p>
-                Total Number of Stakers: {{stakers.length}} GROTTO
-              </p>
+            <div class="card text-white bg-dark">
+              <div class="card-header">Your Staking Info</div>
+              <div class="card-body">
+                <p class="card-text">Balance: {{grottoTokenBalance | number}} GROTTO</p>
+                <p class="card-text">Amount Staked: {{stake | number}} GROTTO</p>
+              </div>
             </div>
           </div>
           <div class="col-sm">
-            <h4>Stake GROTTO</h4>
-            <div class="form-group">
-              <label for="poolPrice">Amount to Stake</label>
-              <input type="number" class="form-control" aria-describedby="priceHelp" id="stakeAmount"
-                placeholder="Amount to stake" formControlName="amountToStake">
+            <div class="card text-white bg-dark">
+              <div class="card-header">Global Staking Info</div>
+              <div class="card-body">
+                <p class="card-text">Total Number of Tokens Staked: {{totalStaked | number}} GROTTO</p>
+                <p class="card-text">Total Number of Stakers: {{stakers.length}}</p>
+              </div>
             </div>
-            <button type="button" class="btn btn-outline-primary btn-block" data-dismiss="modal"
-              (click)="stakeGrotto()">Stake</button>
+          </div>
+        </div>
+        <hr />
+        <div class="row">
+          <div class="col-sm">
+            <div class="card text-white bg-dark">
+              <div class="card-header">Stake GROTTO</div>
+              <div class="card-body">
+                <div class="form-group">
+                  <label for="poolPrice">Amount to Stake</label>
+                  <input type="number" class="form-control" aria-describedby="priceHelp" id="stakeAmount"
+                    placeholder="Amount to stake" formControlName="amountToStake">
+                  <small>Minimum Stake Quantity is {{minStakeQ}} GROTTO</small>
+                </div>
+                <button *ngIf="completedStakes.length === 0" type="button" class="btn btn-success btn-block"
+                  (click)="stakeGrotto()">Stake</button>
+                <button type="button" class="btn btn-warning btn-block" *ngIf="completedStakes.length > 0"
+                  class="card-text">You have pending rewards. Collect them first</button>
+              </div>
+            </div>
           </div>
           <div class="col-sm">
-            <h4>Withdraw your stake</h4>
-            <div class="form-group">
-              <label for="poolPrice">Amount to Withdraw</label>
+            <div class="card text-white bg-dark">
+              <div class="card-header">Withdraw Stake</div>
+              <div class="card-body">
+                <div class="form-group">
+                  <label for="poolPrice">Amount to Withdraw</label>
+                </div>
+                <div>
+                  <label>{{stake | number}} GROTTO</label>
+                </div>
+                <small>Minimum Withdraw Quantity is {{minStakeQ}} GROTTO</small>
+                <button type="button" class="btn btn-danger btn-block" (click)="withdrawStake()">Withdraw Stake</button>
+              </div>
             </div>
-            <div>
-              <label>{{stake | number}} GROTTO</label>
-            </div>
-            <button type="button" class="btn btn-outline-danger btn-block" data-dismiss="modal"
-              (click)="withdrawStake()">Withdraw Stake</button>
           </div>
+        </div>
+        <hr />
+        <div class="row">
+          <div class="col-sm">
+            <div class="card text-white bg-dark">
+              <div class="card-header">Rewards</div>
+              <div class="card-body">
+                <div *ngFor="let cs of completedStakes">
+                  <p class="card-text">Stake Reward: {{cs.stakeReward}}</p>
+                  <p class="card-text">Stake Amount: {{cs.stakeInPool}}</p>
+                  <p class="card-text">Total Reward: {{cs.stakeInPool * cs.stakeReward}}</p>
+                  <button type="button" class="btn btn-danger btn-block" data-dismiss="modal"
+                    (click)="withdrawStakeRewards(cs.stakeIndex)">Collect Rewards</button>
+                  <hr />
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="col-sm"></div>
         </div>
       </form>
     </div>

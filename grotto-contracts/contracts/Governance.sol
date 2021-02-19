@@ -11,14 +11,15 @@ contract Governance is GovernanceInterface {
     using SafeMath for uint256;
 
     StorageInterface store;
-    address private storeAddress = 0x2886EAC9b9408C4E5dBDE68B79FE7619EF7F1beF;
+    
+    address private storeAddress = 0xC063Ef752F57d2868A7C44Cbc3681747d7a55775;
+    address private tokenAddress = 0xC21D3B14fa029BB4ed08C32646508A91126e1A70;
 
-    address private tokenAddress = 0xE142A7338605D8c431dfE59C6cE7474351b55d31;
     GrottoTokenInterface grottoToken;
 
     address[] private voters;
 
-    address[] private governors;
+    address payable[] private governors;
 
     uint256 constant private MAX_GOVERNORS = 21;
 
@@ -31,14 +32,13 @@ contract Governance is GovernanceInterface {
         store.addGovernor(0x0A0C8E469fef425eF7C6E9754dC563f9BBa588f0); 
 
         grottoToken = GrottoTokenInterface(tokenAddress);         
-    }
-
-    function updateGov(address newAddress) public {
-        store.setGov(newAddress);
-        grottoToken.setGrotto(newAddress);
     }    
 
-    function votingDetails(string memory voteId) public override view returns (Data.Vote memory) {
+    function updateGov(address payable newAddress) public {
+        store.setGov(newAddress);
+    }    
+
+    function votingDetails(string memory voteId) public  view returns (Data.Vote memory) {
         (uint256 house, uint256 govs, uint256 stakers) = store.getProposedShare(); 
         Data.ProposedShare memory p = Data.ProposedShare({
             house: house,
@@ -60,7 +60,7 @@ contract Governance is GovernanceInterface {
             });
     }
 
-    function getGovernors() public view returns (address[] memory) {
+    function getGovernors() public view returns (address payable[] memory) {
         return store.getGovernors();
     }
 
@@ -100,34 +100,19 @@ contract Governance is GovernanceInterface {
         return store.getHouseCutShares();
     }       
 
-    function isGovernor(address governor) public override view returns (bool) {
-        address[] memory govs = store.getGovernors();
-        for (uint256 i = 0; i < govs.length; i++) {
-            if (govs[i] == governor) {
-                if(grottoToken.balanceOf(governor) >= store.getMinGrottoGovernor()) {
-                    return true;
-                } else {
-                    return false;
-                }
-            }
-        }
-
-        return false;
-    }
-
-    function proposeNewGovernor(address newGovernor) public override {
-        address governor = msg.sender;
-        if (!isGovernor(governor)) {
+    function proposeNewGovernor(address payable newGovernor) public  {
+        address payable governor = msg.sender;
+        if (store.addressIsGovernor(governor)) {
             revert("Only a governor can do that");
         }
 
-        if (isGovernor(newGovernor)) {
+        if (store.addressIsGovernor(newGovernor)) {
             revert('Already a governor');
         }
 
         require(grottoToken.balanceOf(newGovernor) >= store.getMinGrottoGovernor(), 'New Governor does not have enough GROTTO');
 
-        address[] memory govs = store.getGovernors();
+        address payable[] memory govs = store.getGovernors();
         require(govs.length <= MAX_GOVERNORS, 'You can not add more governors. Remove a governor first');
 
         string memory voteId = Data.ADD_GOVERNOR_VOTE_ID;
@@ -140,13 +125,13 @@ contract Governance is GovernanceInterface {
         }
     }
 
-    function proposeRemoveGovernor(address oldGovernor) public override {
-        address governor = msg.sender;
-        if (!isGovernor(governor)) {
+    function proposeRemoveGovernor(address payable oldGovernor) public  {
+        address payable governor = msg.sender;
+        if (!store.addressIsGovernor(governor)) {
             revert("Only a governor can do that");
         }
 
-        if (!isGovernor(oldGovernor)) {
+        if (!store.addressIsGovernor(oldGovernor)) {
             revert("Not a governor");
         }
 
@@ -160,9 +145,9 @@ contract Governance is GovernanceInterface {
         }
     }
 
-    function proposeNewValue(uint256 value, string calldata voteId) public override {
-        address governor = msg.sender;
-        if (!isGovernor(governor)) {
+    function proposeNewValue(uint256 value, string calldata voteId) public  {
+        address payable governor = msg.sender;
+        if (!store.addressIsGovernor(governor)) {
             revert("Only a governor can do that");
         }
         bool isInProgress = store.isInProgress(voteId);
@@ -174,13 +159,13 @@ contract Governance is GovernanceInterface {
         }
     }
 
-    function proposeNewShares(uint256 houseShare, uint256 govsShare, uint256 stakersShare) public override {
+    function proposeNewShares(uint256 houseShare, uint256 govsShare, uint256 stakersShare) public  {
         uint256 totalShares = houseShare.add(govsShare);
         totalShares = totalShares.add(stakersShare);
 
         require(totalShares == 100, 'Shares not properly distributed');
-        address governor = msg.sender;
-        if (!isGovernor(governor)) {
+        address payable governor = msg.sender;
+        if (!store.addressIsGovernor(governor)) {
             revert("Only a governor can do that");
         }
 
@@ -194,9 +179,9 @@ contract Governance is GovernanceInterface {
         }
     }
 
-    function vote(string calldata voteId, bool yesVote) public override {
-        address governor = msg.sender;
-        if (!isGovernor(governor)) {
+    function vote(string calldata voteId, bool yesVote) public  {
+        address payable governor = msg.sender;
+        if (!store.addressIsGovernor(governor)) {
             revert("Only a governor can do that");
         }
 
@@ -207,7 +192,7 @@ contract Governance is GovernanceInterface {
         _vote(voteId, governor, yesVote);
     }
 
-    function _continueToVote(string memory voteId, address governor) private {
+    function _continueToVote(string memory voteId, address payable governor) private {
         store.setProgress(voteId, true);
         _vote(voteId, governor, true);
         emit NEW_PROPOSAL(voteId);
@@ -224,7 +209,7 @@ contract Governance is GovernanceInterface {
             store.setVoted(voteId, gov, false);
         }
 
-        address[] memory newVoters;
+        address payable[] memory newVoters;
         store.setVoters(voteId, newVoters);
 
         store.setYesVotes(voteId, 0);
@@ -242,10 +227,10 @@ contract Governance is GovernanceInterface {
     }
 
     function _annulElection(string memory voteId) private view returns (bool) {
-        address[] memory _voters = store.getVoters(voteId);
+        address payable[] memory _voters = store.getVoters(voteId);
 
         for(uint256 i = 0; i < _voters.length; i++) {
-            if(!isGovernor(_voters[i])) {
+            if(!store.addressIsGovernor(_voters[i])) {
                 /*
                 This can happen is for instance voter was deleted before vote is completed
                 Or if voter didn't maintain balance for duration of election
@@ -257,7 +242,7 @@ contract Governance is GovernanceInterface {
         return false;
     }
 
-    function _vote(string memory voteId, address governor,bool yesVote) private {
+    function _vote(string memory voteId, address payable governor,bool yesVote) private {
         bool isInProgress = store.isInProgress(voteId);
         if (isInProgress) {
             if (yesVote) {
@@ -297,7 +282,7 @@ contract Governance is GovernanceInterface {
                         keccak256(bytes(voteId)) ==
                         keccak256(bytes(Data.ADD_GOVERNOR_VOTE_ID))
                     ) {
-                        // add new governor
+                        // add new governor 
                         store.addGovernor(store.getProposedGovernor(voteId));
                         emit NEW_GOVERNOR_ADDED(store.getProposedGovernor(voteId));
                     } else if (
@@ -318,6 +303,7 @@ contract Governance is GovernanceInterface {
                         }
 
                         uint256 index = uint256(intIndex);
+                        address payable toRemove = governors[index];
                         uint256 len = governors.length;
 
                         if (index == (len - 1)) {
@@ -327,7 +313,8 @@ contract Governance is GovernanceInterface {
                             governors.pop();
                         }
 
-                        store.setGovernors(governors); 
+                        store.setGovernors(governors);
+                        store.setIsGovernor(toRemove, false);                        
 
                         emit GOVERNOR_REMOVED(store.getProposedGovernor(voteId));
                     } else if (

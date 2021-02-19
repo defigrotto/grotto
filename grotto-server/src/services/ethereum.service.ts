@@ -62,6 +62,16 @@ export class EthereumService {
     }
 
 
+    async processShares() {
+        let privateKey = process.env.HOUSE_PRIVATE_KEY;
+        let wallet = new ethers.Wallet(privateKey, this.provider);
+        let contractWithSigner = this.grottoContract.connect(wallet);
+        let tx = await contractWithSigner.processShares();
+        console.log(`Processing Shares: ${tx.hash}`);
+        await tx.wait();
+        return;
+    }
+
     getTotalStaked(mode: string): Promise<number> {
         this.init(mode);
         return new Promise(async (resolve, reject) => {
@@ -71,8 +81,40 @@ export class EthereumService {
             } catch (error) {
                 reject(error);
             }
-        });                        
+        });
     }
+
+    getCompletedStakes(mode: string): Promise<number[]> {
+        this.init(mode);
+        return new Promise(async (resolve, reject) => {
+            try {
+                let cs = await this.grottoContract.getCompletedStakePools();
+                cs = cs.map((x) => {
+                    return x.toNumber();
+                })
+
+                resolve(cs);
+            } catch (error) {
+                reject(error);
+            }
+        });
+    }
+
+    getStakeRewards(address: string, poolIndex: number, mode: string): Promise<any> {
+        this.init(mode);
+        return new Promise(async (resolve, reject) => {
+            try {
+                let stakeInPool = await this.grottoContract.getStakeInPool(address, poolIndex);
+                stakeInPool = +ethers.utils.formatEther(stakeInPool);
+                let stakeReward = await this.grottoContract.getRewardPerGrotto(poolIndex);
+                console.log(stakeReward);
+                stakeReward = +ethers.utils.formatEther(stakeReward);
+                resolve ({"stakeInPool": stakeInPool, "stakeReward": stakeReward});
+            } catch (error) {
+                reject(error);
+            }
+        });
+    }    
 
     getStakers(mode: string): Promise<any> {
         this.init(mode);
@@ -83,8 +125,19 @@ export class EthereumService {
             } catch (error) {
                 reject(error);
             }
-        });                        
-    }    
+        });
+    }
+
+    getPendingGrottoMintingPayments(): Promise<number> {
+        return new Promise(async (resolve, reject) => {
+            try {
+                const balance = await this.grottoContract.getPendingGrottoMintingPayments();
+                resolve(balance.toString());
+            } catch (error) {
+                reject(error);
+            }
+        });
+    }
 
     getGrottoTokenBalance(address: string, mode: string): Promise<number> {
         this.init(mode);
@@ -95,9 +148,13 @@ export class EthereumService {
             } catch (error) {
                 reject(error);
             }
-        });                        
+        });
     }
-    
+
+    getGrottoTokenAddress(mode: string): string {
+        return mode === 'prod' ? process.env.GROTTO_TOKEN_ADDRESS : process.env.GROTTO_TOKEN_ADDRESS_TEST;
+    }
+
     getStake(address: string, mode: string): Promise<number> {
         this.init(mode);
         return new Promise(async (resolve, reject) => {
@@ -107,8 +164,8 @@ export class EthereumService {
             } catch (error) {
                 reject(error);
             }
-        });                        
-    }    
+        });
+    }
 
     getVotingDetails(voteId: string, mode: string): Promise<VoteDetails> {
         this.init(mode);
@@ -116,12 +173,11 @@ export class EthereumService {
         return new Promise(async (resolve, reject) => {
             try {
                 const vd = await this.governanceContract.votingDetails(voteId);
-                console.log(vd);
                 const proposedShares = {
                     house: vd[8][0].toNumber(),
                     govs: vd[8][1].toNumber(),
                     stakers: vd[8][2].toNumber(),
-                }  
+                }
 
                 const voteDetails: VoteDetails = {
                     voteId: vd[0],
@@ -136,7 +192,6 @@ export class EthereumService {
                     proposedShares: proposedShares,
                     currentValue: await this.getCurrentValue(voteId, mode)
                 };
-
                 resolve(voteDetails);
             } catch (error) {
                 reject(error);
@@ -181,7 +236,6 @@ export class EthereumService {
                 const allPoolDetails: PoolDetails[] = [];
 
                 const pools: any[] = await this.grottoContract.getAllPools();
-                console.log(pools);
                 const size = pools.length;
                 if (size <= 0) {
                     const poolDetails: PoolDetails = {
@@ -305,7 +359,7 @@ export class EthereumService {
                             stakers: retVal[2].toNumber(),
                         }
                         resolve(result);
-                        break;                        
+                        break;
                 }
             } catch (error) {
                 reject(error);

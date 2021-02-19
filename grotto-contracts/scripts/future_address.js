@@ -3,6 +3,8 @@ var ethJsUtil = require('ethereumjs-util');
 const Web3 = require('web3');
 const web3 = new Web3("https://sokol.poa.network");
 
+const delay = ms => new Promise(res => setTimeout(res, ms));
+
 web3.eth.getTransactionCount("0x94Ce615ca10EFb74cED680298CD7bdB0479940bc").then((index) => {
     var shouldDeployToken = true;
     var tokenAddress;
@@ -44,21 +46,20 @@ web3.eth.getTransactionCount("0x94Ce615ca10EFb74cED680298CD7bdB0479940bc").then(
             return;
         }
         console.log(`stdout: ${stdout}`);
+        if (shouldDeployToken) {
+            exec(`sed -i .bak 's/address private tokenAddress.*;/address private tokenAddress = ${ethJsUtil.toChecksumAddress(tokenAddress)};/g' /Users/aardvocate/src/grotto/grotto-contracts/contracts/Grotto.sol`, (error, stdout, stderr) => {
+                if (error) {
+                    console.log(`error: ${error.message}`);
+                    return;
+                }
+                if (stderr) {
+                    console.log(`stderr: ${stderr}`);
+                    return;
+                }
+                console.log(`stdout: ${stdout}`);
+            });
+        }        
     });
-
-    if (shouldDeployToken) {
-        exec(`sed -i .bak 's/address private tokenAddress.*;/address private tokenAddress = ${ethJsUtil.toChecksumAddress(tokenAddress)};/g' /Users/aardvocate/src/grotto/grotto-contracts/contracts/Grotto.sol`, (error, stdout, stderr) => {
-            if (error) {
-                console.log(`error: ${error.message}`);
-                return;
-            }
-            if (stderr) {
-                console.log(`stderr: ${stderr}`);
-                return;
-            }
-            console.log(`stdout: ${stdout}`);
-        });
-    }
 
     // Governance.sol
     exec(`sed -i .bak 's/address private storeAddress.*;/address private storeAddress = ${ethJsUtil.toChecksumAddress(storeAddress)};/g' /Users/aardvocate/src/grotto/grotto-contracts/contracts/Governance.sol`, (error, stdout, stderr) => {
@@ -71,10 +72,33 @@ web3.eth.getTransactionCount("0x94Ce615ca10EFb74cED680298CD7bdB0479940bc").then(
             return;
         }
         console.log(`stdout: ${stdout}`);
+        if (shouldDeployToken) {
+            exec(`sed -i .bak 's/address private tokenAddress.*;/address private tokenAddress = ${ethJsUtil.toChecksumAddress(tokenAddress)};/g' /Users/aardvocate/src/grotto/grotto-contracts/contracts/Governance.sol`, (error, stdout, stderr) => {
+                if (error) {
+                    console.log(`error: ${error.message}`);
+                    return;
+                }
+                if (stderr) {
+                    console.log(`stderr: ${stderr}`);
+                    return;
+                }
+                console.log(`stdout: ${stdout}`);
+            });
+        }        
     });
 
-    if (shouldDeployToken) {
-        exec(`sed -i .bak 's/address private tokenAddress.*;/address private tokenAddress = ${ethJsUtil.toChecksumAddress(tokenAddress)};/g' /Users/aardvocate/src/grotto/grotto-contracts/contracts/Governance.sol`, (error, stdout, stderr) => {
+    // storage.sol
+    exec(`sed -i .bak 's/address private gov.*;/address private gov = ${ethJsUtil.toChecksumAddress(govAddress)};/g' /Users/aardvocate/src/grotto/grotto-contracts/contracts/Storage.sol`, (error, stdout, stderr) => {
+        if (error) {
+            console.log(`error: ${error.message}`);
+            return;
+        }
+        if (stderr) {
+            console.log(`stderr: ${stderr}`);
+            return;
+        }
+        console.log(`stdout: ${stdout}`);
+        exec(`sed -i .bak 's/address private grotto.*;/address private grotto = ${ethJsUtil.toChecksumAddress(grottoAddress)};/g' /Users/aardvocate/src/grotto/grotto-contracts/contracts/Storage.sol`, (error, stdout, stderr) => {
             if (error) {
                 console.log(`error: ${error.message}`);
                 return;
@@ -84,37 +108,12 @@ web3.eth.getTransactionCount("0x94Ce615ca10EFb74cED680298CD7bdB0479940bc").then(
                 return;
             }
             console.log(`stdout: ${stdout}`);
-        });
-    }
-
-    // storage.sol
-    exec(`sed -i .bak 's/address gov.*;/address gov = ${ethJsUtil.toChecksumAddress(govAddress)};/g' /Users/aardvocate/src/grotto/grotto-contracts/contracts/Storage.sol`, (error, stdout, stderr) => {
-        if (error) {
-            console.log(`error: ${error.message}`);
-            return;
-        }
-        if (stderr) {
-            console.log(`stderr: ${stderr}`);
-            return;
-        }
-        console.log(`stdout: ${stdout}`);
-    });
-
-    exec(`sed -i .bak 's/address grotto.*;/address grotto = ${ethJsUtil.toChecksumAddress(grottoAddress)};/g' /Users/aardvocate/src/grotto/grotto-contracts/contracts/Storage.sol`, (error, stdout, stderr) => {
-        if (error) {
-            console.log(`error: ${error.message}`);
-            return;
-        }
-        if (stderr) {
-            console.log(`stderr: ${stderr}`);
-            return;
-        }
-        console.log(`stdout: ${stdout}`);
+        });    
     });
 
     if (shouldDeployToken) {
         // GrottoToken.sol
-        exec(`sed -i .bak 's/address grotto.*;/address grotto = ${ethJsUtil.toChecksumAddress(grottoAddress)};/g' /Users/aardvocate/src/grotto/grotto-contracts/contracts/GrottoToken.sol`, (error, stdout, stderr) => {
+        exec(`sed -i .bak 's/address private grotto.*;/address private grotto = ${ethJsUtil.toChecksumAddress(grottoAddress)};/g' /Users/aardvocate/src/grotto/grotto-contracts/contracts/GrottoToken.sol`, (error, stdout, stderr) => {
             if (error) {
                 console.log(`error: ${error.message}`);
                 return;

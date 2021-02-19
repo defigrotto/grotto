@@ -39,7 +39,7 @@ library Data {
     struct Vote {
         string voteId;
         bool inProgress;
-        address[] voters;
+        address payable[] voters;
         uint256 yesVotes;
         uint256 noVotes;
         uint256 votes;
