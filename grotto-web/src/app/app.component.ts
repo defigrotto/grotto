@@ -89,7 +89,7 @@ export class AppComponent {
 
   grottoTokenAddress = "";
 
-  isAdmin = true;
+  isAdmin = false;
 
   bodyColor = "white";
   failColor = "#f8d7da";
