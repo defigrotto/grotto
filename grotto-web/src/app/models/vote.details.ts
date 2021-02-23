@@ -1,5 +1,7 @@
 export class VoteDetails {
     voteId!: string;
+    title: string;
+    index: number;
     isInProgress!: boolean;
     voters!: string[];
     yesVotes!: number;

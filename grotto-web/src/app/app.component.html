@@ -1,4 +1,5 @@
 <div style="background-color: {{bodyColor}};">
+  <!-- Header Section -->
   <header>
     <div class="navbar navbar-dark bg-dark box-shadow fixed-top">
       <a href="#" class="navbar-brand" (click)="gotoPage('home')">
@@ -18,6 +19,7 @@
     </div>
   </header>
 
+  <!-- Menu Buttons Section -->
   <div class="container" style="padding-top: 100px; padding-bottom: 50px;">
     <div class="d-flex flex-row-reverse">
       <div class="p-2">
@@ -68,6 +70,7 @@
     </div>
   </div>
 
+  <!-- Staking Section -->
   <main role="main" *ngIf="page === 'staking'">
     <div class="container">
       <div class="d-flex">
@@ -82,41 +85,6 @@
           <a href="#" (click)="getStakingValues()">
             <img src="assets/img/reload.png" style="width: 32px;">
           </a>
-        </div>
-      </div>
-
-      <div class="modal fade" id="howItWorksStaking" tabindex="-1" role="dialog" aria-labelledby="exampleModalLongTitle"
-        aria-hidden="true">
-        <div class="modal-dialog modal-lg" role="document">
-          <div class="modal-content">
-            <div class="modal-header">
-              <img src="assets/img/logo.png" width="400" alt="Defi Grotto">
-              <!-- <h5 class="modal-title" id="exampleModalLabel">How does it work?</h5> -->
-              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                <span aria-hidden="true">&times;</span>
-              </button>
-            </div>
-            <div class="modal-body">
-              Staking on Grotto is straight forward, you stake your GROTTO tokens and get {{currency}}.
-              <p></p>
-              <div>
-                <ul>
-                  <li>Get GROTTO by creating a pool and when a winner is found, you're rewarded with GROTTO using this
-                    formula: ((pool price * pool size) - {{houseCutNewTokens}}%)</li>
-                  <li>Every time someone wins on GROTTO, a percentage of their winnings is set aside to be shared by the
-                    Platform, Governors and Stakers</li>
-                  <li>When the percentage set aside reaches 10 {{currency}}, Stakers rewards is calculated and stakers
-                    will see a button on the staking tab to get their rewards.</li>
-                  <li>You can stake as many times as possible, but once rewards are calculated, you need to collect your
-                    rewards or withdraw your stake before you can stake again</li>
-                </ul>
-              </div>
-              <p></p>
-            </div>
-            <div class="modal-footer">
-              <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-            </div>
-          </div>
         </div>
       </div>
 
@@ -239,74 +207,19 @@
     </div>
   </main>
 
+  <!-- Governance Section -->
   <main role="main" *ngIf="page === 'governance'">
-    <div class="modal fade" id="becomeGovernorModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLongTitle"
-      aria-hidden="true">
-      <div class="modal-dialog modal-lg" role="document">
-        <div class="modal-content">
-          <div class="modal-header">
-
-            <h5 class="modal-title" id="exampleModalLabel">Become a Governor</h5>
-            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-              <span aria-hidden="true">&times;</span>
-            </button>
-          </div>
-          <div class="modal-body">
-            <h3>Method 1</h3>
-            <p>Send an email to <a href="">defigrotto@gmail.com</a> with your Ethereum Address. The Administrator will
-              check that you have enough GROTTO to become a governor and Send a Proposal to add you as a Governor.</p>
-            <h3>Method 2</h3>
-            <p>If you know anyone who is alrady a governor, you can contact them to Send a Proposal to add you as a
-              governor.</p>
-            <br />
-            <hr />
-            <p><b>Very Important to note: </b>You need to check the Min Grotto tab for the amount of Grotto Required to
-              become a governor. If you don't have up to this amount of tokens, you won't be able to be nominated or act
-              as a governor. Once a proposal is sent on your behalf, the other governors will need to vote and a
-              majority
-              of the governors must vote Yes before you can be added.</p>
-          </div>
-        </div>
-      </div>
-    </div>
-
     <div class="btn-toolbar container" role="toolbar" aria-label="Voting" style="padding-bottom: 100px;">
       <button *ngIf="isAdmin" type="button" class="btn btn-dark" (click)="updateGrotto()">Update Grotto</button>
       <button *ngIf="isAdmin" type="button" class="btn btn-primary" (click)="updateGov()">Update Gov</button>
 
-      <div class="btn-group mr-2" role="group" aria-label="First group">
-        <button type="button" class="btn btn-secondary" (click)="selectVote('add_new_governor', 'Add New Governor')">Add
-          Governor</button>
-        <button type="button" class="btn btn-danger" (click)="selectVote('remove_governor', 'Remove Governor')">Remove
-          Governor</button>
-        <button type="button" class="btn btn-primary"
-          (click)="selectVote('alter_main_pool_price', 'Main Pool Price')">Main Price</button>
-        <button type="button" class="btn btn-success"
-          (click)="selectVote('alter_main_pool_size', 'Main Pool Size')">Main
-          Size</button>
-        <button type="button" class="btn btn-warning" (click)="selectVote('alter_house_cut', 'House Cut')">House
-          Cut</button>
-        <button type="button" class="btn btn-info"
-          (click)="selectVote('alter_house_cut_tokens', 'House Cut (Tokens)')">House Cut (Tokens)</button>
-        <button type="button" class="btn btn-dark" (click)="selectVote('alter_min_price', 'Minimum Pool Price')">Pool
-          Price</button>
-        <button type="button" class="btn btn-primary" (click)="selectVote('alter_min_size', 'Minimum Pool Size')">Min
-          Size</button>
-        <button type="button" class="btn btn-success" (click)="selectVote('alter_max_size', 'Maximum Pool Size')">Max
-          Size</button>
-        <button type="button" class="btn btn-secondary"
-          (click)="selectVote('alter_min_gov_grotto', 'Minimum GROTTO Required for Governor')">Min Grotto</button>
-        <button type="button" class="btn btn-info"
-          (click)="selectVote('alter_house_cut_shares', 'Minimum GROTTO Required for Governor')">Shares</button>
-
-        <!--TODO: Replace with BSC URL-->
-        <button type="button" class="btn btn-warning">
-          <a href="{{explorer}}/{{govContractAddress}}" target="_blank" rel="noopener noreferrer" data-toggle="tooltip"
-            data-placement="top" title="Smart Contract on Block Explorer">
-            <img src="assets/img/sc.png" style="width: 32px;">
-          </a>
-        </button>
-      </div>
+      <!--TODO: Replace with BSC URL-->
+      <button *ngIf="isAdmin" type="button" class="btn btn-warning">
+        <a href="{{explorer}}/{{govContractAddress}}" target="_blank" rel="noopener noreferrer" data-toggle="tooltip"
+          data-placement="top" title="Smart Contract on Block Explorer">
+          <img src="assets/img/sc.png" style="width: 32px;">
+        </a>
+      </button>
     </div>
 
     <div class="container">
@@ -329,199 +242,249 @@
       </div>
     </div>
 
-    <div class="container" *ngIf="voteType === 'add_new_governor'">
-      <div *ngIf="selectedVote.isInProgress">
-        <span class="font-weight-bold">Governors: </span>
-        <span *ngFor="let voter of selectedVote.currentValue">
-          {{voter}};
-        </span>
-        <p></p>
-        <br />
-        <div><span class="font-weight-bold">Voters: </span>
-          <span *ngFor="let voter of selectedVote.voters">
-            {{voter}};
-          </span>
+    <div class="container">
+      <div class="row">
+        <div class="col-sm-6">
+          <div class="card text-white bg-dark">
+            <div class="card-header">Add New Governor</div>
+            <div class="card-body">
+              <div *ngIf="addNewGovVote.isInProgress">
+                <span class="font-weight-bold">Governors: </span>
+                <span *ngFor="let voter of addNewGovVote.currentValue">
+                  {{voter}};
+                </span>
+                <p></p>
+                <br />
+                <div><span class="font-weight-bold">Voters: </span>
+                  <span *ngFor="let voter of addNewGovVote.voters">
+                    {{voter}};
+                  </span>
+                </div>
+                <div><span class="font-weight-bold">Yes Votes: </span>{{addNewGovVote.yesVotes}}
+                </div>
+                <div><span class="font-weight-bold">No Votes: </span>{{addNewGovVote.noVotes}}
+                </div>
+                <div><span class="font-weight-bold">Total Votes: </span>{{addNewGovVote.votes}}
+                </div>
+                <div><span class="font-weight-bold">Governor to Add: </span>{{addNewGovVote.proposedGovernor}}
+                </div>
+                <div class="btn-group" role="group" aria-label="Basic example">
+                  <button type="button" class="btn btn-success" data-dismiss="modal"
+                    (click)="vote(true, addNewGovVote)">Vote
+                    Yes</button>
+                  <button type="button" class="btn btn-danger" data-dismiss="modal"
+                    (click)="vote(false, addNewGovVote)">Vote
+                    No</button>
+                </div>
+              </div>
+
+
+              <div *ngIf="!addNewGovVote.isInProgress" class="container">
+                <div class="form-group">
+                  <span class="font-weight-bold">Governors: </span>
+                  <span *ngFor="let voter of addNewGovVote.currentValue">
+                    {{voter}};
+                  </span>
+                  <p></p>
+                  <br />
+                  <label for="poolSize">Propose New Governor</label>
+                  <input type="text " class="form-control" aria-describedby="sizeHelp" id="poolSize"
+                    placeholder="New Governor's Address" [(ngModel)]="proposedGov">
+                  <small id="sizeHelp" class="form-text text-muted">Propose a new governor that can vote</small>
+                </div>
+                <div class="btn-group" role="group" aria-label="Basic example">
+                  <button type="button" class="btn btn-primary" data-dismiss="modal"
+                    (click)="proposeNewGovernor()">Propose New
+                    Governor</button> |
+                  <button type="button" class="btn btn-danger" data-toggle="modal"
+                    data-target="#becomeGovernorModal">Become
+                    Governor</button>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
-        <div><span class="font-weight-bold">Yes Votes: </span>{{selectedVote.yesVotes}}
-        </div>
-        <div><span class="font-weight-bold">No Votes: </span>{{selectedVote.noVotes}}
-        </div>
-        <div><span class="font-weight-bold">Total Votes: </span>{{selectedVote.votes}}
-        </div>
-        <div><span class="font-weight-bold">Governor to Add: </span>{{selectedVote.proposedGovernor}}
-        </div>
-        <div class="btn-group" role="group" aria-label="Basic example">
-          <button type="button" class="btn btn-success" data-dismiss="modal" (click)="vote(true)">Vote Yes</button>
-          <button type="button" class="btn btn-danger" data-dismiss="modal" (click)="vote(false)">Vote No</button>
+
+        <div class="col-sm-6">
+          <div class="card text-white bg-dark">
+            <div class="card-header">Remove Governor</div>
+            <div class="card-body">
+              <div *ngIf="removeGovVote.isInProgress">
+                <span class="font-weight-bold">Governors: </span>
+                <span *ngFor="let voter of removeGovVote.currentValue">
+                  {{voter}};
+                </span>
+                <p></p>
+                <br />
+                <div><span class="font-weight-bold">Voters: </span>
+                  <span *ngFor="let voter of removeGovVote.voters">
+                    {{voter}};
+                  </span>
+                </div>
+                <div><span class="font-weight-bold">Yes Votes: </span>{{removeGovVote.yesVotes}}
+                </div>
+                <div><span class="font-weight-bold">No Votes: </span>{{removeGovVote.noVotes}}
+                </div>
+                <div><span class="font-weight-bold">Total Votes: </span>{{removeGovVote.votes}}
+                </div>
+                <div><span class="font-weight-bold">Governor to Remove: </span>{{removeGovVote.proposedGovernor}}
+                </div>
+                <div class="btn-group" role="group" aria-label="Basic example">
+                  <button type="button" class="btn btn-success" data-dismiss="modal"
+                    (click)="vote(true, removeGovVote)">Vote
+                    Yes</button>
+                  <button type="button" class="btn btn-danger" data-dismiss="modal"
+                    (click)="vote(false, removeGovVote)">Vote
+                    No</button>
+                </div>
+              </div>
+
+              <div *ngIf="!removeGovVote.isInProgress" class="container">
+                <div class="form-group">
+                  <span class="font-weight-bold">Governors: </span>
+                  <span *ngFor="let voter of removeGovVote.currentValue">
+                    {{voter}};
+                  </span>
+                  <p></p>
+                  <br />
+                  <label for="poolSize">Propose Remove Governor</label>
+                  <input type="text " class="form-control" aria-describedby="sizeHelp" id="poolSize"
+                    placeholder="Governor's Address" [(ngModel)]="proposedGov">
+                  <small id="sizeHelp" class="form-text text-muted">Propose removal of a governor</small>
+                </div>
+                <button type="button" class="btn btn-primary" data-dismiss="modal" (click)="removeGovernor()">Propose
+                  Remove
+                  Governor</button>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
-
-      <div *ngIf="!selectedVote.isInProgress" class="container">
-        <div class="form-group">
-          <span class="font-weight-bold">Governors: </span>
-          <span *ngFor="let voter of selectedVote.currentValue">
-            {{voter}};
-          </span>
-          <p></p>
-          <br />
-          <label for="poolSize">Propose New Governor</label>
-          <input type="text " class="form-control" aria-describedby="sizeHelp" id="poolSize"
-            placeholder="New Governor's Address" [(ngModel)]="proposedGov">
-          <small id="sizeHelp" class="form-text text-muted">Propose a new governor that can vote</small>
-        </div>
-        <div class="btn-group" role="group" aria-label="Basic example">
-          <button type="button" class="btn btn-primary" data-dismiss="modal" (click)="proposeNewGovernor()">Propose New
-            Governor</button> |
-          <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#becomeGovernorModal">Become
-            Governor</button>
-        </div>
-      </div>
-    </div>
-
-    <div class="container" *ngIf="voteType === 'remove_governor'">
-      <div *ngIf="selectedVote.isInProgress">
-        <span class="font-weight-bold">Governors: </span>
-        <span *ngFor="let voter of selectedVote.currentValue">
-          {{voter}};
-        </span>
-        <p></p>
-        <br />
-        <div><span class="font-weight-bold">Voters: </span>
-          <span *ngFor="let voter of selectedVote.voters">
-            {{voter}};
-          </span>
-        </div>
-        <div><span class="font-weight-bold">Yes Votes: </span>{{selectedVote.yesVotes}}
-        </div>
-        <div><span class="font-weight-bold">No Votes: </span>{{selectedVote.noVotes}}
-        </div>
-        <div><span class="font-weight-bold">Total Votes: </span>{{selectedVote.votes}}
-        </div>
-        <div><span class="font-weight-bold">Governor to Remove: </span>{{selectedVote.proposedGovernor}}
-        </div>
-        <div class="btn-group" role="group" aria-label="Basic example">
-          <button type="button" class="btn btn-success" data-dismiss="modal" (click)="vote(true)">Vote Yes</button>
-          <button type="button" class="btn btn-danger" data-dismiss="modal" (click)="vote(false)">Vote No</button>
+      <div class="row">
+        <div class="col-sm-12">
+          <hr />
         </div>
       </div>
 
-      <div *ngIf="!selectedVote.isInProgress" class="container">
-        <div class="form-group">
-          <span class="font-weight-bold">Governors: </span>
-          <span *ngFor="let voter of selectedVote.currentValue">
-            {{voter}};
-          </span>
-          <p></p>
-          <br />
-          <label for="poolSize">Propose Remove Governor</label>
-          <input type="text " class="form-control" aria-describedby="sizeHelp" id="poolSize"
-            placeholder="Governor's Address" [(ngModel)]="proposedGov">
-          <small id="sizeHelp" class="form-text text-muted">Propose removal of a governor</small>
-        </div>
-        <button type="button" class="btn btn-primary" data-dismiss="modal" (click)="removeGovernor()">Propose Remove
-          Governor</button>
-      </div>
-    </div>
+      <div class="row">
+        <div class="col-sm-6" *ngFor="let selectedVote of selectedVotes" style="padding-bottom: 1em;">
+          <div class="card text-white bg-dark">
+            <div class="card-header">{{selectedVote.title}}</div>
+            <div class="card-body">
+              <div *ngIf="selectedVote.isInProgress">
+                <label for="poolSize">Current Value: {{selectedVote.currentValue}}</label>
+                <p></p><br />
+                <div><span class="font-weight-bold">Voters: </span>
+                  <span *ngFor="let voter of selectedVote.voters">
+                    {{voter}};
+                  </span>
+                </div>
+                <div><span class="font-weight-bold">Yes Votes: </span>{{selectedVote.yesVotes}}
+                </div>
+                <div><span class="font-weight-bold">No Votes: </span>{{selectedVote.noVotes}}
+                </div>
+                <div><span class="font-weight-bold">Total Votes: </span>{{selectedVote.votes}}
+                </div>
+                <div><span class="font-weight-bold">Proposed New Value: </span>{{selectedVote.proposedValue}}
+                </div>
+                <div class="btn-group" role="group" aria-label="Basic example">
+                  <button type="button" class="btn btn-success" data-dismiss="modal"
+                    (click)="vote(true, selectedVote)">Vote Yes</button>
+                  <button type="button" class="btn btn-danger" data-dismiss="modal"
+                    (click)="vote(false, selectedVote)">Vote No</button>
+                </div>
+              </div>
 
-    <div class="container" *ngIf="voteType === 'alter_house_cut_shares'">
-      <div *ngIf="selectedVote.isInProgress">
-        <span class="font-weight-bold">Current Shares: </span>
-        <p></p><br />
-        <p>Platform's Share: {{selectedVote.currentValue.house}}%</p>
-        <p>Governors' Share: {{selectedVote.currentValue.govs}}%</p>
-        <p>Stakers' Share: {{selectedVote.currentValue.stakers}}%</p>
-        <p></p><br />
-        <div><span class="font-weight-bold">Voters: </span>
-          <span *ngFor="let voter of selectedVote.voters">
-            {{voter}};
-          </span>
+              <div *ngIf="!selectedVote.isInProgress" class="container">
+                <div class="form-group">
+                  <label for="poolSize">Current Value: {{selectedVote.currentValue}}</label>
+                  <p></p><br />
+                  <label for="poolSize">Propose New Value for {{selectedVote.title}}</label>
+                  <input type="number " class="form-control" aria-describedby="sizeHelp" id="poolSize"
+                    placeholder="New {{selectedVote.title}}" [(ngModel)]="proposedValue">
+                  <small id="sizeHelp" class="form-text text-muted">Propose New Value for {{selectedVote.title}}</small>
+                </div>
+                <button type="button" class="btn btn-primary" data-dismiss="modal"
+                  (click)="proposeNewValue(selectedVote.voteId, selectedVote.index)">Propose New
+                  Value</button>
+              </div>
+
+            </div>
+          </div>
         </div>
-        <div><span class="font-weight-bold">Yes Votes: </span>{{selectedVote.yesVotes}}
-        </div>
-        <div><span class="font-weight-bold">No Votes: </span>{{selectedVote.noVotes}}
-        </div>
-        <div><span class="font-weight-bold">Total Votes: </span>{{selectedVote.votes}}
-        </div>
-        <div>
-          <p></p>
-          <span class="font-weight-bold">Proposed Shares: </span>
-          <p></p>
-          <p>Platform's Share: {{selectedVote.proposedShares.house}}%</p>
-          <p>Governors' Share: {{selectedVote.proposedShares.govs}}%</p>
-          <p>Stakers' Share: {{selectedVote.proposedShares.stakers}}%</p>
-        </div>
-        <div class="btn-group" role="group" aria-label="Basic example">
-          <button type="button" class="btn btn-success" data-dismiss="modal" (click)="vote(true)">Vote Yes</button>
-          <button type="button" class="btn btn-danger" data-dismiss="modal" (click)="vote(false)">Vote No</button>
+        <div class="col-sm-6">
+          <div class="card text-white bg-dark">
+            <div class="card-header">Sharing Formula</div>
+            <div class="card-body">
+              <div *ngIf="sharingFormulaVote.isInProgress">
+                <span class="font-weight-bold">Current Sharing Formula: </span>
+                <p></p><br />
+                <p>Platform's Share: {{sharingFormulaVote.currentValue.house}}%</p>
+                <p>Governors' Share: {{sharingFormulaVote.currentValue.govs}}%</p>
+                <p>Stakers' Share: {{sharingFormulaVote.currentValue.stakers}}%</p>
+                <p></p><br />
+                <div><span class="font-weight-bold">Voters: </span>
+                  <span *ngFor="let voter of sharingFormulaVote.voters">
+                    {{voter}};
+                  </span>
+                </div>
+                <div><span class="font-weight-bold">Yes Votes: </span>{{sharingFormulaVote.yesVotes}}
+                </div>
+                <div><span class="font-weight-bold">No Votes: </span>{{sharingFormulaVote.noVotes}}
+                </div>
+                <div><span class="font-weight-bold">Total Votes: </span>{{sharingFormulaVote.votes}}
+                </div>
+                <div>
+                  <p></p>
+                  <span class="font-weight-bold">Proposed Shares: </span>
+                  <p></p>
+                  <p>Platform's Share: {{sharingFormulaVote.proposedShares.house}}%</p>
+                  <p>Governors' Share: {{sharingFormulaVote.proposedShares.govs}}%</p>
+                  <p>Stakers' Share: {{sharingFormulaVote.proposedShares.stakers}}%</p>
+                </div>
+                <div class="btn-group" role="group" aria-label="Basic example">
+                  <button type="button" class="btn btn-success" data-dismiss="modal"
+                    (click)="vote(true, sharingFormulaVote)">Vote
+                    Yes</button>
+                  <button type="button" class="btn btn-danger" data-dismiss="modal"
+                    (click)="vote(false, sharingFormulaVote)">Vote
+                    No</button>
+                </div>
+              </div>
+
+              <div *ngIf="!sharingFormulaVote.isInProgress" class="container">
+                <div class="form-group">
+                  <span class="font-weight-bold">Current Sharing Formula: </span>
+                  <p></p><br />
+                  <p>Platform's Share: {{sharingFormulaVote.currentValue.house}}%</p>
+                  <p>Governors' Share: {{sharingFormulaVote.currentValue.govs}}%</p>
+                  <p>Stakers' Share: {{sharingFormulaVote.currentValue.stakers}}%</p>
+                  <p></p>
+                  <br />
+                  <p>Propose New Sharing Formula</p>
+                  <label for="poolSize">Platform's Share</label>
+                  <input type="text " class="form-control" aria-describedby="sizeHelp" id="poolSize"
+                    placeholder="Platform's Share" [(ngModel)]="houseShare">
+                  <label for="poolSize">Governors' Share</label>
+                  <input type="text " class="form-control" aria-describedby="sizeHelp" id="poolSize"
+                    placeholder="Governor's Share" [(ngModel)]="govsShare">
+                  <label for="poolSize">Stakers' Share</label>
+                  <input type="text " class="form-control" aria-describedby="sizeHelp" id="poolSize"
+                    placeholder="Stakers' Share" [(ngModel)]="stakersShare">
+                </div>
+                <button type="button" class="btn btn-primary" data-dismiss="modal" (click)="proposeNewShares()">Propose
+                  New Sharing Formula</button>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
-      <div *ngIf="!selectedVote.isInProgress" class="container">
-        <div class="form-group">
-          <span class="font-weight-bold">Current Shares: </span>
-          <p></p><br />
-          <p>Platform's Share: {{selectedVote.currentValue.house}}%</p>
-          <p>Governors' Share: {{selectedVote.currentValue.govs}}%</p>
-          <p>Stakers' Share: {{selectedVote.currentValue.stakers}}%</p>
-          <p></p>
-          <br />
-          <p>Propose New Shares</p>
-          <label for="poolSize">Platform's Share</label>
-          <input type="text " class="form-control" aria-describedby="sizeHelp" id="poolSize"
-            placeholder="Platform's Share" [(ngModel)]="houseShare">
-          <label for="poolSize">Governors' Share</label>
-          <input type="text " class="form-control" aria-describedby="sizeHelp" id="poolSize"
-            placeholder="Governor's Share" [(ngModel)]="govsShare">
-          <label for="poolSize">Stakers' Share</label>
-          <input type="text " class="form-control" aria-describedby="sizeHelp" id="poolSize"
-            placeholder="Stakers' Share" [(ngModel)]="stakersShare">
-        </div>
-        <button type="button" class="btn btn-primary" data-dismiss="modal" (click)="proposeNewShares()">Propose new
-          shares</button>
-      </div>
-    </div>
-
-    <div class="container"
-      *ngIf="(voteType !== 'remove_governor' && voteType !== 'add_new_governor' && voteType !== 'alter_house_cut_shares')">
-      <div *ngIf="selectedVote.isInProgress">
-        <label for="poolSize">Current Value: {{selectedVote.currentValue}}</label>
-        <p></p><br />
-        <div><span class="font-weight-bold">Voters: </span>
-          <span *ngFor="let voter of selectedVote.voters">
-            {{voter}};
-          </span>
-        </div>
-        <div><span class="font-weight-bold">Yes Votes: </span>{{selectedVote.yesVotes}}
-        </div>
-        <div><span class="font-weight-bold">No Votes: </span>{{selectedVote.noVotes}}
-        </div>
-        <div><span class="font-weight-bold">Total Votes: </span>{{selectedVote.votes}}
-        </div>
-        <div><span class="font-weight-bold">Proposed New Value: </span>{{selectedVote.proposedValue}}
-        </div>
-        <div class="btn-group" role="group" aria-label="Basic example">
-          <button type="button" class="btn btn-success" data-dismiss="modal" (click)="vote(true)">Vote Yes</button>
-          <button type="button" class="btn btn-danger" data-dismiss="modal" (click)="vote(false)">Vote No</button>
-        </div>
-      </div>
-
-
-      <div *ngIf="!selectedVote.isInProgress" class="container">
-        <div class="form-group">
-          <label for="poolSize">Current Value: {{selectedVote.currentValue}}</label>
-          <p></p><br />
-          <label for="poolSize">Propose New Value for {{voteLabel}}</label>
-          <input type="number " class="form-control" aria-describedby="sizeHelp" id="poolSize"
-            placeholder="New {{voteLabel}}" [(ngModel)]="proposedValue">
-          <small id="sizeHelp" class="form-text text-muted">Propose New Value for {{voteLabel}}</small>
-        </div>
-        <button type="button" class="btn btn-primary" data-dismiss="modal" (click)="proposeNewValue()">Propose New
-          Value</button>
-      </div>
     </div>
   </main>
 
+  <!-- Main Grotto Section -->
   <main role="main" *ngIf="page === 'home'">
     <div class="container">
       <div class="alert alert-danger" role="alert" *ngIf="joinPoolFailure">
@@ -743,181 +706,11 @@
         </tbody>
       </table>
     </div>
-
-    <div class="modal fade" id="startNewPoolModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLongTitle2"
-      aria-hidden="true">
-      <div class="modal-dialog" role="document">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title" id="exampleModalLabel">Start New Pool</h5>
-            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-              <span aria-hidden="true">&times;</span>
-            </button>
-          </div>
-          <div class="modal-body">
-            <form [formGroup]="form">
-              <div class="form-group">
-                <label for="poolPrice">Pool Price (in USD)</label>
-                <input type="number" class="form-control" aria-describedby="priceHelp" id="poolPrice"
-                  placeholder="Pool Price" formControlName="newPoolPrice">
-                <small id="priceHelp" class="form-text text-muted">How much do you want each user to pool. Min:
-                  {{poolPrice | currency: 'USD'}}</small>
-                <small id="priceHelp2" class="form-text text-muted">Note: This amount worth of {{currency}} will be
-                  deducted from
-                  your wallet too.</small>
-              </div>
-              <div class="form-group">
-                <label for="poolSize">Pool Size</label>
-                <input type="number" class="form-control" aria-describedby="sizeHelp" id="poolSize"
-                  placeholder="Pool Size" formControlName="newPoolSize">
-                <small id="sizeHelp" class="form-text text-muted">How many users before winner is found and pool
-                  concluded?
-                  Min: {{poolMinSize}}, Max: {{poolMaxSize}}</small>
-                <small id="sizeHelp2" class="form-text text-muted">You will be rewarded with (price * size) GROTTO
-                  tokens
-                  when pool is concluded</small>
-              </div>
-              <div class="row">
-                <div class="col col-5"></div>
-                <div class="col col-4">
-                  <button type="button" class="btn btn-primary" data-dismiss="modal" (click)="startNewPool()">Start New
-                    Pool</button>
-                </div>
-                <div class="col col-2">
-                  <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                </div>
-                <div class="col col-1"></div>
-              </div>
-            </form>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div class="modal fade" id="joinPoolModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLongTitle2"
-      aria-hidden="true" *ngIf="selectedPool !== undefined">
-      <div class="modal-dialog" role="document">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title" id="exampleModalLabel">Place Bet</h5>
-            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-              <span aria-hidden="true">&times;</span>
-            </button>
-          </div>
-          <div class="modal-body">
-            <p><span class="font-weight-bold">ID: </span>{{selectedPool.poolId.substr(0,
-              10)}}...{{selectedPool.poolId.substr(56)}}</p>
-            <p><span class="font-weight-bold">Creator: </span>{{selectedPool.poolCreator}}</p>
-            <p><span class="font-weight-bold">Size: </span>{{selectedPool.poolSize}}</p>
-            <p><span class="font-weight-bold">Price: </span>{{selectedPool.poolPrice | currency: 'USD'}}</p>
-            <p><span class="font-weight-bold">Value: </span>{{selectedPool.poolPriceInEther}} {{currency}}</p>
-            <div class="row">
-              <div class="col col-6"></div>
-              <div class="col col-3">
-                <button type="button" class="btn btn-primary" data-dismiss="modal"
-                  (click)="joinPool(selectedPool)">Place
-                  Bet</button>
-              </div>
-              <div class="col col-2">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-              </div>
-              <div class="col col-1"></div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div class="modal fade" id="howItWorkdModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLongTitle"
-      aria-hidden="true">
-      <div class="modal-dialog modal-lg" role="document">
-        <div class="modal-content">
-          <div class="modal-header">
-            <img src="assets/img/logo.png" width="400" alt="Defi Grotto">
-            <!-- <h5 class="modal-title" id="exampleModalLabel">How does it work?</h5> -->
-            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-              <span aria-hidden="true">&times;</span>
-            </button>
-          </div>
-          <div class="modal-body">
-            Grotto is a lotto game on the Binance Smart Chain network. It allows anyone to host a lotto game and get
-            rewarded with Grotto tokens if a winner is found.
-            <p></p>
-            <h3>How to enter</h3>
-            <div *ngIf="mode==='demo'">
-              <h4>We are currently on the Sokol POA Testnet</h4>
-              <ul>
-                <li>Chain-ID: 77</li>
-                <li>RPC-Url: https://sokol.poa.network</li>
-                <li>Explorer: https://blockscout.com/poa/sokol</li>
-                <li>Faucet: https://faucet.poa.network/</li>
-                <li>Get Metamask wallet - <a href="https://metamask.io/">Install Metamask</a></li>
-                <li>Add Sokol POA to MetaMask: <a
-                    href="https://metamask.zendesk.com/hc/en-us/articles/360043227612-How-to-add-custom-Network-RPC-and-or-Block-Explorer">Add
-                    Sokol POA to Metamask</a></li>
-                <li>Click connect on this page</li>
-                <li>Select a pool and click place bet</li>
-                <li>Click confirm on Metamask dialog</li>
-                <li>If you win, your Metamask Account will be credited with your winnings</li>
-                <li>Finally add the GROTTO token (address: {{grottoTokenAddress}}, name: GROTTO) to
-                  Metamask - <a
-                    href="https://docs.yearn.finance/how-to-guides/how-to-add-a-custom-token-to-metamask">Add
-                    Token to Metamask</a></li>
-              </ul>
-            </div>
-            <div *ngIf="mode==='prod'">
-              <ul>
-                <li>Get Metamask wallet - <a href="https://metamask.io/">Install Metamask</a></li>
-                <li>Add Binance Smart Chain to Metamask - <a
-                    href="https://academy.binance.com/en/articles/connecting-metamask-to-binance-smart-chain">Setup
-                    BSC</a>
-                </li>
-                <li>Click connect on this page</li>
-                <li>Select a pool and click place bet</li>
-                <li>Click confirm on Metamask dialog</li>
-                <li>If you win, your Metamask Account will be credited with your winnings</li>
-                <li>Finally add the GROTTO token (address: {{grottoTokenAddress}}, name: GROTTO) to
-                  Metamask - <a
-                    href="https://docs.yearn.finance/how-to-guides/how-to-add-a-custom-token-to-metamask">Add
-                    Token to Metamask</a></li>
-              </ul>
-            </div>
-            <p></p>
-            <h3>How does it work?</h3><small>(Only if you're interested in the nitty gritty)</small>
-            <p></p>
-            <p>There are two types of pools in Grotto</p>
-            <h3>Main Pool</h3>
-            <p>This is the pool that anyone can join at any time.</p>
-            <p>The main pool is reset after a winner is found, the main pool has a size is currently {{mainPoolSize}}.
-            </p>
-            <p>This means a winner is found after {{mainPoolSize}} people had joined the pool. A new pool is started
-              immediately</p>
-            <p>The main pool has a fixed price of {{mainPoolPrice | currency: 'USD'}} to join.</p>
-            <p>Grotto is a winner takes all pool.</p>
-            <p>The platform takes {{houseCut}}% of winnings.</p>
-            <h3>User Defined Pools</h3>
-            <p>Anyone can start a pool at any time.</p>
-            <p>The user starting the pool (pool creator) sets the price and the size of the pool</p>
-            <p>Size: The number of people that can join the pool before a winner is found</p>
-            <p>Price: How much each user joining the pool needs to donate.</p>
-            <p>The pool creator gets rewarded with ((pool price * pool size) - {{houseCutNewTokens}}%) GROTTO tokens
-              once
-              a winner is found
-            </p>
-            <p>The {{houseCutNewTokens}}% goes to the platform</p>
-            <p>The Minimum price for a user defined pool is {{poolPrice | currency: 'USD'}}</p>
-            <p>The Minimum size for a user defined pool is {{poolMinSize}}</p>
-            <p>The Maximum size for a user defined pool is {{poolMaxSize}}</p>
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-          </div>
-        </div>
-      </div>
-    </div>
   </main>
 
 
+  <!-- Modal Dialogs Section -->
+  <!-- Me Modal Dialog -->
   <div class="modal fade" id="me" tabindex="-1" role="dialog" aria-labelledby="exampleModalLongTitle"
     aria-hidden="true">
     <div class="modal-dialog modal-sm" role="document">
@@ -950,6 +743,245 @@
               <img src="assets/img/gmail.png" style="width: 32px;">
               &nbsp;&nbsp;defigrotto@gmail.com</a>
           </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- How Staking Works Modal Dialog -->
+  <div class="modal fade" id="howItWorksStaking" tabindex="-1" role="dialog" aria-labelledby="exampleModalLongTitle"
+    aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <img src="assets/img/logo.png" width="400" alt="Defi Grotto">
+          <!-- <h5 class="modal-title" id="exampleModalLabel">How does it work?</h5> -->
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          Staking on Grotto is straight forward, you stake your GROTTO tokens and get {{currency}}.
+          <p></p>
+          <div>
+            <ul>
+              <li>Get GROTTO by creating a pool and when a winner is found, you're rewarded with GROTTO using this
+                formula: ((pool price * pool size) - {{houseCutNewTokens}}%)</li>
+              <li>Every time someone wins on GROTTO, a percentage of their winnings is set aside to be shared by the
+                Platform, Governors and Stakers</li>
+              <li>When the percentage set aside reaches 10 {{currency}}, Stakers rewards is calculated and stakers
+                will see a button on the staking tab to get their rewards.</li>
+              <li>You can stake as many times as possible, but once rewards are calculated, you need to collect your
+                rewards or withdraw your stake before you can stake again</li>
+            </ul>
+          </div>
+          <p></p>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- How To Become Governor Modal Dialog -->
+  <div class="modal fade" id="becomeGovernorModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLongTitle"
+    aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+
+          <h5 class="modal-title" id="exampleModalLabel">Become a Governor</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <h3>Method 1</h3>
+          <p>Send an email to <a href="">defigrotto@gmail.com</a> with your Ethereum Address. The Administrator will
+            check that you have enough GROTTO to become a governor and Send a Proposal to add you as a Governor.</p>
+          <h3>Method 2</h3>
+          <p>If you know anyone who is alrady a governor, you can contact them to Send a Proposal to add you as a
+            governor.</p>
+          <br />
+          <hr />
+          <p><b>Very Important to note: </b>You need to check the Min Grotto tab for the amount of Grotto Required to
+            become a governor. If you don't have up to this amount of tokens, you won't be able to be nominated or act
+            as a governor. Once a proposal is sent on your behalf, the other governors will need to vote and a
+            majority
+            of the governors must vote Yes before you can be added.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Start Pool Modal Dialog -->
+  <div class="modal fade" id="startNewPoolModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLongTitle2"
+    aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="exampleModalLabel">Start New Pool</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <form [formGroup]="form">
+            <div class="form-group">
+              <label for="poolPrice">Pool Price (in USD)</label>
+              <input type="number" class="form-control" aria-describedby="priceHelp" id="poolPrice"
+                placeholder="Pool Price" formControlName="newPoolPrice">
+              <small id="priceHelp" class="form-text text-muted">How much do you want each user to pool. Min:
+                {{poolPrice | currency: 'USD'}}</small>
+              <small id="priceHelp2" class="form-text text-muted">Note: This amount worth of {{currency}} will be
+                deducted from
+                your wallet too.</small>
+            </div>
+            <div class="form-group">
+              <label for="poolSize">Pool Size</label>
+              <input type="number" class="form-control" aria-describedby="sizeHelp" id="poolSize"
+                placeholder="Pool Size" formControlName="newPoolSize">
+              <small id="sizeHelp" class="form-text text-muted">How many users before winner is found and pool
+                concluded?
+                Min: {{poolMinSize}}, Max: {{poolMaxSize}}</small>
+              <small id="sizeHelp2" class="form-text text-muted">You will be rewarded with (price * size) GROTTO
+                tokens
+                when pool is concluded</small>
+            </div>
+            <div class="row">
+              <div class="col col-5"></div>
+              <div class="col col-4">
+                <button type="button" class="btn btn-primary" data-dismiss="modal" (click)="startNewPool()">Start New
+                  Pool</button>
+              </div>
+              <div class="col col-2">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+              </div>
+              <div class="col col-1"></div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Join Pool Modal Dialog -->
+  <div class="modal fade" id="joinPoolModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLongTitle2"
+    aria-hidden="true" *ngIf="selectedPool !== undefined">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="exampleModalLabel">Place Bet</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <p><span class="font-weight-bold">ID: </span>{{selectedPool.poolId.substr(0,
+            10)}}...{{selectedPool.poolId.substr(56)}}</p>
+          <p><span class="font-weight-bold">Creator: </span>{{selectedPool.poolCreator}}</p>
+          <p><span class="font-weight-bold">Size: </span>{{selectedPool.poolSize}}</p>
+          <p><span class="font-weight-bold">Price: </span>{{selectedPool.poolPrice | currency: 'USD'}}</p>
+          <p><span class="font-weight-bold">Value: </span>{{selectedPool.poolPriceInEther}} {{currency}}</p>
+          <div class="row">
+            <div class="col col-6"></div>
+            <div class="col col-3">
+              <button type="button" class="btn btn-primary" data-dismiss="modal" (click)="joinPool(selectedPool)">Place
+                Bet</button>
+            </div>
+            <div class="col col-2">
+              <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            </div>
+            <div class="col col-1"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- How it Works Modal Dialog -->
+  <div class="modal fade" id="howItWorkdModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLongTitle"
+    aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <img src="assets/img/logo.png" width="400" alt="Defi Grotto">
+          <!-- <h5 class="modal-title" id="exampleModalLabel">How does it work?</h5> -->
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          Grotto is a lotto game on the Binance Smart Chain network. It allows anyone to host a lotto game and get
+          rewarded with Grotto tokens if a winner is found.
+          <p></p>
+          <h3>How to enter</h3>
+          <div *ngIf="mode==='demo'">
+            <h4>We are currently on the Sokol POA Testnet</h4>
+            <ul>
+              <li>Chain-ID: 77</li>
+              <li>RPC-Url: https://sokol.poa.network</li>
+              <li>Explorer: https://blockscout.com/poa/sokol</li>
+              <li>Faucet: https://faucet.poa.network/</li>
+              <li>Get Metamask wallet - <a href="https://metamask.io/">Install Metamask</a></li>
+              <li>Add Sokol POA to MetaMask: <a
+                  href="https://metamask.zendesk.com/hc/en-us/articles/360043227612-How-to-add-custom-Network-RPC-and-or-Block-Explorer">Add
+                  Sokol POA to Metamask</a></li>
+              <li>Click connect on this page</li>
+              <li>Select a pool and click place bet</li>
+              <li>Click confirm on Metamask dialog</li>
+              <li>If you win, your Metamask Account will be credited with your winnings</li>
+              <li>Finally add the GROTTO token (address: {{grottoTokenAddress}}, name: GROTTO) to
+                Metamask - <a href="https://docs.yearn.finance/how-to-guides/how-to-add-a-custom-token-to-metamask">Add
+                  Token to Metamask</a></li>
+            </ul>
+          </div>
+          <div *ngIf="mode==='prod'">
+            <ul>
+              <li>Get Metamask wallet - <a href="https://metamask.io/">Install Metamask</a></li>
+              <li>Add Binance Smart Chain to Metamask - <a
+                  href="https://academy.binance.com/en/articles/connecting-metamask-to-binance-smart-chain">Setup
+                  BSC</a>
+              </li>
+              <li>Click connect on this page</li>
+              <li>Select a pool and click place bet</li>
+              <li>Click confirm on Metamask dialog</li>
+              <li>If you win, your Metamask Account will be credited with your winnings</li>
+              <li>Finally add the GROTTO token (address: {{grottoTokenAddress}}, name: GROTTO) to
+                Metamask - <a href="https://docs.yearn.finance/how-to-guides/how-to-add-a-custom-token-to-metamask">Add
+                  Token to Metamask</a></li>
+            </ul>
+          </div>
+          <p></p>
+          <h3>How does it work?</h3><small>(Only if you're interested in the nitty gritty)</small>
+          <p></p>
+          <p>There are two types of pools in Grotto</p>
+          <h3>Main Pool</h3>
+          <p>This is the pool that anyone can join at any time.</p>
+          <p>The main pool is reset after a winner is found, the main pool has a size is currently {{mainPoolSize}}.
+          </p>
+          <p>This means a winner is found after {{mainPoolSize}} people had joined the pool. A new pool is started
+            immediately</p>
+          <p>The main pool has a fixed price of {{mainPoolPrice | currency: 'USD'}} to join.</p>
+          <p>Grotto is a winner takes all pool.</p>
+          <p>The platform takes {{houseCut}}% of winnings.</p>
+          <h3>User Defined Pools</h3>
+          <p>Anyone can start a pool at any time.</p>
+          <p>The user starting the pool (pool creator) sets the price and the size of the pool</p>
+          <p>Size: The number of people that can join the pool before a winner is found</p>
+          <p>Price: How much each user joining the pool needs to donate.</p>
+          <p>The pool creator gets rewarded with ((pool price * pool size) - {{houseCutNewTokens}}%) GROTTO tokens
+            once
+            a winner is found
+          </p>
+          <p>The {{houseCutNewTokens}}% goes to the platform</p>
+          <p>The Minimum price for a user defined pool is {{poolPrice | currency: 'USD'}}</p>
+          <p>The Minimum size for a user defined pool is {{poolMinSize}}</p>
+          <p>The Maximum size for a user defined pool is {{poolMaxSize}}</p>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
         </div>
       </div>
     </div>

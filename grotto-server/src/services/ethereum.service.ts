@@ -351,6 +351,10 @@ export class EthereumService {
                         retVal = await this.governanceContract.getMinGrottoGovernor();
                         resolve(ethers.utils.formatEther(retVal));
                         break;
+                    case 'alter_min_value_shares':
+                        retVal = await this.governanceContract.getMinValueForSharesProcessing();
+                        resolve(ethers.utils.formatEther(retVal));
+                        break;
                     case 'alter_house_cut_shares':
                         retVal = await this.governanceContract.getHouseCutShares();
                         const result = {

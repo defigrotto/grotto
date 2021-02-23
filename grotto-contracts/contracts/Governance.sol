@@ -12,8 +12,8 @@ contract Governance is GovernanceInterface {
 
     StorageInterface store;
     
-    address private storeAddress = 0xC063Ef752F57d2868A7C44Cbc3681747d7a55775;
-    address private tokenAddress = 0xC21D3B14fa029BB4ed08C32646508A91126e1A70;
+    address private storeAddress = 0xE1161f1057E41fC1fDB4C99Ebb061FbEcc059012;
+    address private tokenAddress = 0xfA9e2Ee5E07EbB7AB05c95905dD4ad5017332292;
 
     GrottoTokenInterface grottoToken;
 
@@ -60,6 +60,10 @@ contract Governance is GovernanceInterface {
             });
     }
 
+    function getMinValueForSharesProcessing() public view returns (uint256) {
+        return store.getMinValueForSharesProcessing();
+    }
+
     function getGovernors() public view returns (address payable[] memory) {
         return store.getGovernors();
     }
@@ -102,13 +106,17 @@ contract Governance is GovernanceInterface {
 
     function proposeNewGovernor(address payable newGovernor) public  {
         address payable governor = msg.sender;
-        if (store.addressIsGovernor(governor)) {
+        if (!store.addressIsGovernor(governor)) {
             revert("Only a governor can do that");
         }
 
         if (store.addressIsGovernor(newGovernor)) {
             revert('Already a governor');
         }
+
+        if(store.getGovernors().length == 21) {
+            revert('There can not be more than 21 governors');
+        }        
 
         require(grottoToken.balanceOf(newGovernor) >= store.getMinGrottoGovernor(), 'New Governor does not have enough GROTTO');
 
@@ -133,6 +141,10 @@ contract Governance is GovernanceInterface {
 
         if (!store.addressIsGovernor(oldGovernor)) {
             revert("Not a governor");
+        }
+
+        if(store.getGovernors().length <= 11) {
+            revert('There must be at least 11 governors');
         }
 
         string memory voteId = Data.REMOVE_GOVERNOR_VOTE_ID;
@@ -282,13 +294,13 @@ contract Governance is GovernanceInterface {
                         keccak256(bytes(voteId)) ==
                         keccak256(bytes(Data.ADD_GOVERNOR_VOTE_ID))
                     ) {
-                        // add new governor 
+                        // add new governor                         
                         store.addGovernor(store.getProposedGovernor(voteId));
                         emit NEW_GOVERNOR_ADDED(store.getProposedGovernor(voteId));
                     } else if (
                         keccak256(bytes(voteId)) ==
                         keccak256(bytes(Data.REMOVE_GOVERNOR_VOTE_ID))
-                    ) {
+                    ) {                        
                         int256 intIndex = -1;
                         governors = store.getGovernors();
                         for (uint256 i = 0; i < governors.length; i++) {
@@ -367,6 +379,12 @@ contract Governance is GovernanceInterface {
                     ) {
                         store.setMinGrottoGovernor(store.getProposedValue(voteId) * Data.ONE_ETHER);
                         emit MIN_GROTTO_GOV_CHANGED(store.getProposedValue(voteId));
+                    } else if (
+                        keccak256(bytes(voteId)) ==
+                        keccak256(bytes(Data.ALTER_MIN_VALUE_SHARES))
+                    ) {
+                        store.setMinValueForSharesProcessing(store.getProposedValue(voteId) * Data.ONE_ETHER);
+                        emit MIN_VALUE_FOR_SHARES_CHANGED(store.getProposedValue(voteId));
                     } else if (
                         keccak256(bytes(voteId)) ==
                         keccak256(bytes(Data.ALTER_HOUSE_CUT_SHARES))

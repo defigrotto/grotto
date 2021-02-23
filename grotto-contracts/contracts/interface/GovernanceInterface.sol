@@ -10,6 +10,7 @@ interface GovernanceInterface {
     event MAIN_POOL_PRICE_CHANGED(uint256);
     event MAIN_POOL_SIZE_CHANGED(uint256);
     event HOUSE_CUT_CHANGED(uint256);
+    event MIN_VALUE_FOR_SHARES_CHANGED(uint256);
     event HOUSE_CUT_NEW_TOKENS_CHANGED(uint256);
     event MINIMUM_POOL_PRICE_CHANGED(uint256);
     event MINIMUM_POOL_SIZE_CHANGED(uint256);
@@ -19,12 +20,4 @@ interface GovernanceInterface {
     event NO_CONSENSUS(string);
     event VOTE_CASTED(address, string);
     event NEW_PROPOSAL(string);
-
-    // function votingDetails(string memory) external view returns (Data.Vote memory);
-    // function isGovernor(address) external view returns (bool);
-    // function proposeNewGovernor(address) external;
-    // function proposeRemoveGovernor(address) external;
-    // function proposeNewValue(uint256, string calldata) external;
-    // function proposeNewShares(uint256, uint256, uint256) external;
-    // function vote(string calldata voteId, bool yesVote) external;
 }

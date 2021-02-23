@@ -5,7 +5,7 @@ import "./interface/GrottoTokenInterface.sol";
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 
 contract GrottoToken is GrottoTokenInterface, ERC20("Grotto", "GROTTO") {
-    address private grotto = 0x3c6f72211cd1ec4e397C27C0CDfAe0152316b96D;
+    address private grotto = 0xfFBcEa756d44390c73124eD8De0408C2CF2f0706;
     
     constructor() {
     }    

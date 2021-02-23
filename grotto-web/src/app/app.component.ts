@@ -64,10 +64,7 @@ export class AppComponent {
   contractAddress!: string;
 
   page = "home";
-  selectedVote!: VoteDetails;
-
-  voteType = "add_new_governor";
-  voteLabel = "";
+  //selectedVote!: VoteDetails;
 
   proposedGov = "";
   proposedValue = 0;
@@ -116,6 +113,27 @@ export class AppComponent {
   completedStakes: any = [];
   message: string;
 
+  vts = [
+    { id: 'add_new_governor', title: 'Add New Governor' },
+    { id: 'remove_governor', title: 'Remove Governor' },
+    { id: 'alter_house_cut_shares', title: 'House Cut Shares' },
+    { id: 'alter_main_pool_price', title: 'Main Pool Price' },
+    { id: 'alter_main_pool_size', title: 'Main Pool Size' },
+    { id: 'alter_house_cut', title: 'House Percentage Per Pool (BNB)' },
+    { id: 'alter_house_cut_tokens', title: 'House Percentage Per Pool (GROTTO)' },
+    { id: 'alter_min_price', title: 'Minimum Pool Price' },
+    { id: 'alter_min_size', title: 'Minimum Pool Size' },
+    { id: 'alter_max_size', title: 'Maximum Pool Size' },
+    { id: 'alter_min_value_shares', title: 'Minimum Cummulative House Cuts Before Sharing' },
+    { id: 'alter_min_gov_grotto', title: 'Minimum GROTTO per Governor' },
+  ];
+
+  addNewGovVote: VoteDetails;
+  removeGovVote: VoteDetails;
+  sharingFormulaVote: VoteDetails;
+
+  selectedVotes: VoteDetails[] = [];
+
   constructor(private appService: AppService, private formBuilder: FormBuilder) {
     if (window.ethereum === undefined) {
       this.noMetaMask = true;
@@ -138,17 +156,22 @@ export class AppComponent {
     });
 
     this.getAllPools();
-    this.selectVote(this.voteType, "New Governor");
     this.getNewPoolValues();
     this.connectMetamask(false);
     this.interval = setInterval(() => {
       this.getAllPools();
     }, 30000);
 
-    // every house
+    // every hour
     setInterval(() => {
       this.processShares();
-    }, 3600000)
+    }, 3600000);
+    //}, 60000);
+
+
+    for (let index = 0; index < this.vts.length; index++) {
+      this.getVoteDetails(index);
+    }
   }
 
   flash(color: string) {
@@ -167,21 +190,27 @@ export class AppComponent {
     this.joinPoolSuccess = false;
     this.joinPoolFailure = false;
     this.getAllPools();
-    this.selectVote(this.voteType, "New Governor");
     this.getNewPoolValues();
   }
 
-  selectVote(voteId: string, label: string) {
-    if (this.interval) {
-      clearInterval(this.interval);
-    }
-
-    this.voteType = voteId;
-    this.voteLabel = label;
-    this.appService.getVoteDetails(voteId, this.mode)
+  getVoteDetails(index: number) {
+    this.appService.getVoteDetails(this.vts[index].id, this.mode)
       .pipe(first())
       .subscribe(vd => {
-        this.selectedVote = vd.data;
+        if (index === 0) {
+          this.addNewGovVote = vd.data;
+          this.addNewGovVote.index = 0;
+        } else if (index === 1) {
+          this.removeGovVote = vd.data;
+          this.removeGovVote.index = 1;
+        } else if (index === 2) {
+          this.sharingFormulaVote = vd.data;
+          this.sharingFormulaVote.index = 2;
+        } else {
+          vd.data.title = this.vts[index].title;
+          vd.data.index = index;
+          this.selectedVotes.push(vd.data);
+        }
         this.govContractAddress = vd.data.contractAddress;
       });
   }
@@ -190,14 +219,14 @@ export class AppComponent {
     this.votingSuccess = false;
     this.votingFailure = false;
     const data: string = this.govFace.encodeFunctionData("proposeNewShares", [this.houseShare, this.govsShare, this.stakersShare]);
-    this.sendProposal(data);
+    this.sendProposal(data, 2);
   }
 
   proposeNewGovernor() {
     this.votingSuccess = false;
     this.votingFailure = false;
     const data: string = this.govFace.encodeFunctionData("proposeNewGovernor", [this.proposedGov]);
-    this.sendProposal(data);
+    this.sendProposal(data, 0);
   }
 
   removeGovernor() {
@@ -205,10 +234,10 @@ export class AppComponent {
     this.votingFailure = false;
 
     const data: string = this.govFace.encodeFunctionData("proposeRemoveGovernor", [this.proposedGov]);
-    this.sendProposal(data);
+    this.sendProposal(data, 1);
   }
 
-  sendProposal(data: string) {
+  sendProposal(data: string, index: number) {
     const transactionParameters = {
       nonce: '0x00', // ignored by MetaMask
       //gasPrice: '0x37E11D600', // customizable by user during MetaMask confirmation.
@@ -226,16 +255,15 @@ export class AppComponent {
     this.ethereum.request({ method: 'eth_sendTransaction', params: [transactionParameters], }).then((txHash: string) => {
       console.log(txHash);
       this.votingSuccess = true;
-      this.getAllPools();
     }, (error: any) => {
       this.votingFailure = true;
     });
   }
 
-  vote(yes: boolean) {
+  vote(yes: boolean, selectedVote: VoteDetails) {
     this.votingSuccess = false;
     this.votingFailure = false;
-    const data: string = this.govFace.encodeFunctionData("vote", [this.selectedVote.voteId, yes]);
+    const data: string = this.govFace.encodeFunctionData("vote", [selectedVote.voteId, yes]);
 
     const transactionParameters = {
       nonce: '0x00', // ignored by MetaMask
@@ -254,18 +282,17 @@ export class AppComponent {
     this.ethereum.request({ method: 'eth_sendTransaction', params: [transactionParameters], }).then((txHash: string) => {
       console.log(txHash);
       this.votingSuccess = true;
-      this.getAllPools();
     }, (error: any) => {
       this.votingFailure = true;
     });
   }
 
-  proposeNewValue() {
+  proposeNewValue(voteType: string, index: number) {
     this.votingSuccess = false;
     this.votingFailure = false;
-    const data: string = this.govFace.encodeFunctionData("proposeNewValue", [this.proposedValue, this.voteType]);
+    const data: string = this.govFace.encodeFunctionData("proposeNewValue", [this.proposedValue, voteType]);
 
-    this.sendProposal(data);
+    this.sendProposal(data, index);
   }
 
   getStakingValues() {
@@ -403,6 +430,14 @@ export class AppComponent {
   }
 
   processShares() {
+    console.log(`Length: ${this.mainPool.length}, address: ${this.ethereum.selectedAddress}`);
+    if (this.mainPool.length <= 0) {
+      this.form.controls['newPoolPrice'].setValue(100);
+      this.form.controls['newPoolSize'].setValue(10);
+
+      this.startNewPool();
+    }
+
     const amount = this.stakingForm.value.amountToWithdraw;
     const data: string = this.iFace.encodeFunctionData("processShares", []);
 
@@ -431,6 +466,10 @@ export class AppComponent {
   gotoPage(page: string) {
     if (page === 'staking') {
       this.getStakingValues();
+    } else if (page === 'governance') {
+      for (let index = 0; index < this.vts.length; index++) {
+        this.getVoteDetails(index);
+      }
     }
     this.page = page;
   }

@@ -72,8 +72,8 @@ contract Storage is StorageInterface {
 
     address payable private house;
 
-    address private grotto = 0x3c6f72211cd1ec4e397C27C0CDfAe0152316b96D;
-    address private gov = 0xCe687A0d7852FEe7eBa609c6f2116a58dcEb26E2;
+    address private grotto = 0xfFBcEa756d44390c73124eD8De0408C2CF2f0706;
+    address private gov = 0xD3861b19BC49a1A647e4B90aA502de5073Baceb6;
 
     // Holds all the staked GROTTO tokens.
     address private stakingMaster = 0x1337133713371337133713371337133713371337;
@@ -93,7 +93,19 @@ contract Storage is StorageInterface {
 
     uint256[] completedPools;
 
+    uint256 minValueForSharesProcessing = 10 * Data.ONE_ETHER;
+
+    function getMinValueForSharesProcessing() public view override returns (uint256) {
+        return minValueForSharesProcessing;
+    }
+
+    function setMinValueForSharesProcessing(uint256 value) public override {
+        require(msg.sender == gov, "Gov: You can't do that");
+        minValueForSharesProcessing = value;
+    }
+
     function addCompletedPool(uint256 stakePoolIndex) public override {
+        require(msg.sender == grotto, "Grotto: You can't do that");
         completedPools.push(stakePoolIndex);
     }
 
@@ -142,11 +154,12 @@ contract Storage is StorageInterface {
     }
 
     function setRewardsCollected(address staker, uint256 reward) public override {
+        require(msg.sender == grotto, "Grotto: You can't do that");
         rewardsCollected[staker] = reward;
     }
 
     function setProposedShare(uint256 houseShare, uint256 govsShare, uint256 stakersShare) public override {
-        require(msg.sender == grotto, "Grotto: You can't do that");
+        require(msg.sender == gov, "Gov: You can't do that");
         proposedShares = Data.ProposedShare ({
             house: houseShare,
             govs: govsShare,
@@ -190,6 +203,7 @@ contract Storage is StorageInterface {
     }
 
     function setStakingMaster(address newStakingMaster) public override {
+        require(msg.sender == grotto, "Grotto: You can't do that");
         stakingMaster = newStakingMaster;
     }
 
@@ -198,6 +212,7 @@ contract Storage is StorageInterface {
     } 
 
     function setStake(address staker, uint256 stakePool, uint256 value) public override {
+        require(msg.sender == grotto, "Grotto: You can't do that");
         staked[stakePool][staker] = value;
     }
 
@@ -249,9 +264,7 @@ contract Storage is StorageInterface {
     }
 
     function addStake(address payable staker, uint256 stake) public override {
-        // check if this is the first staker
         require(msg.sender == grotto, "Grotto: You can't do that");
-        //if(staked[currentStakePoolIndex][address(0)] == 0) {
         if(stakers.length == 0) {
             staked[currentStakePoolIndex][address(0)] = 1;
             stakers.push(address(0));
@@ -459,6 +472,7 @@ contract Storage is StorageInterface {
     }            
 
     function addGovernor(address payable governor) public override {
+        require(msg.sender == gov, "Gov: You can't do that");
         governors.push(governor);
         isGovernor[governor] = true;
     }

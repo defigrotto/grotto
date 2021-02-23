@@ -12,6 +12,7 @@ library Data {
     string public constant ALTER_MIN_PRICE = "alter_min_price";
     string public constant ALTER_MIN_SIZE = "alter_min_size";
     string public constant ALTER_MAX_SIZE = "alter_max_size";
+    string public constant ALTER_MIN_VALUE_SHARES = "alter_min_value_shares";
     string public constant ALTER_MIN_GOV_GROTTO = "alter_min_gov_grotto";
     string public constant ALTER_HOUSE_CUT_SHARES = "alter_house_cut_shares";
     

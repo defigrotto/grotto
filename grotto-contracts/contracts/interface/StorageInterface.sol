@@ -177,4 +177,8 @@ interface StorageInterface {
     function addCompletedPool(uint256) external;
 
     function getCompletedPools() external view returns(uint256[] memory);
+
+    function getMinValueForSharesProcessing() external view returns (uint256);
+
+    function setMinValueForSharesProcessing(uint256 value) external;
 }
