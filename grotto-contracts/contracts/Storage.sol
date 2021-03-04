@@ -26,39 +26,39 @@ contract Storage is StorageInterface {
     address payable[] governors;
 
     // Stake price for the main pool. $100
-    //uint256 private MAIN_POOL_PRICE = 100 * ONE_ETHER;
-    uint256 private MAIN_POOL_PRICE = 100 * Data.ONE_ETHER;
+    //uint256 private mainPoolPrice = 100 * ONE_ETHER;
+    uint256 private mainPoolPrice = 100 * Data.ONE_ETHER;
 
     // Number of accounts before winner is calculated. = 100
-    uint256 private MAIN_POOL_SIZE = 100;
+    uint256 private mainPoolSize = 100;
 
     // percentage of winning that goes to house/governors/stakers. 10%
-    uint256 private HOUSE_CUT = 10;
+    uint256 private houseCut = 10;
 
-    uint256 private GOVS_SHARE = 30;
-    uint256 private HOUSE_SHARE = 10;
-    uint256 private STAKERS_SHARE = 60;
+    uint256 private governorsShare = 30;
+    uint256 private houseShare = 10;
+    uint256 private stakersShare = 60;
 
     // how many % of new tokens go to house. 10%
-    uint256 private HOUSE_CUT_NEW_TOKEN = 10;
+    uint256 private houseCutNewToken = 10;
 
-    // Minimum price for user defined pools
-    uint256 private MINIMUM_POOL_PRICE = 10 * Data.ONE_ETHER;
+    // Minimum price for user defined poolss
+    uint256 private minimumPoolPrice = 10 * Data.ONE_ETHER;
 
     // Minimum size for user defined pools
-    uint256 private MINIMUM_POOL_SIZE = 10;
+    uint256 private minimumPoolSize = 10;
 
     // Maximum size for user defined pools
-    uint256 private MAXIMUM_POOL_SIZE = 100;
+    uint256 private maximumPoolSize = 100;
 
     /*
         When user defines a pool, they pay the POOL PRICE in exchange for GROTTO tokens
         These payments should be sent to house
     */ 
-    uint256 private PENDING_GROTTO_MINTING_PAYMENTS = 0;
+    uint256 private pendingGrottoMintingPayments = 0;
 
     // How much GROTTO is needed to be a governor
-    uint256 private MINIMUM_GROTTO_GOVERNOR = 100000 * Data.ONE_ETHER;
+    uint256 private minimumGrottoPerGovernor = 100000 * Data.ONE_ETHER;
 
     Data.Pool[] private poolDetails;
 
@@ -168,7 +168,7 @@ contract Storage is StorageInterface {
     }
 
     function getHouseCutShares() public override view returns (uint256, uint256, uint256) {
-        return (HOUSE_SHARE, GOVS_SHARE, STAKERS_SHARE);
+        return (houseShare, governorsShare, stakersShare);
     }
 
     function getProposedShare() public override view returns (uint256, uint256, uint256) {        
@@ -176,30 +176,30 @@ contract Storage is StorageInterface {
     }
 
     function getGovernorsShare() public override view returns (uint256) {
-        return GOVS_SHARE;
+        return governorsShare;
     }
 
     function getStakersShare() public override view returns (uint256) {
-        return STAKERS_SHARE;
+        return stakersShare;
     }
  
     function getHouseShare() public override view returns (uint256) {
-        return HOUSE_SHARE;
+        return houseShare;
     }
 
     function setHouseShare(uint256 share) public override {
         require(msg.sender == grotto, "Grotto: You can't do that");
-        HOUSE_SHARE = share;
+        houseShare = share;
     }
 
     function setStakersShare(uint256 share) public override {
         require(msg.sender == grotto, "Grotto: You can't do that");
-        STAKERS_SHARE = share;
+        stakersShare = share;
     }
 
     function setGovernorsShare(uint256 share) public override {
         require(msg.sender == grotto, "Grotto: You can't do that");
-        GOVS_SHARE = share;
+        governorsShare = share;
     }
 
     function setStakingMaster(address newStakingMaster) public override {
@@ -334,12 +334,12 @@ contract Storage is StorageInterface {
     }
 
     function getPendingGrottoMintingPayments() public view override returns (uint256) {
-        return PENDING_GROTTO_MINTING_PAYMENTS;
+        return pendingGrottoMintingPayments;
     }    
 
     function setPendingGrottoMintingPayments(uint256 mpi) public override {
         require(msg.sender == grotto, "Grotto: You can't do that");
-        PENDING_GROTTO_MINTING_PAYMENTS = mpi;
+        pendingGrottoMintingPayments = mpi;
     }    
 
     function setVoted(string memory voteId, address governor, bool vt) public override {
@@ -395,61 +395,61 @@ contract Storage is StorageInterface {
     }
 
     function getMainPoolPrice() public view override returns (uint256) {
-        return MAIN_POOL_PRICE;
+        return mainPoolPrice;
     }
 
     function setMainPoolPrice(uint256 mmp) public override {
         require(msg.sender == gov, "Gov: You can't do that");
-        MAIN_POOL_PRICE = mmp;
+        mainPoolPrice = mmp;
     }
 
     function getMainPoolSize() public view override returns (uint256) {
-        return MAIN_POOL_SIZE;
+        return mainPoolSize;
     }
 
     function setMainPoolSize(uint256 mmp) public override {
         require(msg.sender == gov, "Gov: You can't do that");
-        MAIN_POOL_SIZE = mmp;
+        mainPoolSize = mmp;
     }    
 
     function getHouseCut() public view override returns (uint256) {
-        return HOUSE_CUT;
+        return houseCut;
     }
  
     function setHouseCut(uint256 mmp) public override {
         require(msg.sender == gov, "Gov: You can't do that");
-        HOUSE_CUT = mmp;
+        houseCut = mmp;
     }    
 
     function getHouseCutNewTokens() public view override returns (uint256) {
-        return HOUSE_CUT_NEW_TOKEN;
+        return houseCutNewToken;
     }
 
     function setHouseCutNewTokens(uint256 mmp) public override {
         require(msg.sender == gov, "Gov: You can't do that");
-        HOUSE_CUT_NEW_TOKEN = mmp;
+        houseCutNewToken = mmp;
     }        
 
     function getMinimumPoolPrice() public view override returns (uint256) {
-        return MINIMUM_POOL_PRICE;
+        return minimumPoolPrice;
     }
 
     function setMinimumPoolPrice(uint256 mmp) public override {
         require(msg.sender == gov, "Gov: You can't do that");
-        MINIMUM_POOL_PRICE = mmp;
+        minimumPoolPrice = mmp;
     }        
 
     function getMinimumPoolSize() public view override returns (uint256) {
-        return MINIMUM_POOL_SIZE;
+        return minimumPoolSize;
     }
 
     function setMinimumPoolSize(uint256 mmp) public override {
         require(msg.sender == gov, "Gov: You can't do that");
-        MINIMUM_POOL_SIZE = mmp;
+        minimumPoolSize = mmp;
     }            
 
     function getMaximumPoolSize() public view override returns (uint256) {
-        return MAXIMUM_POOL_SIZE;
+        return maximumPoolSize;
     }
 
     function getGovernors() public override view returns (address payable[] memory) {
@@ -458,17 +458,17 @@ contract Storage is StorageInterface {
 
 
     function getMinGrottoGovernor() public view override returns (uint256) {
-        return MINIMUM_GROTTO_GOVERNOR;
+        return minimumGrottoPerGovernor;
     }
 
     function setMinGrottoGovernor(uint256 mmp) public override {
         require(msg.sender == gov, "Gov: You can't do that");
-        MINIMUM_GROTTO_GOVERNOR = mmp;
+        minimumGrottoPerGovernor = mmp;
     }            
 
     function setMaximumPoolSize(uint256 mmp) public override {
         require(msg.sender == gov, "Gov: You can't do that");
-        MAXIMUM_POOL_SIZE = mmp;
+        maximumPoolSize = mmp;
     }            
 
     function addGovernor(address payable governor) public override {

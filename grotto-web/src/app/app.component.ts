@@ -113,19 +113,21 @@ export class AppComponent {
   completedStakes: any = [];
   message: string;
 
-  vts = [
-    { id: 'add_new_governor', title: 'Add New Governor' },
-    { id: 'remove_governor', title: 'Remove Governor' },
-    { id: 'alter_house_cut_shares', title: 'House Cut Shares' },
-    { id: 'alter_main_pool_price', title: 'Main Pool Price' },
-    { id: 'alter_main_pool_size', title: 'Main Pool Size' },
-    { id: 'alter_house_cut', title: 'House Percentage Per Pool (BNB)' },
-    { id: 'alter_house_cut_tokens', title: 'House Percentage Per Pool (GROTTO)' },
-    { id: 'alter_min_price', title: 'Minimum Pool Price' },
-    { id: 'alter_min_size', title: 'Minimum Pool Size' },
-    { id: 'alter_max_size', title: 'Maximum Pool Size' },
-    { id: 'alter_min_value_shares', title: 'Minimum Cummulative House Cuts Before Sharing' },
-    { id: 'alter_min_gov_grotto', title: 'Minimum GROTTO per Governor' },
+  vts: any[] = [
+    { id: 'add_new_governor', title: 'Add New Governor', index: 0, showInList: false },
+    { id: 'remove_governor', title: 'Remove Governor', index: 0, showInList: false },
+    { id: 'alter_house_cut_shares', title: 'House Cut Shares', index: 0, showInList: false },
+    // below place holder so that page is nicely displayed without holes
+    { id: 'alter_house_cut_shares', title: 'House Cut Shares', index: 0, showInList: false },
+    { id: 'alter_main_pool_price', title: 'Main Pool Price', index: 0 },
+    { id: 'alter_main_pool_size', title: 'Main Pool Size', index: 0 },
+    { id: 'alter_house_cut', title: 'House Percentage Per Pool (BNB)', index: 0 },
+    { id: 'alter_house_cut_tokens', title: 'House Percentage Per Pool (GROTTO)', index: 0 },
+    { id: 'alter_min_price', title: 'Minimum Pool Price', index: 0 },
+    { id: 'alter_min_size', title: 'Minimum Pool Size', index: 0 },
+    { id: 'alter_max_size', title: 'Maximum Pool Size', index: 0 },
+    { id: 'alter_min_value_shares', title: 'Minimum Cummulative House Cuts Before Sharing', index: 0 },
+    { id: 'alter_min_gov_grotto', title: 'Minimum GROTTO per Governor', index: 0 },
   ];
 
   addNewGovVote: VoteDetails;
@@ -209,6 +211,16 @@ export class AppComponent {
         } else {
           vd.data.title = this.vts[index].title;
           vd.data.index = index;
+          this.vts[index].index = index;    
+          this.vts[index].currentValue = vd.data.currentValue;      
+          this.vts[index].voters = vd.data.voters;
+          this.vts[index].yesVotes = vd.data.yesVotes;
+          this.vts[index].noVotes = vd.data.noVotes;
+          this.vts[index].votes = vd.data.votes;
+          this.vts[index].proposedValue = vd.data.proposedValue;
+          this.vts[index].isInProgress = vd.data.isInProgress;
+          this.vts[index].currentValue = vd.data.currentValue;
+          this.vts[index].voteId = vd.data.voteId;
           this.selectedVotes.push(vd.data);
         }
         this.govContractAddress = vd.data.contractAddress;
@@ -467,6 +479,7 @@ export class AppComponent {
     if (page === 'staking') {
       this.getStakingValues();
     } else if (page === 'governance') {
+      this.selectedVotes = [];
       for (let index = 0; index < this.vts.length; index++) {
         this.getVoteDetails(index);
       }

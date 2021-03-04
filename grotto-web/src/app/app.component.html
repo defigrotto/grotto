@@ -209,20 +209,22 @@
 
   <!-- Governance Section -->
   <main role="main" *ngIf="page === 'governance'">
-    <div class="btn-toolbar container" role="toolbar" aria-label="Voting" style="padding-bottom: 100px;">
-      <button *ngIf="isAdmin" type="button" class="btn btn-dark" (click)="updateGrotto()">Update Grotto</button>
-      <button *ngIf="isAdmin" type="button" class="btn btn-primary" (click)="updateGov()">Update Gov</button>
-
-      <!--TODO: Replace with BSC URL-->
-      <button *ngIf="isAdmin" type="button" class="btn btn-warning">
-        <a href="{{explorer}}/{{govContractAddress}}" target="_blank" rel="noopener noreferrer" data-toggle="tooltip"
-          data-placement="top" title="Smart Contract on Block Explorer">
-          <img src="assets/img/sc.png" style="width: 32px;">
-        </a>
-      </button>
-    </div>
-
     <div class="container">
+      <div class="d-flex">
+        <div class="mr-auto p-2">
+          <h3>Governance</h3>
+        </div>
+        <div class="p-2">
+          <a href="{{explorer}}/{{govContractAddress}}" target="_blank" rel="noopener noreferrer" data-toggle="tooltip"
+            data-placement="top" title="Smart Contract on Block Explorer">
+            <img src="assets/img/sc.png" style="width: 32px;">
+          </a>
+          |
+          <a href="#" (click)="gotoPage('governance')">
+            <img src="assets/img/reload.png" style="width: 32px;">
+          </a>
+        </div>
+      </div>
       <div class="alert alert-danger" role="alert" *ngIf="votingFailure">
         <button type="button" class="close" data-dismiss="alert" aria-label="Close">
           <span aria-hidden="true">&times;</span>
@@ -368,8 +370,8 @@
       </div>
 
       <div class="row">
-        <div class="col-sm-6" *ngFor="let selectedVote of selectedVotes" style="padding-bottom: 1em;">
-          <div class="card text-white bg-dark">
+        <div class="col-sm-6" *ngFor="let selectedVote of vts" style="padding-bottom: 1em;">
+          <div class="card text-white bg-dark" *ngIf="selectedVote.showInList !== false">
             <div class="card-header">{{selectedVote.title}}</div>
             <div class="card-body">
               <div *ngIf="selectedVote.isInProgress">
@@ -481,6 +483,10 @@
         </div>
       </div>
 
+    </div>
+    <div class="btn-toolbar container" role="toolbar" aria-label="Voting" style="padding-bottom: 100px;">
+      <button *ngIf="isAdmin" type="button" class="btn btn-dark" (click)="updateGrotto()">Update Grotto</button>
+      <button *ngIf="isAdmin" type="button" class="btn btn-primary" (click)="updateGov()">Update Gov</button>
     </div>
   </main>
 
