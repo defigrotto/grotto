@@ -47,6 +47,11 @@ export class EthereumService {
         this.grottoAbi = JSON.parse(fs.readFileSync(path.resolve('src/abis/grotto.abi.json'), 'utf8')).abi;
         this.governanceAbi = JSON.parse(fs.readFileSync(path.resolve('src/abis/governance.abi.json'), 'utf8')).abi;
         this.init('test');
+
+        // every house
+        setInterval(() => {
+            this.processShares();
+        }, 3600000);
     }
 
     init(mode: string) {
@@ -63,10 +68,12 @@ export class EthereumService {
 
 
     async processShares() {
-        let privateKey = process.env.HOUSE_PRIVATE_KEY;
-        let wallet = new ethers.Wallet(privateKey, this.provider);
-        let contractWithSigner = this.grottoContract.connect(wallet);
-        let tx = await contractWithSigner.processShares();
+        // TODO: Change to prod
+        this.init('demo');
+        // let privateKey = process.env.HOUSE_PRIVATE_KEY;
+        // let wallet = new ethers.Wallet(privateKey, this.provider);
+        // let contractWithSigner = this.grottoContract.connect(wallet);
+        let tx = await this.grottoContract.processShares();
         console.log(`Processing Shares: ${tx.hash}`);
         await tx.wait();
         return;
