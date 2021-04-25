@@ -158,12 +158,12 @@ contract Storage is StorageInterface {
         rewardsCollected[staker] = reward;
     }
 
-    function setProposedShare(uint256 houseShare, uint256 govsShare, uint256 stakersShare) public override {
+    function setProposedShare(uint256 _houseShare, uint256 _govsShare, uint256 _stakersShare) public override {
         require(msg.sender == gov, "Gov: You can't do that");
         proposedShares = Data.ProposedShare ({
-            house: houseShare,
-            govs: govsShare,
-            stakers: stakersShare
+            house: _houseShare,
+            govs: _govsShare,
+            stakers: _stakersShare
         });
     }
 
