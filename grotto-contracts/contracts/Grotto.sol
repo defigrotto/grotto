@@ -1,5 +1,5 @@
 /// SPDX-License-Identifier: MIT-0
-pragma solidity >=0.7.3 <0.8.0;
+pragma solidity >=0.7.3 <0.9.0;
 pragma experimental ABIEncoderV2;
 
 import "@chainlink/contracts/src/v0.6/interfaces/AggregatorV3Interface.sol";
@@ -115,7 +115,6 @@ contract Grotto {
     }
 
     function processShares() public {
-        require(msg.sender == store.getHouse(), 'Only house can do that');
         if(store.getPendingGrottoMintingPayments() >= 10 ether) {
             uint256 payment = store.getPendingGrottoMintingPayments();
             uint256 toHouse = payment.mul(store.getHouseShare()).div(100);
