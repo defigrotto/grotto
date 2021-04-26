@@ -70,10 +70,10 @@ export class EthereumService {
     async processShares() {
         // TODO: Change to prod
         this.init('demo');
-        // let privateKey = process.env.HOUSE_PRIVATE_KEY;
-        // let wallet = new ethers.Wallet(privateKey, this.provider);
-        // let contractWithSigner = this.grottoContract.connect(wallet);
-        let tx = await this.grottoContract.processShares();
+        let privateKey = process.env.HOUSE_PRIVATE_KEY;
+        let wallet = new ethers.Wallet(privateKey, this.provider);
+        let contractWithSigner = this.grottoContract.connect(wallet);
+        let tx = await contractWithSigner.processShares();
         console.log(`Processing Shares: ${tx.hash}`);
         await tx.wait();
         return;
