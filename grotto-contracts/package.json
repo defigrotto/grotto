@@ -4,6 +4,11 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "flatten-grotto": "npx hardhat flatten contracts/Grotto.sol > flat/Grotto.sol",
+    "flatten-gov": "npx hardhat flatten contracts/Governance.sol > flat/Governance.sol",
+    "flatten-store": "npx hardhat flatten contracts/Storage.sol > flat/Storage.sol",
+    "flatten-token": "npx hardhat flatten contracts/GrottoToken.sol > flat/GrottoToken.sol",
+    "pre-deploy": "npm run flatten-grotto && npm run flatten-gov && npm run flatten-store && npm run flatten-token",
     "test": "npx hardhat test", 
     "test:sokol": "npx hardhat test --network sokol", 
     "compile": "npx hardhat compile",

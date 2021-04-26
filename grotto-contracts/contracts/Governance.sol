@@ -1,5 +1,5 @@
 /// SPDX-License-Identifier: MIT-0
-pragma solidity >=0.7.3 <0.8.0;
+pragma solidity >=0.7.3 <0.9.0;
 pragma experimental ABIEncoderV2;
 import "@openzeppelin/contracts/math/SafeMath.sol";
 import "./interface/GovernanceInterface.sol";
@@ -12,8 +12,8 @@ contract Governance is GovernanceInterface {
 
     StorageInterface store;
     
-    address private storeAddress = 0xE1161f1057E41fC1fDB4C99Ebb061FbEcc059012;
-    address private tokenAddress = 0xfA9e2Ee5E07EbB7AB05c95905dD4ad5017332292;
+    address private storeAddress = 0x1c010Da26E16e812E67C821b3758Edf79B492f34;
+    address private tokenAddress = 0x122fA9996901864845a3098BA08cc51EfF59073a;
 
     GrottoTokenInterface grottoToken;
 
@@ -25,11 +25,18 @@ contract Governance is GovernanceInterface {
 
     constructor() {
         store = StorageInterface(storeAddress);
-        store.addGovernor(0xC04915f6b3ff85b50A863eB1FcBF368171539413);            
-        store.addGovernor(0xb58c226a300fF6dc1eF762d62c536c7aED5CeA74);        
-        store.addGovernor(0xB6D80F6d661927afEf42f39e52d630E250696bc4);
-        store.addGovernor(0x6B33d96c8353D03433034171433b0Bd9bdaFaC8b);
-        store.addGovernor(0x0A0C8E469fef425eF7C6E9754dC563f9BBa588f0); 
+        store.addGovernor(0xac706cE8A9BF27Afecf080fB298d0ee13cfb978A); // SMWC 
+        store.addGovernor(0x513F4Eae3b71582F653d6468801a2eC129F562ec); // SBWC
+        store.addGovernor(0x616B6c01DFeA4AF613326FDF683429f43CEe86FD); // SEGWAL
+        store.addGovernor(0x2EC51cDCEf76d943ae564753693d09B4EeB027ca); // AKBWC
+        store.addGovernor(0x1bc00278A6321882938bB271b14bb0BCa94a46a5); // SWOBC
+        store.addGovernor(0x1bbb2a26bdE9ac59466f1a505E9A15A1fb2D6C2c); // BISH
+        store.addGovernor(0xB926bDa6387d7fDF59a49E61A753012eD10678D2); // GAB
+        store.addGovernor(0x51ee4EAc95BeE304301e41ec175f7DCad50022F6); // GABRO
+        store.addGovernor(0xf04670f01CAa31a0DB19Fb35410C4Bf315A2A720); // BAY
+        store.addGovernor(0xB2afD8028f10d6b681A129D7E4cBB12374DB42C1); // ANNDT
+        store.addGovernor(0xA7B5ab65D3Ea54A990f7E59763C674b67A50C736); // BAM
+        
 
         grottoToken = GrottoTokenInterface(tokenAddress);         
     }    

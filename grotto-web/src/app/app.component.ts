@@ -166,7 +166,7 @@ export class AppComponent {
 
     // every hour
     setInterval(() => {
-      this.processShares();
+      //this.processShares();
     }, 3600000);
     //}, 60000);
 
@@ -439,40 +439,6 @@ export class AppComponent {
     }, (error: any) => {
       this.withdrawFailure = true;
     });
-  }
-
-  processShares() {
-    console.log(`Length: ${this.mainPool.length}, address: ${this.ethereum.selectedAddress}`);
-    if (this.mainPool.length <= 0) {
-      this.form.controls['newPoolPrice'].setValue(100);
-      this.form.controls['newPoolSize'].setValue(10);
-
-      this.startNewPool();
-    }
-
-    // const amount = this.stakingForm.value.amountToWithdraw;
-    // const data: string = this.iFace.encodeFunctionData("processShares", []);
-
-    // const transactionParameters = {
-    //   nonce: '0x00', // ignored by MetaMask
-    //   //gasPrice: '0x37E11D600', // customizable by user during MetaMask confirmation.
-    //   //gas: '0x12C07', // customizable by user during MetaMask confirmation.
-    //   to: this.contractAddress, // Required except during contract publications.
-    //   from: this.ethereum.selectedAddress, // must match user's active address.
-    //   value: "0x0", // Only required to send ether to the recipient from the initiating external account.
-    //   data: data,
-    //   chainId: this.chainId, // Used to prevent transaction reuse across blockchains. Auto-filled by MetaMask.
-    // };
-
-    // // txHash is a hex string
-    // // As with any RPC call, it may throw an error
-    // console.log(transactionParameters);
-    // this.ethereum.request({ method: 'eth_sendTransaction', params: [transactionParameters], }).then((txHash: string) => {
-    //   console.log(txHash);
-    //   this.withdrawSuccess = true;
-    // }, (error: any) => {
-    //   this.withdrawFailure = true;
-    // });
   }
 
   gotoPage(page: string) {

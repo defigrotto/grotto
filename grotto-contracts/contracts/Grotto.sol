@@ -25,8 +25,8 @@ contract Grotto {
 
     StorageInterface store;
 
-    address private tokenAddress = 0xfA9e2Ee5E07EbB7AB05c95905dD4ad5017332292;
-    address private storeAddress = 0xE1161f1057E41fC1fDB4C99Ebb061FbEcc059012;
+    address private tokenAddress = 0x122fA9996901864845a3098BA08cc51EfF59073a;
+    address private storeAddress = 0x1c010Da26E16e812E67C821b3758Edf79B492f34;
 
     GrottoTokenInterface grottoToken;
 

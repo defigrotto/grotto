@@ -546,7 +546,7 @@
 
       <div class="d-flex">
         <div class="mr-auto p-2">
-          <h3>Main Pool</h3>
+          <!-- <h3>Menu</h3> -->
         </div>
         <div class="mr-auto p-2" *ngIf="poolDetails.length <= 0">
           <h3 style="color: wheat;">Loading...... Please wait.</h3>
@@ -563,21 +563,29 @@
             <img src="assets/img/github_light.png">
           </a>
           |
-          <a data-toggle="modal" data-target="#howItWorkdModal" href="#">
+          <a data-toggle="modal" data-target="#howItWorkdModal" href="#" data-toggle="tooltip" data-placement="top"
+            title="Help">
             <img src="assets/img/how_to.png" style="width: 32px;">
+          </a>
+          |
+          <a data-toggle="modal" data-target="#me" href="#" data-toggle="tooltip" data-placement="top"
+            title="Contact Us">
+            <img src="assets/img/code.png" style="width: 32px;">
+          </a>
+          |
+          <a href="https://drive.google.com/file/d/1z2VRhDan_PrOh65t-YTN2vbb9FenjSgZ/view?usp=sharing"
+            rel="noopener noreferrer" target="_blank" data-toggle="tooltip" data-placement="top"
+            title="Read the Whitepaper">
+            <img src="assets/img/whitepaper.png" style="width: 32px;">
           </a>
           |
           <a href="#" (click)="reload()">
             <img src="assets/img/reload.png" style="width: 32px;">
           </a>
-          |
-          <a data-toggle="modal" data-target="#me" href="#">
-            <img src="assets/img/code.png" style="width: 32px;">
-          </a>
         </div>
       </div>
 
-      <table class="table table-striped table-hover">
+      <!-- <table class="table table-striped table-hover">
         <thead class="thead-dark">
           <tr>
             <th scope="col">Pool ID</th>
@@ -607,13 +615,12 @@
             </td>
           </tr>
         </tbody>
-      </table>
-      <br />
+      </table> -->
       <hr />
 
       <div class="d-flex">
         <div class="mr-auto p-2">
-          <h3>User Defined Pools</h3>
+          <h3>Pools</h3>
         </div>
         <div class="p-2">
           <button class="button" type="button" data-toggle="modal" data-target="#startNewPoolModal"
@@ -962,17 +969,7 @@
           <p></p>
           <h3>How does it work?</h3><small>(Only if you're interested in the nitty gritty)</small>
           <p></p>
-          <p>There are two types of pools in Grotto</p>
-          <h3>Main Pool</h3>
-          <p>This is the pool that anyone can join at any time.</p>
-          <p>The main pool is reset after a winner is found, the main pool has a size is currently {{mainPoolSize}}.
-          </p>
-          <p>This means a winner is found after {{mainPoolSize}} people had joined the pool. A new pool is started
-            immediately</p>
-          <p>The main pool has a fixed price of {{mainPoolPrice | currency: 'USD'}} to join.</p>
-          <p>Grotto is a winner takes all pool.</p>
-          <p>The platform takes {{houseCut}}% of winnings.</p>
-          <h3>User Defined Pools</h3>
+          <h3>Pools</h3>
           <p>Anyone can start a pool at any time.</p>
           <p>The user starting the pool (pool creator) sets the price and the size of the pool</p>
           <p>Size: The number of people that can join the pool before a winner is found</p>
