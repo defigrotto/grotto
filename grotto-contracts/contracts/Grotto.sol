@@ -8,7 +8,6 @@ import "./interface/GovernanceInterface.sol";
 import "./interface/GrottoTokenInterface.sol";
 import "./interface/StorageInterface.sol";
 import "./lib/Data.sol";
-import "./Governance.sol";
 
 contract Grotto {
     event POOL_CREATED(bytes32, address);
@@ -25,8 +24,8 @@ contract Grotto {
 
     StorageInterface store;
 
-    address private tokenAddress = 0x122fA9996901864845a3098BA08cc51EfF59073a;
-    address private storeAddress = 0x1c010Da26E16e812E67C821b3758Edf79B492f34;
+    address private tokenAddress = 0x90a81fE6E78c12e090C8FFa48a24e8CFb61B6bD9;
+    address private storeAddress = 0xd7Af206e780D21aA9B1AD46DE96b5Dbe0c4a0C99;
 
     GrottoTokenInterface grottoToken;
 

@@ -16,7 +16,7 @@ module.exports = {
     }
   },
   paths: {
-    sources: "./flat",
+    sources: "./contracts",
     tests: "./test",
     cache: "./cache",
     artifacts: "./build"
@@ -34,3 +34,9 @@ module.exports = {
     }    
   },
 };
+
+
+// tokenAddress: 0x90a81fE6E78c12e090C8FFa48a24e8CFb61B6bD9
+// storeAddress: 0xd7Af206e780D21aA9B1AD46DE96b5Dbe0c4a0C99
+// govAddress: 0x3E869b3d1bbd3dEE0c9e01549E5A5fab632618a7
+// grottoAddress: 0x2781a9845919694B976A6425d10E735066ef9e0F

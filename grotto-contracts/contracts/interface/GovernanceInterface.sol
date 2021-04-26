@@ -1,8 +1,5 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.7.3 <0.9.0;
-pragma experimental ABIEncoderV2;
-
-import "../lib/Data.sol";
 
 interface GovernanceInterface {
     event NEW_GOVERNOR_ADDED(address);

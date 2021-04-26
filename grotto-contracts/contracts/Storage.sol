@@ -72,8 +72,8 @@ contract Storage is StorageInterface {
 
     address payable private house;
 
-    address private grotto = 0xF85aD54575C80a7e97178dC12C7797cFDA4Ca728;
-    address private gov = 0xFd8ec74b673647ab06654b6C95a2C739fe59326a;
+    address private grotto = 0x2781a9845919694B976A6425d10E735066ef9e0F;
+    address private gov = 0x3E869b3d1bbd3dEE0c9e01549E5A5fab632618a7;
 
     // Holds all the staked GROTTO tokens.
     address private stakingMaster = 0x1337133713371337133713371337133713371337;
