@@ -72,8 +72,9 @@ contract Storage is StorageInterface {
 
     address payable private house;
 
-    address private grotto = 0x2781a9845919694B976A6425d10E735066ef9e0F;
-    address private gov = 0x3E869b3d1bbd3dEE0c9e01549E5A5fab632618a7;
+    address private grotto = address(0);
+    address private gov = address(0);
+    address private parent = address(0);
 
     // Holds all the staked GROTTO tokens.
     address private stakingMaster = 0x1337133713371337133713371337133713371337;
@@ -292,14 +293,26 @@ contract Storage is StorageInterface {
         staked[currentStakePoolIndex][stakingMaster] = staked[currentStakePoolIndex][stakingMaster].add(stake);
     }
 
-    function setGrotto(address newGrotto) public override {
-        require(msg.sender == grotto, "Grotto: You can't do that");
-        grotto = newGrotto;
+    function setGrotto(address _grotto, address _parent) public override {
+        if (grotto == address(0) && parent == address(0)) {
+            parent = _parent;
+            grotto = _grotto;
+        } else if (parent == _parent) {
+            grotto = _grotto;
+        } else {
+            revert('OACDT');
+        }        
     }
 
-    function setGov(address payable newGov) public override {
-        require(msg.sender == gov, "Gov: You can't do that");
-        gov = newGov;
+    function setGov(address payable _gov, address _parent) public override {
+        if (gov == address(0) && parent == address(0)) {
+            parent = _parent;
+            gov = _gov;
+        } else if (parent == _parent) {
+            gov = _gov;
+        } else {
+            revert('OACDT');
+        }        
     }    
 
     function getPool(bytes32 poolId) public view override returns (Data.Pool memory) {

@@ -5,10 +5,22 @@ import "./interface/GrottoTokenInterface.sol";
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 
 contract GrottoToken is GrottoTokenInterface, ERC20("Grotto", "GROTTO") {
-    address private grotto = 0x2781a9845919694B976A6425d10E735066ef9e0F;
+    address private grotto = address(0);
+    address private parent = address(0);
     
     constructor() {
-    }    
+    }
+
+    function setGrotto(address _grotto, address _parent) public override {
+        if (grotto == address(0) && parent == address(0)) {
+            parent = _parent;
+            grotto = _grotto;
+        } else if (parent == _parent) {
+            grotto = _grotto;
+        } else {
+            revert('OACDT');
+        }
+    }
 
     function mintToken(address owner, uint256 amount) public override {
         require(grotto == msg.sender, 'Grotto: You can not do that');

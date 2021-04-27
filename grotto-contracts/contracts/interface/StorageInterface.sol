@@ -116,9 +116,9 @@ interface StorageInterface {
 
     function getVoted(string memory, address) external view returns (bool);
 
-    function setGrotto(address) external;
+    function setGrotto(address, address) external;
 
-    function setGov(address payable) external;
+    function setGov(address payable, address) external;
 
     function setGovernors(address payable[] memory) external;
 

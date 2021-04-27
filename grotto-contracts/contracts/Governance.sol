@@ -12,8 +12,8 @@ contract Governance is GovernanceInterface {
 
     StorageInterface store;
     
-    address private storeAddress = 0xd7Af206e780D21aA9B1AD46DE96b5Dbe0c4a0C99;
-    address private tokenAddress = 0x90a81fE6E78c12e090C8FFa48a24e8CFb61B6bD9;
+    address private storeAddress = address(0);
+    address private tokenAddress = address(0);
 
     GrottoTokenInterface grottoToken;
 
@@ -23,8 +23,13 @@ contract Governance is GovernanceInterface {
 
     uint256 constant private MAX_GOVERNORS = 21;
 
-    constructor() {
+    constructor(address _tokenAddress, address _storeAddress) {
+        tokenAddress = _tokenAddress;
+        storeAddress = _storeAddress;
+
         store = StorageInterface(storeAddress);
+        store.setGov(payable (address(this)), msg.sender);
+
         store.addGovernor(0xac706cE8A9BF27Afecf080fB298d0ee13cfb978A); // SMWC 
         store.addGovernor(0x513F4Eae3b71582F653d6468801a2eC129F562ec); // SBWC
         store.addGovernor(0x616B6c01DFeA4AF613326FDF683429f43CEe86FD); // SEGWAL
@@ -38,11 +43,7 @@ contract Governance is GovernanceInterface {
         store.addGovernor(0xA7B5ab65D3Ea54A990f7E59763C674b67A50C736); // BAM
         
 
-        grottoToken = GrottoTokenInterface(tokenAddress);         
-    }    
-
-    function updateGov(address payable newAddress) public {
-        store.setGov(newAddress);
+        grottoToken = GrottoTokenInterface(tokenAddress);   
     }    
 
     function votingDetails(string memory voteId) public  view returns (Data.Vote memory) {

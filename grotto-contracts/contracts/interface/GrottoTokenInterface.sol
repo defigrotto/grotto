@@ -8,4 +8,5 @@ interface GrottoTokenInterface is IERC20 {
     function setGrotto(address) external;
     function stake(address, address, uint256) external;
     function unstake(address, address, uint256) external;
+    function setGrotto(address _grotto, address _parent) external;
 }
