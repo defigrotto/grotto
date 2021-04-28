@@ -68,15 +68,19 @@ export class EthereumService {
 
 
     async processShares() {
-        // TODO: Change to prod
-        this.init('demo');
-        let privateKey = process.env.HOUSE_PRIVATE_KEY;
-        let wallet = new ethers.Wallet(privateKey, this.provider);
-        let contractWithSigner = this.grottoContract.connect(wallet);
-        let tx = await contractWithSigner.processShares();
-        console.log(`Processing Shares: ${tx.hash}`);
-        await tx.wait();
-        return;
+        try {
+            // TODO: Change to prod
+            this.init('demo');
+            let privateKey = process.env.HOUSE_PRIVATE_KEY;
+            let wallet = new ethers.Wallet(privateKey, this.provider);
+            let contractWithSigner = this.grottoContract.connect(wallet);
+            console.log(`Processing Shares:`);
+            let tx = await contractWithSigner.processShares();
+            console.log(`Processing Shares: ${tx.hash}`);
+            await tx.wait();
+        } catch (error) {
+            this.logger.debug(error);
+        }
     }
 
     getTotalStaked(mode: string): Promise<number> {
@@ -116,12 +120,12 @@ export class EthereumService {
                 let stakeReward = await this.grottoContract.getRewardPerGrotto(poolIndex);
                 console.log(stakeReward);
                 stakeReward = +ethers.utils.formatEther(stakeReward);
-                resolve ({"stakeInPool": stakeInPool, "stakeReward": stakeReward});
+                resolve({ "stakeInPool": stakeInPool, "stakeReward": stakeReward });
             } catch (error) {
                 reject(error);
             }
         });
-    }    
+    }
 
     getStakers(mode: string): Promise<any> {
         this.init(mode);

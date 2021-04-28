@@ -566,7 +566,7 @@ export class AppComponent {
           this.startPoolSuccess = true;
           this.flash(this.successsColor);
           this.getAllPools();
-        }, (error: any) => {
+        }, (_error: any) => {
           this.flash(this.failColor);
           this.startPoolFailure = true;
         });

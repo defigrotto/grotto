@@ -4,11 +4,10 @@ async function main() {
     let deployStore = false;
     let deployGov = false;
     let deployGrotto = true;
-    let mintTokens = true;
     let tokenAddress = "0xE8df890C7f3c464178f699a75e1b3EBf5788F137";
     let storeAddress = "0x105D525A6e9eA005868d77FA55730b759Fe76051";
     let govAddress = "0x16167CCB391Dbed3b68D1F4262fBB01164494ecD";
-    let grottoAddress = "0x90801416Fa4482F2bb35EcE122f2f7484D81b338";
+    let grottoAddress = "0x9A3EA0ACCd4d2671aB8807010294731b81A2632d";
     //"npm run deploy:grotto_token && npm run deploy:store &&  npm run deploy:gov &&  npm run deploy"    
 
     const [deployer] = await ethers.getSigners();
@@ -54,7 +53,7 @@ async function main() {
     if (deployGrotto === true) {
         const Grotto = await ethers.getContractFactory("Grotto");
         console.log("Deploying Grotto...");
-        const grotto = await Grotto.deploy(tokenAddress, storeAddress, mintTokens);
+        const grotto = await Grotto.deploy(tokenAddress, storeAddress);
         await grotto.deployed();
         console.log("Grotto deployed to:", grotto.address);
         grottoAddress = grotto.address;
