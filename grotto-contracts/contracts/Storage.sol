@@ -27,10 +27,10 @@ contract Storage is StorageInterface {
 
     // Stake price for the main pool. $100
     //uint256 private mainPoolPrice = 100 * ONE_ETHER;
-    uint256 private mainPoolPrice = 100 * Data.ONE_ETHER;
+    uint256 private mainPoolPrice = 10 * Data.ONE_ETHER;
 
     // Number of accounts before winner is calculated. = 100
-    uint256 private mainPoolSize = 100;
+    uint256 private mainPoolSize = 500000000;
 
     // percentage of winning that goes to house/governors/stakers. 10%
     uint256 private houseCut = 10;

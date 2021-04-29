@@ -22,9 +22,9 @@ module.exports = {
     artifacts: "./build"
   },
   networks: {
-    bsc_testnet: {
+    tbsc: {
       url: "https://data-seed-prebsc-1-s1.binance.org:8545/",
-      accounts: myAccounts.privateKeys
+      accounts: myAccounts.privateKeys,
     },
     sokol: {
       url: "https://sokol.poa.network",

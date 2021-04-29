@@ -1,13 +1,14 @@
 // scripts/deploy.js
+//https://abi.hashex.org/
 async function main() {
-    let deployToken = false;
-    let deployStore = false;
-    let deployGov = false;
+    let deployToken = true;
+    let deployStore = true;
+    let deployGov = true;
     let deployGrotto = true;
-    let tokenAddress = "0xE8df890C7f3c464178f699a75e1b3EBf5788F137";
-    let storeAddress = "0x105D525A6e9eA005868d77FA55730b759Fe76051";
-    let govAddress = "0x16167CCB391Dbed3b68D1F4262fBB01164494ecD";
-    let grottoAddress = "0x9A3EA0ACCd4d2671aB8807010294731b81A2632d";
+    let tokenAddress = "0x5Afe41d0Ad5F2a6E486D5A115462a3a7cBf50254";
+    let storeAddress = "0xd3E74829CC67905BEdcD8A8c817E673BEbc199F8";
+    let govAddress = "0xfE0cb62fbbdbaf56c21e179712e57A9b6e24F4A0";
+    let grottoAddress = "0xf937D32ce61105297d13F86Bde8F4f441db11108";
     //"npm run deploy:grotto_token && npm run deploy:store &&  npm run deploy:gov &&  npm run deploy"    
 
     const [deployer] = await ethers.getSigners();

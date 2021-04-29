@@ -80,9 +80,9 @@ export class AppComponent {
   houseCut!: number;
   houseCutNewTokens!: number;
   mode = "demo";
-  chainId = 77;
-  explorer = "https://blockscout.com/poa/sokol/address";
-  currency = 'ETH';
+  chainId = 97;
+  explorer = "https://testnet.bscscan.com";
+  currency = 'BNB';
 
   grottoTokenAddress = "";
 
@@ -94,7 +94,7 @@ export class AppComponent {
 
   grottoTokenBalance = 0;
   stake = 0;
-  stakers: any;
+  stakers: string[] = [];
   totalStaked = 0;
 
   stakingSuccess = false;
@@ -317,7 +317,12 @@ export class AppComponent {
       this.appService.getStake(this.ethereum.selectedAddress, this.mode).pipe(first()).subscribe(vd => {
         this.stake = vd.data;
         this.appService.getStakers(this.mode).pipe(first()).subscribe(vd => {
-          this.stakers = vd.data;
+          for(let  i = 0; i < vd.data.length; i++) {
+            if(vd.data[i] !== "0x0000000000000000000000000000000000000000") {
+              this.stakers.push(vd.data[i] + "");
+            }
+          }          
+          console.log(this.stakers);
           this.appService.getTotalStaked(this.mode).pipe(first()).subscribe(vd => {
             this.totalStaked = vd.data;
 
@@ -642,7 +647,7 @@ export class AppComponent {
       this.mode = newMode;
       this.currency = newMode === 'prod' ? 'BNB' : 'ETH';
       this.chainId = newMode === 'prod' ? 56 : 77;
-      this.explorer = newMode === 'prod' ? 'https://bscscan.com/address' : 'https://blockscout.com/poa/sokol/address'
+      this.explorer = newMode === 'prod' ? 'https://bscscan.com/address' : 'https://testnet.bscscan.com'
       this.reload();
     }
   }
