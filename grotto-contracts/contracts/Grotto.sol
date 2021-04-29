@@ -172,6 +172,10 @@ contract Grotto {
             "You can't participate in this pool."
         );
 
+        if(pool.isInMainPool && store.addressIsGovernor(msg.sender)) {
+            revert('Governors can not participate in main pool');
+        }
+
         // calculate dollar value
         uint256 latestUsdPrice = getLatestPrice();
         uint256 usdtValue = latestUsdPrice.mul(value);

@@ -5,10 +5,10 @@ async function main() {
     let deployStore = true;
     let deployGov = true;
     let deployGrotto = true;
-    let tokenAddress = "0x5Afe41d0Ad5F2a6E486D5A115462a3a7cBf50254";
-    let storeAddress = "0xd3E74829CC67905BEdcD8A8c817E673BEbc199F8";
-    let govAddress = "0xfE0cb62fbbdbaf56c21e179712e57A9b6e24F4A0";
-    let grottoAddress = "0xf937D32ce61105297d13F86Bde8F4f441db11108";
+    let tokenAddress = "0x6112139ddb5B04D6Ff7472FC56770A0b10df7E39";
+    let storeAddress = "0xFff6E010dAa16BD80d14F8C11cD3ce29e4Bb3604";
+    let govAddress = "0x13B71D7e07905aDEfF5f24C850516a9ed7E5973A";
+    let grottoAddress = "0xC5a076D953cA0480135a2337E8e6ff5A7F286fb6";
     //"npm run deploy:grotto_token && npm run deploy:store &&  npm run deploy:gov &&  npm run deploy"    
 
     const [deployer] = await ethers.getSigners();
